@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-brand-charcoal: #111111;
+  --color-brand-cream: #F8F5F2;
+  --color-brand-gold: #D4AF37;
+  --color-brand-gold-dark: #B5932D;
+  --color-brand-card: #FFFFFF;
+  --color-brand-text-muted: #555555;
+  --color-brand-border: #E8E5E0;
+
+  --font-serif: "Playfair Display", Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: "Inter", "Poppins", system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", sans-serif;
+
+  --animate-fade-in-up: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-in-right: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+
+    to {
+      transform: translateX(0);
+    }
+  }
+}
+
+/* Custom base styles */
+@layer base {
+  body {
+    background-color: #F8F5F2;
+    color: #111111;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  p {
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  @media (min-width: 640px) {
+    p {
+      font-size: 1.0625rem;
+    }
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  /* Hide standard scrollbars but make nice custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #F8F5F2;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #D8D5D0;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #D4AF37;
+  }
+}
+
+/* Glassmorphism helpers for light themes */
+.glass {
+  background: rgba(248, 245, 242, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(17, 17, 17, 0.05);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Custom text stroke utilities */
+.text-stroke-gold {
+  -webkit-text-stroke: 1px #D4AF37;
+  color: transparent;
+}
+
+.text-stroke-charcoal {
+  -webkit-text-stroke: 1px #111111;
+  color: transparent;
+}
