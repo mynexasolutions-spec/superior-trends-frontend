@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/useAuthStore';
 import { useOrderSocket } from './hooks/useOrderSocket';
 import { CATALOG_GC_MS, CATALOG_STALE_MS } from './lib/queryConfig';
+import { LanguageProvider } from './context/LanguageContext';
 
 const Home = lazy(() => import('./pages/Home').then((m) => ({ default: m.Home })));
 const Shop = lazy(() => import('./pages/Shop').then((m) => ({ default: m.Shop })));
@@ -61,47 +62,49 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AppBootstrap />
       <ReactLenis root>
-        <ShopProvider>
-          <ToastProvider>
-          <Router>
-            <div className="flex flex-col min-h-screen bg-brand-cream text-brand-charcoal ">
-              <StorefrontShell>
-                <main className="flex-grow w-full min-w-0 ">
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/shop" element={<Shop />} />
-                      <Route path="/product/:id" element={<ProductDetail />} />
-                      <Route path="/wishlist" element={<Wishlist />} />
-                      <Route path="/checkout" element={<Checkout />} />
-                      <Route path="/orders" element={<MyOrders />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/blogs" element={<Blogs />} />
-                      <Route path="/blogs/:slug" element={<BlogDetail />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/auth" element={<Auth />} />
+        <LanguageProvider>
+          <ShopProvider>
+            <ToastProvider>
+            <Router>
+              <div className="flex flex-col min-h-screen bg-brand-cream text-brand-charcoal ">
+                <StorefrontShell>
+                  <main className="flex-grow w-full min-w-0 ">
+                    <Suspense fallback={<PageLoader />}>
+                      <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/shop" element={<Shop />} />
+                        <Route path="/product/:id" element={<ProductDetail />} />
+                        <Route path="/wishlist" element={<Wishlist />} />
+                        <Route path="/checkout" element={<Checkout />} />
+                        <Route path="/orders" element={<MyOrders />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/blogs" element={<Blogs />} />
+                        <Route path="/blogs/:slug" element={<BlogDetail />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/auth" element={<Auth />} />
 
-                      <Route path="/admin" element={<AdminLayout />}>
-                        <Route index element={<AdminDashboard />} />
-                        <Route path="products" element={<AdminProducts />} />
-                        <Route path="categories" element={<AdminCategories />} />
-                        <Route path="sections" element={<AdminSections />} />
-                        <Route path="orders" element={<AdminOrders />} />
-                        <Route path="reviews" element={<AdminReviews />} />
-                        <Route path="blogs" element={<AdminBlogs />} />
-                        <Route path="blogs/categories" element={<AdminBlogCategories />} />
-                        <Route path="coupons" element={<AdminCoupons />} />
-                        <Route path="settings" element={<AdminSettings />} />
-                        <Route path="contact" element={<AdminContact />} />
-                      </Route>
-                    </Routes>
-                  </Suspense>
-                </main>
-              </StorefrontShell>
-            </div>
-          </Router>
-          </ToastProvider>
-        </ShopProvider>
+                        <Route path="/admin" element={<AdminLayout />}>
+                          <Route index element={<AdminDashboard />} />
+                          <Route path="products" element={<AdminProducts />} />
+                          <Route path="categories" element={<AdminCategories />} />
+                          <Route path="sections" element={<AdminSections />} />
+                          <Route path="orders" element={<AdminOrders />} />
+                          <Route path="reviews" element={<AdminReviews />} />
+                          <Route path="blogs" element={<AdminBlogs />} />
+                          <Route path="blogs/categories" element={<AdminBlogCategories />} />
+                          <Route path="coupons" element={<AdminCoupons />} />
+                          <Route path="settings" element={<AdminSettings />} />
+                          <Route path="contact" element={<AdminContact />} />
+                        </Route>
+                      </Routes>
+                    </Suspense>
+                  </main>
+                </StorefrontShell>
+              </div>
+            </Router>
+            </ToastProvider>
+          </ShopProvider>
+        </LanguageProvider>
       </ReactLenis>
     </QueryClientProvider>
   );

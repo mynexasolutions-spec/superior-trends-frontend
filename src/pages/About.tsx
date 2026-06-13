@@ -1,54 +1,57 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Heart, Leaf, Award, Globe, ShieldCheck, TrendingUp, ChevronRight } from 'lucide-react';
+import { Sparkles, Heart, Leaf, Award, Globe, ShieldCheck, TrendingUp, ChevronRight, ChevronLeft } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { PageShell } from '../components/PageShell';
-
-const values = [
-  {
-    icon: Sparkles,
-    title: 'Curated Quality',
-    desc: 'Every piece is selected for fabric, fit, and finish — from everyday wear to festive collections.',
-  },
-  {
-    icon: Heart,
-    title: 'Al Alisha Collection',
-    desc: 'Our signature line blends contemporary silhouettes with timeless South Asian craftsmanship.',
-  },
-  {
-    icon: Leaf,
-    title: 'Thoughtful Sourcing',
-    desc: 'We partner with trusted makers who share our commitment to ethical production and lasting style.',
-  },
-  {
-    icon: Award,
-    title: 'Superior Service',
-    desc: 'Pan-India delivery, secure checkout, and dedicated support for every order.',
-  },
-];
-
-const perks = [
-  'Women, Men & Accessories under one premium destination',
-  'Secure checkout, order tracking & dedicated support',
-  'New arrivals and festive edits every season',
-  'Free shipping on orders over ﷼999 across Oman',
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export const About: React.FC = () => {
+  const { language, t, isRtl } = useLanguage();
+
+  const values = [
+    {
+      icon: Sparkles,
+      title: language === 'ar' ? 'جودة منسقة' : 'Curated Quality',
+      desc: language === 'ar' ? 'يتم اختيار كل قطعة بعناية من حيث القماش والقصة واللمسات النهائية — للملابس اليومية والمناسبات.' : 'Every piece is selected for fabric, fit, and finish — from everyday wear to festive collections.',
+    },
+    {
+      icon: Heart,
+      title: language === 'ar' ? 'مجموعة العليشة' : 'Al Alisha Collection',
+      desc: language === 'ar' ? 'تمزج مجموعتنا المميزة بين التصاميم المعاصرة والحرفية التقليدية المذهلة.' : 'Our signature line blends contemporary silhouettes with timeless South Asian craftsmanship.',
+    },
+    {
+      icon: Leaf,
+      title: language === 'ar' ? 'مصادر مدروسة' : 'Thoughtful Sourcing',
+      desc: language === 'ar' ? 'نحن نتشارك مع صناع موثوقين يشاركوننا التزامنا بالإنتاج الأخلاقي والأسلوب المستدام.' : 'We partner with trusted makers who share our commitment to ethical production and lasting style.',
+    },
+    {
+      icon: Award,
+      title: language === 'ar' ? 'خدمة متميزة' : 'Superior Service',
+      desc: language === 'ar' ? 'توصيل سريع، دفع آمن، ودعم مخصص لكل طلب.' : 'Pan-India delivery, secure checkout, and dedicated support for every order.',
+    },
+  ];
+
+  const perks = [
+    language === 'ar' ? 'ملابس النساء والرجال والإكسسوارات في وجهة واحدة فاخرة' : 'Women, Men & Accessories under one premium destination',
+    language === 'ar' ? 'دفع آمن، تتبع الطلبات ودعم مخصص' : 'Secure checkout, order tracking & dedicated support',
+    language === 'ar' ? 'وصل حديثاً ومجموعات حصرية لكل موسم' : 'New arrivals and festive edits every season',
+    language === 'ar' ? 'شحن مجاني للطلبات التي تزيد عن ﷼٥٠ في جميع أنحاء سلطنة عمان' : 'Free shipping on orders over ﷼50 across Oman',
+  ];
+
   return (
     <PageShell className="bg-brand-cream text-brand-charcoal font-sans overflow-hidden">
 
       {/* ── Page Header ─────────────────────────────────── */}
       <PageHeader
-        eyebrow="Our Story"
-        title="About Superior Trends"
-        subtitle="Superior Trends — Al Alisha Collection brings premium ethnic and western wear for women and men, with accessories that complete every look."
+        eyebrow={language === 'ar' ? 'قصتنا' : 'Our Story'}
+        title={language === 'ar' ? 'عن سوبريور تريندز' : 'About Superior Trends'}
+        subtitle={language === 'ar' ? 'تقدم سوبريور تريندز — مجموعة العليشة ملابس تقليدية وغربية فاخرة للنساء والرجال، بالإضافة إلى الإكسسوارات التي تكمل كل إطلالة.' : 'Superior Trends — Al Alisha Collection brings premium ethnic and western wear for women and men, with accessories that complete every look.'}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 space-y-16 sm:space-y-28">
 
         {/* ── Hero row: brand panel + who we are ─────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center text-left rtl:text-right">
 
           {/* Left: crimson brand card */}
           <div className="lg:col-span-5 relative min-h-[380px] sm:min-h-[460px] lg:min-h-[540px] rounded-3xl overflow-hidden shadow-2xl shadow-[#8b1a2a]/20 border border-[#d4af37]/30 group">
@@ -72,14 +75,14 @@ export const About: React.FC = () => {
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8 sm:px-12 py-12 relative z-10">
               <span className="text-[10px] tracking-[0.4em] uppercase text-[#d4af37] font-black mb-6 block drop-shadow-sm">
-                Est. Superior Trends
+                {language === 'ar' ? 'سوبريور تريندز' : 'Est. Superior Trends'}
               </span>
               <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.6rem] font-black uppercase leading-tight text-white max-w-sm tracking-tight">
-                Fashion That Earns Confidence
+                {language === 'ar' ? 'أزياء تمنحك الثقة' : 'Fashion That Earns Confidence'}
               </h2>
               <div className="w-16 h-[2px] bg-gradient-to-r from-transparent via-[#d4af37] to-transparent mt-8 mb-6" />
               <p className="text-sm sm:text-base text-white/80 leading-relaxed max-w-[290px] font-medium">
-                Curated collections, transparent pricing in OMR, and a boutique experience at scale.
+                {language === 'ar' ? 'مجموعات منسقة، أسعار شفافة بالريال العماني، وتجربة تسوق بوتيك مميزة.' : 'Curated collections, transparent pricing in OMR, and a boutique experience at scale.'}
               </p>
             </div>
           </div>
@@ -88,32 +91,29 @@ export const About: React.FC = () => {
           <div className="lg:col-span-7 flex flex-col justify-center gap-7">
             <div className="space-y-2.5">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#8b1a2a] font-extrabold block">
-                Heritage & Vision
+                {language === 'ar' ? 'الإرث والرؤية' : 'Heritage & Vision'}
               </span>
               <h2 className="font-display text-3xl sm:text-4xl font-black uppercase text-brand-charcoal tracking-tight">
-                Who We Are
+                {language === 'ar' ? 'من نحن' : 'Who We Are'}
               </h2>
               <div className="w-16 h-[3px] bg-gradient-to-r from-[#8b1a2a] to-[#d4af37] rounded-full" />
             </div>
 
             <div className="space-y-5 text-sm sm:text-[15px] text-brand-text-muted leading-relaxed font-medium">
               <p>
-                Founded with a vision to make quality fashion accessible, Superior Trends offers a carefully
-                edited catalog — from kurtas and sarees to denim, dresses, and jewellery. Each season we
-                refresh our collections while keeping the craftsmanship our customers trust.
+                {language === 'ar' ? 'تأسست سوبريور تريندز برؤية تهدف إلى جعل الأزياء الراقية والنوعية في متناول الجميع، حيث نقدم تشكيلة مختارة بعناية — من الملابس التقليدية إلى العصرية والإكسسوارات التي تكمل مظهرك بالكامل.' : 'Founded with a vision to make quality fashion accessible, Superior Trends offers a carefully edited catalog — from kurtas and sarees to denim, dresses, and jewellery. Each season we refresh our collections while keeping the craftsmanship our customers trust.'}
               </p>
               <p>
-                Whether you shop for daily comfort or celebration wear, we focus on fabrics that feel good,
-                fits that flatter, and prices in OMR that respect your budget.
+                {language === 'ar' ? 'سواء كنت تتسوق للراحة اليومية أو للمناسبات الخاصة والاحتفالات، فإننا نركز على الأقمشة المريحة، والقصات المناسبة، والأسعار بالريال العماني التي تناسب ميزانيتك تماماً.' : 'Whether you shop for daily comfort or celebration wear, we focus on fabrics that feel good, fits that flatter, and prices in OMR that respect your budget.'}
               </p>
             </div>
 
             {/* Metrics cards */}
             <div className="grid grid-cols-3 gap-4 pt-2">
               {[
-                { number: '10K+', label: 'Happy Customers' },
-                { number: '50+', label: 'Skilled Artisans' },
-                { number: '100%', label: 'Ethical Weaves' },
+                { number: '10K+', label: language === 'ar' ? 'العملاء السعداء' : 'Happy Customers' },
+                { number: '50+', label: language === 'ar' ? 'حرفي ماهر' : 'Skilled Artisans' },
+                { number: '100%', label: language === 'ar' ? 'نسيج أخلاقي' : 'Ethical Weaves' },
               ].map(({ number, label }) => (
                 <div key={label} className="bg-white border border-brand-border/20 rounded-2xl p-4 text-center shadow-sm hover:shadow-md transition-all duration-300">
                   <p className="font-display text-xl sm:text-2xl font-black text-[#8b1a2a]">{number}</p>
@@ -125,9 +125,9 @@ export const About: React.FC = () => {
             {/* Core Trust Row */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-brand-border/20">
               {[
-                { icon: Globe, label: 'Pan-India Reach' },
-                { icon: ShieldCheck, label: 'Secure Checkout' },
-                { icon: TrendingUp, label: 'Growing with Purpose' },
+                { icon: Globe, label: language === 'ar' ? 'تغطية شاملة' : 'Global Reach' },
+                { icon: ShieldCheck, label: language === 'ar' ? 'دفع آمن' : 'Secure Checkout' },
+                { icon: TrendingUp, label: language === 'ar' ? 'نمو هادف ومستمر' : 'Growing with Purpose' },
               ].map(({ icon: Icon, label }) => (
                 <div
                   key={label}
@@ -144,13 +144,13 @@ export const About: React.FC = () => {
         </div>
 
         {/* ── Why us + CTA cards ──────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch text-left rtl:text-right">
 
           {/* Why shop with us */}
           <div className="bg-white border border-brand-border/20 rounded-3xl p-8 sm:p-10 flex flex-col gap-6 shadow-sm hover:shadow-md transition-shadow duration-300">
             <div>
               <h2 className="font-display text-xl sm:text-2xl font-black uppercase tracking-tight text-[#8b1a2a]">
-                Why Shop With Us
+                {language === 'ar' ? 'لماذا تتسوق معنا' : 'Why Shop With Us'}
               </h2>
               <div className="w-12 h-[2.5px] bg-[#d4af37] mt-3.5 rounded-full" />
             </div>
@@ -187,8 +187,7 @@ export const About: React.FC = () => {
 
             <div className="relative z-10">
               <p className="text-base sm:text-[17px] text-white/85 leading-relaxed font-semibold max-w-sm">
-                Explore our full studio catalog — filter by category, size, and colour to find your next
-                favorite high-craftsmanship statement piece.
+                {language === 'ar' ? 'اكتشف كتالوج الاستوديو الكامل الخاص بنا — قم بالتصفية حسب الفئة والمقاس واللون للعثور على قطعتك المفضلة التالية.' : 'Explore our full studio catalog — filter by category, size, and colour to find your next favorite high-craftsmanship statement piece.'}
               </p>
             </div>
 
@@ -196,8 +195,8 @@ export const About: React.FC = () => {
               to="/shop"
               className="relative z-10 mt-10 self-start inline-flex items-center gap-2.5 bg-[#d4af37] text-brand-charcoal px-8 py-4 text-[11px] font-black uppercase tracking-[0.22em] rounded-xl hover:bg-[#ebd056] hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shadow-lg shadow-black/15 cursor-pointer"
             >
-              Explore the Shop
-              <ChevronRight size={14} className="shrink-0" />
+              {language === 'ar' ? 'استكشف المتجر' : 'Explore the Shop'}
+              {isRtl ? <ChevronLeft size={14} className="shrink-0" /> : <ChevronRight size={14} className="shrink-0" />}
             </Link>
           </div>
         </div>
@@ -206,15 +205,15 @@ export const About: React.FC = () => {
         <section className="space-y-10">
           <div className="text-center">
             <span className="text-[10px] tracking-[0.38em] uppercase text-[#8b1a2a] font-black block mb-3">
-              Our Pillars
+              {language === 'ar' ? 'أركاننا' : 'Our Pillars'}
             </span>
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-black uppercase text-brand-charcoal tracking-tight">
-              What Sets Us Apart
+              {language === 'ar' ? 'ما يميزنا' : 'What Sets Us Apart'}
             </h2>
             <div className="w-16 h-[3px] bg-gradient-to-r from-[#8b1a2a] to-[#d4af37] mx-auto mt-4 rounded-full" />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 sm:gap-6 text-left rtl:text-right">
             {values.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
@@ -250,13 +249,16 @@ export const About: React.FC = () => {
 
           <div className="relative z-10 max-w-3xl mx-auto space-y-8">
             <p className="text-lg sm:text-xl md:text-2xl text-brand-charcoal font-display font-black leading-snug tracking-tight uppercase">
-              &ldquo;We are not just selling clothes — we are building a brand customers trust for quality,
-              consistency, and care on every order.&rdquo;
+              {language === 'ar' ? (
+                '«نحن لا نبيع الملابس فحسب — بل نبني علامة تجارية يثق بها عملائنا للجودة والاتساق والاهتمام في كل طلب.»'
+              ) : (
+                '“We are not just selling clothes — we are building a brand customers trust for quality, consistency, and care on every order.”'
+              )}
             </p>
             <div className="flex items-center justify-center gap-4">
               <div className="h-px w-8 bg-[#8b1a2a]/25" />
               <footer className="not-italic text-[10px] sm:text-[11px] uppercase tracking-[0.28em] text-[#8b1a2a] font-black">
-                Superior Trends Leadership
+                {language === 'ar' ? 'إدارة سوبريور تريندز' : 'Superior Trends Leadership'}
               </footer>
               <div className="h-px w-8 bg-[#8b1a2a]/25" />
             </div>

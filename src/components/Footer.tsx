@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 // ── Social icons ──────────────────────────────────────────────────────────────
 
@@ -30,30 +31,29 @@ const socials = [
   { label: 'X',         href: '#', icon: <XIcon /> },
 ];
 
-// ── Link columns ──────────────────────────────────────────────────────────────
-
-const shopLinks = [
-  { label: "Women's Wear",    to: '/shop?category=women' },
-  { label: "Men's Wear",      to: '/shop?category=men' },
-  { label: 'Accessories',     to: '/shop?category=accessories' },
-  { label: 'All Collections', to: '/shop' },
-  { label: 'Style Journal',   to: '/blogs' },
-];
-
-const careLinks = [
-  { label: 'Shipping & Returns',   href: '#' },
-  { label: 'Sizing Guide',         href: '#' },
-  { label: 'Sustainability Policy', href: '#' },
-  { label: 'About Us',             to: '/about' },
-  { label: 'Contact Support',      to: '/contact' },
-];
-
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const Footer: React.FC = () => {
   const [email, setEmail]         = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const currentYear               = new Date().getFullYear();
+  const { language, t }           = useLanguage();
+
+  const shopLinks = [
+    { label: language === 'ar' ? "ملابس نسائية" : "Women's Wear", to: '/shop?category=women' },
+    { label: language === 'ar' ? "ملابس رجالية" : "Men's Wear", to: '/shop?category=men' },
+    { label: language === 'ar' ? "إكسسوارات" : "Accessories", to: '/shop?category=accessories' },
+    { label: language === 'ar' ? "جميع المجموعات" : "All Collections", to: '/shop' },
+    { label: language === 'ar' ? "مجلة الأناقة" : "Style Journal", to: '/blogs' },
+  ];
+
+  const careLinks = [
+    { label: language === 'ar' ? "الشحن والإرجاع" : "Shipping & Returns", href: '#' },
+    { label: language === 'ar' ? "دليل المقاسات" : "Sizing Guide", href: '#' },
+    { label: language === 'ar' ? "سياسة الاستدامة" : "Sustainability Policy", href: '#' },
+    { label: t('common.aboutUs'), to: '/about' },
+    { label: language === 'ar' ? "دعم العملاء" : "Contact Support", to: '/contact' },
+  ];
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +74,7 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-14">
 
           {/* Brand column — wider */}
-          <div className="md:col-span-4 space-y-7">
+          <div className="md:col-span-4 space-y-7 text-left">
             <Link to="/" className="inline-block group">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8b1a2a] to-[#d4af37] flex items-center justify-center shadow-lg shrink-0">
@@ -82,17 +82,17 @@ export const Footer: React.FC = () => {
                 </div>
                 <div className="flex flex-col leading-none">
                   <span className="font-display font-black text-white text-base uppercase tracking-[0.18em] group-hover:text-[#d4af37] transition-colors duration-200">
-                    Superior Trends
+                    {t('common.superiorTrends')}
                   </span>
                   <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#d4af37]/70 mt-0.5">
-                    Al Alisha Collection
+                    {t('common.alAlishaCollection')}
                   </span>
                 </div>
               </div>
             </Link>
 
             <p className="text-white/35 leading-relaxed text-[13px] max-w-[260px]">
-              Meticulously crafted wardrobe essentials — premium, sustainable textiles curated to withstand the test of time.
+              {t('footer.tagline')}
             </p>
 
             {/* Socials */}
@@ -116,9 +116,9 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Shop column */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 text-left">
             <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-white mb-5">
-              Shop
+              {t('footer.quickLinks')}
             </h3>
             <ul className="space-y-3">
               {shopLinks.map(({ label, to }) => (
@@ -135,9 +135,9 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Customer care column */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 text-left">
             <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-white mb-5">
-              Support
+              {t('footer.customerCare')}
             </h3>
             <ul className="space-y-3">
               {careLinks.map(({ label, href, to }) => (
@@ -163,12 +163,12 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Newsletter column */}
-          <div className="md:col-span-4">
+          <div className="md:col-span-4 text-left">
             <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-white mb-5">
-              Newsletter
+              {t('footer.newsletter')}
             </h3>
             <p className="text-[13px] text-white/35 leading-relaxed mb-6 max-w-[240px]">
-              Early collection access, editorial updates, and members-only offers — direct to your inbox.
+              {t('footer.newsletterDesc')}
             </p>
 
             <form onSubmit={handleSubscribe} className="space-y-3">
@@ -177,7 +177,7 @@ export const Footer: React.FC = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
+                  placeholder={t('footer.newsletterPlaceholder')}
                   required
                   className="
                     w-full bg-white/5 border border-white/10
@@ -199,13 +199,13 @@ export const Footer: React.FC = () => {
                     hover:scale-105 active:scale-95 cursor-pointer
                   "
                 >
-                  {subscribed ? <Check size={13} strokeWidth={2.5} /> : <ArrowRight size={13} />}
+                  {subscribed ? <Check size={13} strokeWidth={2.5} /> : <ArrowRight size={13} className="rtl:rotate-180" />}
                 </button>
               </div>
 
               {subscribed && (
                 <p className="text-[#d4af37] text-[11px] font-semibold tracking-wider flex items-center gap-1.5">
-                  <Check size={11} /> Added to our exclusive list.
+                  <Check size={11} /> {t('footer.subscribed')}
                 </p>
               )}
             </form>
@@ -218,12 +218,12 @@ export const Footer: React.FC = () => {
         {/* ── Legal bar ── */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-white/20">
           <p className="tracking-wider">
-            &copy; {currentYear} Superior Trends · Al Alisha Collection. All rights reserved.
+            &copy; {currentYear} {t('common.superiorTrends')} · {t('common.alAlishaCollection')}. {t('footer.allRightsReserved')}
           </p>
           <div className="flex items-center gap-5">
-            <a href="#" className="hover:text-[#d4af37] transition-colors duration-150">Privacy Policy</a>
+            <a href="#" className="hover:text-[#d4af37] transition-colors duration-150">{t('footer.privacyPolicy')}</a>
             <span className="opacity-30">·</span>
-            <a href="#" className="hover:text-[#d4af37] transition-colors duration-150">Terms of Service</a>
+            <a href="#" className="hover:text-[#d4af37] transition-colors duration-150">{t('footer.termsOfService')}</a>
           </div>
         </div>
       </div>

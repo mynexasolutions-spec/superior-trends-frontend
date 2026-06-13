@@ -15,6 +15,8 @@ import {
 import { PageHeader } from '../components/PageHeader';
 import { PageShell } from '../components/PageShell';
 import { ProductGridSkeleton, ShopFiltersSkeleton } from '../components/ui/skeleton';
+import { useLanguage } from '../context/LanguageContext';
+import { translateDynamic } from '../locales/dynamicTranslations';
 
 type SortOption = 'featured' | 'price-low' | 'price-high' | 'rating';
 
@@ -55,6 +57,7 @@ function ShopFiltersPanel({
   onToggleColor,
   onPriceRangeChange,
 }: ShopFiltersPanelProps) {
+  const { language, t } = useLanguage();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     categories: true,
     sections: false,
@@ -94,7 +97,7 @@ function ShopFiltersPanel({
     <button
       type="button"
       onClick={() => toggleSection(id)}
-      className="w-full flex items-center justify-between py-3.5 group text-left border-b border-neutral-100/60"
+      className="w-full flex items-center justify-between py-3.5 group text-left rtl:text-right border-b border-neutral-100/60"
     >
       <span className="flex items-center gap-2">
         <span className="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-800 group-hover:text-[#8b1a2a] transition-all duration-200">
@@ -124,7 +127,7 @@ function ShopFiltersPanel({
       <div className="bg-neutral-50/40 rounded-xl p-3.5 border border-neutral-100/60">
         <FilterHeader
           id="categories"
-          label="Category"
+          label={language === 'ar' ? 'الفئات' : 'Category'}
           count={selectedCategory !== 'all' ? 1 : undefined}
         />
         <AnimatePresence initial={false}>
@@ -139,7 +142,7 @@ function ShopFiltersPanel({
               <div className="pt-3 pb-1 space-y-1">
                 {/* All Products */}
                 <CategoryBtn
-                  label="All Products"
+                  label={t('common.allGarments')}
                   active={selectedCategory === 'all'}
                   onClick={() => onCategoryChange('all')}
                 />
@@ -148,7 +151,7 @@ function ShopFiltersPanel({
                   <div key={parent.id} className="space-y-0.5">
                     <div className="flex items-center gap-1">
                       <CategoryBtn
-                        label={parent.name}
+                        label={translateDynamic(parent.name, language)}
                         active={selectedCategory === parent.slug}
                         onClick={() => onCategoryChange(parent.slug)}
                         className="flex-1"
@@ -179,11 +182,11 @@ function ShopFiltersPanel({
                             transition={{ duration: 0.18, ease: 'easeOut' }}
                             className="overflow-hidden"
                           >
-                            <div className="ml-4 pl-3.5 border-l-2 border-[#d4af37]/20 mt-1 mb-2 space-y-1">
+                            <div className="ml-4 rtl:ml-0 rtl:mr-4 pl-3.5 rtl:pl-0 rtl:pr-3.5 border-l-2 rtl:border-l-0 rtl:border-r-2 border-[#d4af37]/20 mt-1 mb-2 space-y-1">
                               {parent.children.map((child) => (
                                 <CategoryBtn
                                   key={child.id}
-                                  label={child.name}
+                                  label={translateDynamic(child.name, language)}
                                   active={selectedCategory === child.slug}
                                   onClick={() => onCategoryChange(child.slug)}
                                   sub
@@ -206,7 +209,7 @@ function ShopFiltersPanel({
       <div className="bg-neutral-50/40 rounded-xl p-3.5 border border-neutral-100/60">
         <FilterHeader
           id="sections"
-          label="Collection"
+          label={language === 'ar' ? 'المجموعات' : 'Collection'}
           count={selectedSection !== 'all' ? 1 : undefined}
         />
         <AnimatePresence initial={false}>
@@ -220,14 +223,14 @@ function ShopFiltersPanel({
             >
               <div className="pt-3 pb-1 space-y-1">
                 <CategoryBtn
-                  label="All Collections"
+                  label={language === 'ar' ? 'جميع المجموعات' : 'All Collections'}
                   active={selectedSection === 'all'}
                   onClick={() => onSectionChange('all')}
                 />
                 {dbSections?.map((sec) => (
                   <CategoryBtn
                     key={sec.id}
-                    label={sec.title}
+                    label={translateDynamic(sec.title, language)}
                     active={selectedSection === sec.slug}
                     onClick={() => onSectionChange(sec.slug)}
                   />
@@ -242,7 +245,7 @@ function ShopFiltersPanel({
       <div className="bg-neutral-50/40 rounded-xl p-3.5 border border-neutral-100/60">
         <FilterHeader
           id="sizes"
-          label="Size"
+          label={language === 'ar' ? 'المقاس' : 'Size'}
           count={selectedSizes.length || undefined}
         />
         <AnimatePresence initial={false}>
@@ -284,7 +287,7 @@ function ShopFiltersPanel({
       <div className="bg-neutral-50/40 rounded-xl p-3.5 border border-neutral-100/60">
         <FilterHeader
           id="colors"
-          label="Color"
+          label={language === 'ar' ? 'اللون' : 'Color'}
           count={selectedColors.length || undefined}
         />
         <AnimatePresence initial={false}>
@@ -311,7 +314,7 @@ function ShopFiltersPanel({
                       whileHover={{ scale: 1.15 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => onToggleColor(colorName)}
-                      title={colorName}
+                      title={translateDynamic(colorName, language)}
                       className={`size-8 rounded-full border-2 transition-all duration-200 relative cursor-pointer shadow-sm m-0.5 ${
                         isSelected
                           ? 'border-[#8b1a2a] scale-110 shadow-md shadow-[#8b1a2a]/20'
@@ -337,7 +340,7 @@ function ShopFiltersPanel({
 
       {/* ── Price ───────────────────────────────────────────────────────── */}
       <div className="bg-neutral-50/40 rounded-xl p-3.5 border border-neutral-100/60">
-        <FilterHeader id="price" label="Max Price" />
+        <FilterHeader id="price" label={language === 'ar' ? 'الحد الأقصى للسعر' : 'Max Price'} />
         <AnimatePresence initial={false}>
           {openSections.price && (
             <motion.div
@@ -350,7 +353,9 @@ function ShopFiltersPanel({
               <div className="pt-3 pb-2 space-y-4">
                 {/* Current value callout */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-black">Budget Cap</span>
+                  <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-black">
+                    {language === 'ar' ? 'الميزانية' : 'Budget Cap'}
+                  </span>
                   <span className="bg-[#8b1a2a]/8 border border-[#8b1a2a]/20 px-3 py-1 rounded-full text-xs font-black text-[#8b1a2a] shadow-sm tabular-nums">
                     {formatINR(priceRange > maxPrice ? maxPrice : priceRange)}
                   </span>
@@ -400,7 +405,7 @@ function CategoryBtn({
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group border cursor-pointer ${className} ${
+      className={`w-full text-left rtl:text-right flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group border cursor-pointer ${className} ${
         active
           ? 'bg-[#8b1a2a]/5 border-[#8b1a2a]/15 text-[#8b1a2a] shadow-sm shadow-[#8b1a2a]/5'
           : 'text-neutral-600 hover:bg-neutral-100/60 hover:text-neutral-900 border-transparent'
@@ -428,6 +433,7 @@ function CategoryBtn({
 }
 
 export const Shop: React.FC = () => {
+  const { language, t, isRtl } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchCategory = searchParams.get('category');
   const searchKeyword = searchParams.get('search');
@@ -605,7 +611,13 @@ export const Shop: React.FC = () => {
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#d4af37]" />
           </div>
           <p className="text-[11px] sm:text-xs tracking-[0.2em] text-brand-charcoal font-black uppercase mt-0.5">
-            {isCatalogLoading ? 'Curating…' : `${sortedProducts.length} of ${activeProducts.length} Designs`}
+            {isCatalogLoading 
+              ? (language === 'ar' ? 'جاري التنسيق...' : 'Curating…') 
+              : (language === 'ar' 
+                  ? `${sortedProducts.length} من ${activeProducts.length} تصاميم` 
+                  : `${sortedProducts.length} of ${activeProducts.length} Designs`
+                )
+            }
           </p>
         </div>
 
@@ -617,9 +629,9 @@ export const Shop: React.FC = () => {
             <button
               type="button"
               onClick={resetFilters}
-              className="group flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#8b1a2a]/20 bg-[#8b1a2a]/5 hover:bg-[#8b1a2a] text-[#8b1a2a] hover:text-white transition-all duration-300 text-[10px] uppercase tracking-[0.2em] font-extrabold shadow-sm hover:shadow-md"
+              className="group flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#8b1a2a]/20 bg-[#8b1a2a]/5 hover:bg-[#8b1a2a] text-[#8b1a2a] hover:text-white transition-all duration-300 text-[10px] uppercase tracking-[0.2em] font-extrabold shadow-sm hover:shadow-md cursor-pointer"
             >
-              Clear
+              {language === 'ar' ? 'مسح الكل' : 'Clear'}
               <X size={12} className="transform group-hover:rotate-90 transition-transform duration-300" />
             </button>
           )}
@@ -636,7 +648,7 @@ export const Shop: React.FC = () => {
             className="flex-1 flex items-center justify-center gap-1.5 bg-white border border-brand-border/40 hover:border-[#d4af37] px-3 py-2.5 text-[10px] font-black uppercase tracking-[0.12em] text-brand-charcoal hover:text-[#d4af37] transition-all rounded-full shadow-sm hover:shadow-md cursor-pointer"
           >
             <SlidersHorizontal size={12} strokeWidth={2.5} />
-            Filters
+            {language === 'ar' ? 'التصفية' : 'Filters'}
             {selectedSizes.length + selectedColors.length > 0 && (
               <span className="bg-[#8b1a2a] text-white w-4 h-4 rounded-full flex items-center justify-center text-[9px] -ml-0.5 shrink-0">
                 {selectedSizes.length + selectedColors.length}
@@ -651,10 +663,10 @@ export const Shop: React.FC = () => {
               onChange={(e) => setSortBy(e.target.value as SortOption)}
               className="w-full appearance-none bg-white border border-brand-border/40 text-[10px] font-black uppercase tracking-[0.12em] text-brand-charcoal pl-3 pr-8 py-2.5 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] rounded-full shadow-sm cursor-pointer hover:border-[#d4af37] transition-all duration-300"
             >
-              <option value="featured">Sort By</option>
-              <option value="price-low">Low-High</option>
-              <option value="price-high">High-Low</option>
-              <option value="rating">Top Rated</option>
+              <option value="featured">{language === 'ar' ? 'ترتيب حسب' : 'Sort By'}</option>
+              <option value="price-low">{language === 'ar' ? 'السعر: من الأقل للأعلى' : 'Price: Low-High'}</option>
+              <option value="price-high">{language === 'ar' ? 'السعر: من الأعلى للأقل' : 'Price: High-Low'}</option>
+              <option value="rating">{language === 'ar' ? 'الأعلى تقييماً' : 'Top Rated'}</option>
             </select>
             <ChevronDown size={12} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-brand-text-muted pointer-events-none group-hover:text-[#d4af37] transition-colors duration-300" />
           </div>
@@ -693,10 +705,10 @@ export const Shop: React.FC = () => {
               onChange={(e) => setSortBy(e.target.value as SortOption)}
               className="appearance-none bg-white border border-brand-border/40 text-[11px] font-black uppercase tracking-[0.15em] text-brand-charcoal pl-10 pr-12 py-3 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] rounded-full shadow-sm cursor-pointer hover:border-[#d4af37] transition-all duration-300"
             >
-              <option value="featured">Featured Picks</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Top Rated</option>
+              <option value="featured">{language === 'ar' ? 'المميزة' : 'Featured Picks'}</option>
+              <option value="price-low">{language === 'ar' ? 'السعر: من الأقل للأعلى' : 'Price: Low to High'}</option>
+              <option value="price-high">{language === 'ar' ? 'السعر: من الأعلى للأقل' : 'Price: High to Low'}</option>
+              <option value="rating">{language === 'ar' ? 'الأعلى تقييماً' : 'Top Rated'}</option>
             </select>
             <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-text-muted pointer-events-none group-hover:text-[#d4af37] transition-colors duration-300" />
           </div>
@@ -743,10 +755,10 @@ export const Shop: React.FC = () => {
       return (
         <div className="py-24 text-center space-y-4">
           <h3 className="font-display text-xl font-extrabold text-brand-charcoal uppercase">
-            Could Not Load Products
+            {language === 'ar' ? 'تعذر تحميل المنتجات' : 'Could Not Load Products'}
           </h3>
           <p className="text-sm text-brand-text-muted max-w-sm mx-auto">
-            Please check that the backend is running, then refresh the page.
+            {language === 'ar' ? 'يرجى التحقق من تشغيل الخادم الخلفي، ثم تحديث الصفحة.' : 'Please check that the backend is running, then refresh the page.'}
           </p>
         </div>
       );
@@ -772,17 +784,19 @@ export const Shop: React.FC = () => {
 
           {/* Eyebrow Label */}
           <span className="relative z-10 text-[10px] tracking-[0.25em] uppercase text-[#d4af37] font-extrabold mb-3">
-            Zero Matches
+            {language === 'ar' ? 'لا توجد نتائج تطابق خياراتك' : 'Zero Matches'}
           </span>
 
           {/* Heading */}
           <h3 className="relative z-10 font-display text-3xl sm:text-4xl font-black text-brand-charcoal uppercase tracking-tight mb-4">
-            No Garments Found
+            {language === 'ar' ? 'لم يتم العثور على ملابس' : 'No Garments Found'}
           </h3>
 
           {/* Subtitle */}
           <p className="relative z-10 text-[15px] text-brand-text-muted max-w-md mx-auto font-light leading-relaxed">
-            We couldn&apos;t find any designs fitting your exact criteria. Clear your active filters to reveal the full curated collection.
+            {language === 'ar' 
+              ? 'لم نتمكن من العثور على أي تصاميم تطابق معاييرك المحددة. امسح الفلاتر لعرض المجموعة الكاملة.'
+              : 'We couldn\'t find any designs fitting your exact criteria. Clear your active filters to reveal the full curated collection.'}
           </p>
 
           {/* Massive Glowing CTA */}
@@ -791,7 +805,7 @@ export const Shop: React.FC = () => {
             onClick={resetFilters}
             className="group relative z-10 mt-10 flex items-center justify-center gap-3 bg-gradient-to-r from-[#8b1a2a] to-[#5a0e19] text-white px-10 py-4.5 rounded-full text-[12px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_-5px_rgba(139,26,42,0.35)] hover:shadow-[0_20px_40px_-5px_rgba(139,26,42,0.45)] hover:-translate-y-1 transition-all duration-500 cursor-pointer"
           >
-            Reset Filters
+            {language === 'ar' ? 'إعادة تعيين الفلاتر' : 'Reset Filters'}
             <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors duration-300">
               <RefreshCw size={13} className="transform group-hover:rotate-180 transition-transform duration-500 ease-out" />
             </div>
@@ -814,7 +828,11 @@ export const Shop: React.FC = () => {
 
   return (
     <PageShell>
-      <PageHeader eyebrow="Studio Catalog" title="All Garments" trailing={shopToolbar} />
+      <PageHeader 
+        eyebrow={language === 'ar' ? 'كتالوج مخصص' : 'Studio Catalog'} 
+        title={language === 'ar' ? 'جميع الملابس' : 'All Garments'} 
+        trailing={shopToolbar} 
+      />
 
       <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
         <aside
@@ -839,16 +857,16 @@ export const Shop: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.25 }}
-                  className="flex flex-wrap gap-2 items-center"
+                  className="flex flex-wrap gap-2 items-center text-left rtl:text-right"
                 >
                   <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-text-muted shrink-0">
-                    Active:
+                    {language === 'ar' ? 'النشط:' : 'Active:'}
                   </span>
 
                   {/* Category chip */}
                   {selectedCategory !== 'all' && (() => {
                     const allCats = dbCategories?.flatMap((p) => [p, ...(p.children ?? [])]) ?? [];
-                    const catLabel = allCats.find((c) => c.slug === selectedCategory)?.name ?? selectedCategory;
+                    const catLabel = translateDynamic(allCats.find((c) => c.slug === selectedCategory)?.name ?? selectedCategory, language);
                     return (
                       <motion.button
                         key={`chip-cat-${selectedCategory}`}
@@ -868,7 +886,7 @@ export const Shop: React.FC = () => {
 
                   {/* Section chip */}
                   {selectedSection !== 'all' && (() => {
-                    const secLabel = dbSections?.find((s) => s.slug === selectedSection)?.title ?? selectedSection;
+                    const secLabel = translateDynamic(dbSections?.find((s) => s.slug === selectedSection)?.title ?? selectedSection, language);
                     return (
                       <motion.button
                         key={`chip-sec-${selectedSection}`}
@@ -898,7 +916,7 @@ export const Shop: React.FC = () => {
                       onClick={() => toggleSizeFilter(size)}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-[#d4af37]/10 border border-[#d4af37]/40 text-brand-charcoal text-[11px] font-bold uppercase tracking-wider rounded-full hover:bg-[#d4af37] hover:text-white transition-all duration-200 cursor-pointer shadow-sm group"
                     >
-                      Size {size}
+                      {language === 'ar' ? 'مقاس' : 'Size'} {size}
                       <X size={10} className="opacity-60 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-200" />
                     </motion.button>
                   ))}
@@ -929,7 +947,7 @@ export const Shop: React.FC = () => {
 
                         {/* Safely constrain text size */}
                         <span className="truncate max-w-[100px] sm:max-w-[150px]">
-                          {colorName}
+                          {translateDynamic(colorName, language)}
                         </span>
 
                         {/* Luxury close icon housing */}
@@ -957,7 +975,7 @@ export const Shop: React.FC = () => {
                       className="group flex items-center gap-2 px-3 py-1.5 bg-white border border-brand-border/40 hover:border-[#8b1a2a]/40 hover:bg-[#8b1a2a]/5 text-brand-charcoal hover:text-[#8b1a2a] text-[10px] font-black uppercase tracking-[0.15em] rounded-full transition-all duration-300 shadow-[0_4px_10px_-4px_rgba(0,0,0,0.05)] cursor-pointer"
                     >
                       <span className="truncate max-w-[120px]">
-                        Max {formatINR(priceCap)}
+                        {language === 'ar' ? 'الحد الأقصى' : 'Max'} {formatINR(priceCap)}
                       </span>
 
                       {/* Luxury close icon housing */}
@@ -994,11 +1012,11 @@ export const Shop: React.FC = () => {
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               data-lenis-prevent
-              className="relative w-80 bg-white/90 backdrop-blur-lg h-full overflow-y-auto overscroll-contain p-6 shadow-2xl flex flex-col space-y-6 text-left border-l border-brand-border/30"
+              className="relative w-80 bg-white/90 backdrop-blur-lg h-full overflow-y-auto overscroll-contain p-6 shadow-2xl flex flex-col space-y-6 text-left rtl:text-right border-l border-brand-border/30"
             >
               <div className="flex items-center justify-between border-b border-brand-border/40 pb-4">
                 <h3 className="font-display text-lg font-bold text-[#8b1a2a] uppercase tracking-wider">
-                  Filters
+                  {language === 'ar' ? 'التصفية' : 'Filters'}
                 </h3>
                 <button
                   type="button"

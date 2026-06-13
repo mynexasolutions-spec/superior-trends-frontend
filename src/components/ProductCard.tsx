@@ -6,6 +6,8 @@ import { useShop } from '../context/ShopContext';
 import { ImagePlaceholder } from './ImagePlaceholder';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { formatINR } from '../lib/formatCurrency';
+import { useLanguage } from '../context/LanguageContext';
+import { translateDynamic } from '../locales/dynamicTranslations';
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +15,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { toggleWishlist, isInWishlist, addToCart } = useShop();
+  const { language } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
   const [showMobileSizes, setShowMobileSizes] = useState(false);
   const [addedSize, setAddedSize] = useState<string | null>(null);
@@ -49,12 +52,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="absolute left-2 top-2 sm:left-3 sm:top-3 z-10 flex flex-col gap-1 sm:gap-1.5 pointer-events-none">
           {product.isNew && (
             <span className="bg-gradient-to-r from-[#8b1a2a] to-[#b22234] text-[#F8F5F2] text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.12em] sm:tracking-[0.18em] px-1.5 py-0.5 sm:px-3 sm:py-1 rounded-md sm:rounded-lg shadow-md border border-white/10">
-              New In
+              {language === 'ar' ? 'وصل حديثاً' : 'New In'}
             </span>
           )}
           {product.isBestSeller && (
             <span className="bg-gradient-to-r from-[#d4af37] to-[#b5932d] text-brand-charcoal text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.12em] sm:tracking-[0.18em] px-1.5 py-0.5 sm:px-3 sm:py-1 rounded-md sm:rounded-lg shadow-md border border-white/20">
-              Bestseller
+              {language === 'ar' ? 'الأكثر مبيعاً' : 'Bestseller'}
             </span>
           )}
         </div>
@@ -67,7 +70,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             toggleWishlist(product.id);
           }}
           className="absolute right-2 top-2 sm:right-3 sm:top-3 z-10 p-2 sm:p-3 bg-white/95 backdrop-blur-sm rounded-full text-brand-charcoal shadow-sm border border-brand-border/40 hover:bg-[#8b1a2a] hover:text-white hover:border-[#8b1a2a] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
-          aria-label="Add to Wishlist"
+          aria-label={language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to Wishlist'}
         >
           <motion.div
             animate={isHovered ? { scale: [1, 1.3, 0.9, 1.15, 1] } : { scale: 1 }}
@@ -104,7 +107,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-md py-5 px-4 hidden md:flex flex-col items-center justify-center space-y-3 z-20 border-t border-brand-border/40 shadow-lg"
             >
               <span className="text-[10px] tracking-[0.25em] uppercase font-bold text-brand-gold">
-                {addedSize ? `Added Size ${addedSize}!` : 'Quick Add'}
+                {addedSize 
+                  ? (language === 'ar' ? `تم إضافة مقاس ${addedSize}!` : `Added Size ${addedSize}!`) 
+                  : (language === 'ar' ? 'أضف بسرعة' : 'Quick Add')}
               </span>
               <div className="flex flex-wrap gap-1.5 justify-center">
                 {sizes.map((size) => (
@@ -127,7 +132,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="mt-2.5 sm:mt-4 flex flex-col flex-1 justify-between">
         <div>
           <span className="text-[9px] sm:text-xs font-bold uppercase tracking-[0.22em] text-[#d4af37] leading-none">
-            {product.category}
+            {translateDynamic(product.category, language)}
           </span>
           <h3 className="mt-1 sm:mt-2 font-display text-[12px] sm:text-[15px] md:text-base font-bold text-brand-charcoal line-clamp-2 leading-tight sm:leading-snug hover:text-[#8b1a2a] transition-colors duration-200">
             <Link to={`/product/${product.id}`}>{product.name}</Link>
@@ -174,7 +179,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 : 'bg-white text-[#8b1a2a] border-[#8b1a2a]/20 hover:bg-[#8b1a2a]/5'
             }`}
           >
-            {showMobileSizes ? 'Hide Sizes' : 'Quick Add'}
+            {showMobileSizes 
+              ? (language === 'ar' ? 'إخفاء المقاسات' : 'Hide Sizes') 
+              : (language === 'ar' ? 'أضف بسرعة' : 'Quick Add')}
           </button>
           <AnimatePresence>
             {showMobileSizes && (
@@ -202,7 +209,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 </div>
                 {addedSize && (
                   <p className="text-center text-[10px] sm:text-xs font-bold text-emerald-600 pt-1">
-                    Added size {addedSize}!
+                    {language === 'ar' ? `تم إضافة مقاس ${addedSize}!` : `Added size ${addedSize}!`}
                   </p>
                 )}
               </motion.div>

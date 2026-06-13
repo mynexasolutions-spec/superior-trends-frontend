@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { Mail, Lock, User, Phone, ArrowRight, Loader2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 function Field({
   label, icon, type = 'text', placeholder, value, onChange, required,
@@ -9,13 +10,14 @@ function Field({
   label: string; icon: React.ReactNode; type?: string;
   placeholder: string; value: string; onChange: (v: string) => void; required?: boolean;
 }) {
+  const { language } = useLanguage();
   return (
     <div className="space-y-1.5">
       <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">
         {label}
       </label>
       <div className="relative group">
-        <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-neutral-300 group-focus-within:text-[#8b1a2a] transition-colors pointer-events-none">
+        <span className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 flex items-center pl-4 rtl:pl-0 rtl:pr-4 text-neutral-300 group-focus-within:text-[#8b1a2a] transition-colors pointer-events-none">
           {icon}
         </span>
         <input
@@ -24,7 +26,7 @@ function Field({
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full pl-11 pr-4 py-3.5 text-sm bg-white border border-neutral-200 rounded-xl text-neutral-900 placeholder:text-neutral-300 focus:outline-none focus:border-[#8b1a2a] focus:ring-4 focus:ring-[#8b1a2a]/8 transition-all"
+          className="w-full pl-11 pr-4 rtl:pl-4 rtl:pr-11 py-3.5 text-sm bg-white border border-neutral-200 rounded-xl text-neutral-900 placeholder:text-neutral-300 focus:outline-none focus:border-[#8b1a2a] focus:ring-4 focus:ring-[#8b1a2a]/8 transition-all"
         />
       </div>
     </div>
@@ -33,6 +35,7 @@ function Field({
 
 export const Auth: React.FC = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const [searchParams] = useSearchParams();
   const mode = (searchParams.get('mode') || 'login') as 'login' | 'register';
   const { login, signup, isLoading, error, clearError } = useAuthStore();
@@ -95,13 +98,15 @@ export const Auth: React.FC = () => {
                 </div>
 
                 <h2 className="font-display text-2xl font-black uppercase tracking-tight text-brand-charcoal leading-tight">
-                  {mode === 'login' ? 'Welcome Back' : 'Create Account'}
+                  {mode === 'login'
+                    ? (language === 'ar' ? 'مرحباً بعودتك' : 'Welcome Back')
+                    : (language === 'ar' ? 'إنشاء حساب' : 'Create Account')}
                 </h2>
 
                 <p className="text-xs text-brand-text-muted leading-relaxed font-semibold">
                   {mode === 'login'
-                    ? 'Sign in to access your curated wardrobe.'
-                    : 'Join us and unlock exclusive collections.'}
+                    ? (language === 'ar' ? 'سجل الدخول للوصول إلى خزانة ملابسك الخاصة.' : 'Sign in to access your curated wardrobe.')
+                    : (language === 'ar' ? 'انضم إلينا واكتشف المجموعات الحصرية.' : 'Join us and unlock exclusive collections.')}
                 </p>
               </div>
 
@@ -124,12 +129,12 @@ export const Auth: React.FC = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === 'register' && (
                   <>
-                    <Field label="Full Name" icon={<User size={15} />} placeholder="Jane Doe" value={name} onChange={setName} required />
-                    <Field label="Phone (optional)" icon={<Phone size={15} />} type="tel" placeholder="+91 98765 43210" value={phone} onChange={setPhone} />
+                    <Field label={language === 'ar' ? 'الاسم الكامل' : 'Full Name'} icon={<User size={15} />} placeholder={language === 'ar' ? 'الاسم' : 'Jane Doe'} value={name} onChange={setName} required />
+                    <Field label={language === 'ar' ? 'رقم الهاتف (اختياري)' : 'Phone (optional)'} icon={<Phone size={15} />} type="tel" placeholder="+968 9000 0000" value={phone} onChange={setPhone} />
                   </>
                 )}
-                <Field label="Email Address" icon={<Mail size={15} />} type="email" placeholder="you@domain.com" value={email} onChange={setEmail} required />
-                <Field label="Password" icon={<Lock size={15} />} type="password" placeholder="••••••••" value={password} onChange={setPassword} required />
+                <Field label={language === 'ar' ? 'البريد الإلكتروني' : 'Email Address'} icon={<Mail size={15} />} type="email" placeholder="you@domain.com" value={email} onChange={setEmail} required />
+                <Field label={language === 'ar' ? 'كلمة المرور' : 'Password'} icon={<Lock size={15} />} type="password" placeholder="••••••••" value={password} onChange={setPassword} required />
 
                 <div className="pt-2">
                   <button
@@ -139,7 +144,7 @@ export const Auth: React.FC = () => {
                   >
                     {isLoading
                       ? <Loader2 className="animate-spin" size={16} />
-                      : <>{mode === 'login' ? 'Sign In' : 'Create Account'} <ArrowRight size={13} /></>
+                      : <>{mode === 'login' ? (language === 'ar' ? 'تسجيل الدخول' : 'Sign In') : (language === 'ar' ? 'إنشاء حساب' : 'Create Account')} <ArrowRight size={13} className="rtl:rotate-180" /></>
                     }
                   </button>
                 </div>
@@ -147,13 +152,15 @@ export const Auth: React.FC = () => {
 
               {/* Toggle */}
               <p className="text-center text-xs text-brand-text-muted pt-1 font-semibold">
-                {mode === 'login' ? "Don't have an account?" : 'Already a member?'}{' '}
+                {mode === 'login'
+                  ? (language === 'ar' ? 'ليس لديك حساب؟' : "Don't have an account?")
+                  : (language === 'ar' ? 'هل أنت عضو بالفعل؟' : 'Already a member?')}{' '}
                 <button
                   type="button"
                   onClick={() => handleModeToggle(mode === 'login' ? 'register' : 'login')}
-                  className="text-[#8b1a2a] font-black uppercase tracking-wider hover:underline underline-offset-2 transition-colors ml-0.5"
+                  className="text-[#8b1a2a] font-black uppercase tracking-wider hover:underline underline-offset-2 transition-colors ml-0.5 rtl:mr-0.5"
                 >
-                  {mode === 'login' ? 'Register' : 'Sign In'}
+                  {mode === 'login' ? (language === 'ar' ? 'سجل الآن' : 'Register') : (language === 'ar' ? 'تسجيل الدخول' : 'Sign In')}
                 </button>
               </p>
             </div>
@@ -161,7 +168,7 @@ export const Auth: React.FC = () => {
 
           {/* Below-card trust line */}
           <p className="text-center text-[10px] text-neutral-400 font-extrabold uppercase tracking-widest mt-6">
-            Secure &nbsp;·&nbsp; Encrypted &nbsp;·&nbsp; Trusted
+            {language === 'ar' ? 'آمن · مشفر · موثوق' : 'Secure · Encrypted · Trusted'}
           </p>
         </div>
       </div>
@@ -169,12 +176,16 @@ export const Auth: React.FC = () => {
       {/* ── Footer peek ─────────────────────────────────────────────────── */}
       <div className="bg-neutral-900 text-white px-6 py-4 flex items-center justify-between shrink-0 relative z-10">
         <p className="text-[10px] uppercase tracking-widest text-white/40 font-medium">
-          © {new Date().getFullYear()} Superior Trends
+          © {new Date().getFullYear()} {language === 'ar' ? 'سوبريور تريندز' : 'Superior Trends'}
         </p>
         <div className="flex items-center gap-4">
-          {['Privacy', 'Terms', 'Help'].map((l) => (
-            <a key={l} href="#" className="text-[10px] uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors font-medium">
-              {l}
+          {[
+            { label: language === 'ar' ? 'الخصوصية' : 'Privacy', key: 'Privacy' },
+            { label: language === 'ar' ? 'الشروط' : 'Terms', key: 'Terms' },
+            { label: language === 'ar' ? 'المساعدة' : 'Help', key: 'Help' },
+          ].map((l) => (
+            <a key={l.key} href="#" className="text-[10px] uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors font-medium">
+              {l.label}
             </a>
           ))}
         </div>

@@ -7,9 +7,11 @@ import { useProducts } from '../hooks/useProducts';
 import { PageHeader } from '../components/PageHeader';
 import { PageShell } from '../components/PageShell';
 import { ProductGridSkeleton } from '../components/ui/skeleton';
+import { useLanguage } from '../context/LanguageContext';
 
 export const Wishlist: React.FC = () => {
   const { wishlist } = useShop();
+  const { language } = useLanguage();
   const { data: allProducts, isLoading } = useProducts({ limit: 200 });
 
   const wishlistProducts = (allProducts ?? []).filter((p) => wishlist.includes(p.id));
@@ -17,9 +19,13 @@ export const Wishlist: React.FC = () => {
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Personal Curation"
-        title="My Favorites"
-        subtitle={`${wishlistProducts.length} saved ${wishlistProducts.length === 1 ? 'design' : 'designs'}`}
+        eyebrow={language === 'ar' ? 'مجموعتي المفضلة' : 'Personal Curation'}
+        title={language === 'ar' ? 'المفضلة لدي' : 'My Favorites'}
+        subtitle={
+          language === 'ar'
+            ? `${wishlistProducts.length} ${wishlistProducts.length === 1 ? 'تصميم محفوظ' : 'تصاميم محفوظة'}`
+            : `${wishlistProducts.length} saved ${wishlistProducts.length === 1 ? 'design' : 'designs'}`
+        }
       />
 
       {isLoading ? (
@@ -31,17 +37,19 @@ export const Wishlist: React.FC = () => {
           </div>
           <div className="space-y-2">
             <h2 className="font-display text-xl sm:text-2xl font-extrabold text-brand-charcoal uppercase">
-              Curate Your Capsule
+              {language === 'ar' ? 'نسق خزانة ملابسك' : 'Curate Your Capsule'}
             </h2>
             <p className="text-sm text-brand-text-muted leading-relaxed font-light">
-              Save garments you adore to your wishlist and assemble your perfect seasonal collections.
+              {language === 'ar'
+                ? 'احفظ الملابس التي تحبها في قائمة المفضلة لتنسيق مجموعتك المثالية لكل موسم.'
+                : 'Save garments you adore to your wishlist and assemble your perfect seasonal collections.'}
             </p>
           </div>
           <Link
             to="/shop"
             className="inline-flex items-center gap-2 bg-[#8b1a2a] text-white hover:bg-[#6b1420] px-8 py-4 text-xs font-bold uppercase tracking-widest transition-colors rounded-full"
           >
-            Explore Shop <ArrowRight size={14} />
+            {language === 'ar' ? 'استكشف المتجر' : 'Explore Shop'} <ArrowRight size={14} className="rtl:rotate-180" />
           </Link>
         </div>
       ) : (
@@ -53,13 +61,13 @@ export const Wishlist: React.FC = () => {
           </div>
           <div className="text-center border-t border-brand-border/40 pt-8 space-y-4">
             <h3 className="font-display text-base sm:text-lg font-extrabold text-brand-charcoal uppercase">
-              Finished curating your selections?
+              {language === 'ar' ? 'هل انتهيت من اختيار مفضلاتك؟' : 'Finished curating your selections?'}
             </h3>
             <Link
               to="/shop"
               className="inline-block bg-brand-charcoal text-brand-cream hover:bg-[#8b1a2a] px-8 py-4 text-xs font-bold uppercase tracking-widest transition-colors rounded-full"
             >
-              Continue Shopping
+              {language === 'ar' ? 'متابعة التسوق' : 'Continue Shopping'}
             </Link>
           </div>
         </div>

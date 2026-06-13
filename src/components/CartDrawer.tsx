@@ -4,6 +4,7 @@ import { X, Plus, Minus, Trash2, Tag, ArrowRight, ShoppingBag } from 'lucide-rea
 import { useShop } from '../context/ShopContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getProductImageUrl } from '../lib/optimizeImage';
+import { useLanguage } from '../context/LanguageContext';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -18,6 +19,7 @@ export const CartDrawer: React.FC = () => {
     applyPromo,
   } = useShop();
 
+  const { language } = useLanguage();
   const [promoInput, setPromoInput] = useState('');
   const [promoError, setPromoError] = useState('');
   const navigate = useNavigate();
@@ -29,7 +31,7 @@ export const CartDrawer: React.FC = () => {
     if (success) {
       setPromoInput('');
     } else {
-      setPromoError('Invalid promo code. Try "WELCOME20".');
+      setPromoError(language === 'ar' ? 'رمز ترويجي غير صالح. جرب "WELCOME20".' : 'Invalid promo code. Try "WELCOME20".');
     }
   };
 
@@ -56,20 +58,20 @@ export const CartDrawer: React.FC = () => {
 
           {/* Drawer */}
           <motion.div
-            initial={{ x: '100%' }}
+            initial={{ x: language === 'ar' ? '-100%' : '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
+            exit={{ x: language === 'ar' ? '-100%' : '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 200 }}
-            className="fixed right-0 top-0 bottom-0 z-50 w-full sm:max-w-[28rem] bg-brand-cream border-l border-brand-border/20 shadow-2xl flex flex-col h-dvh font-display text-left"
+            className={`fixed ${language === 'ar' ? 'left-0 border-r' : 'right-0 border-l'} top-0 bottom-0 z-50 w-full sm:max-w-[28rem] bg-brand-cream border-brand-border/20 shadow-2xl flex flex-col h-dvh font-display text-left rtl:text-right`}
           >
             {/* Header */}
             <div className="px-6 py-5 border-b border-brand-border/15 flex items-center justify-between bg-white shrink-0">
-              <div>
+              <div className="text-left rtl:text-right">
                 <span className="text-[10px] tracking-[0.25em] uppercase text-[#d4af37] font-bold">
-                  Superior Trends
+                  {language === 'ar' ? 'سوبريور تريندز' : 'Superior Trends'}
                 </span>
                 <h2 className="font-display text-2xl font-extrabold text-brand-charcoal uppercase tracking-tight mt-0.5">
-                  My Basket
+                  {language === 'ar' ? 'سلة المشتريات' : 'My Basket'}
                 </h2>
               </div>
               <button
@@ -90,10 +92,10 @@ export const CartDrawer: React.FC = () => {
                     <ShoppingBag size={32} strokeWidth={1.5} />
                   </div>
                   <h3 className="font-display text-xl font-bold text-brand-charcoal uppercase tracking-wide">
-                    Your basket is empty
+                    {language === 'ar' ? 'سلة المشتريات فارغة' : 'Your basket is empty'}
                   </h3>
                   <p className="text-sm text-brand-text-muted max-w-[250px] mx-auto mt-3 leading-relaxed font-light">
-                    Explore our exclusive collections and add your favorite pieces.
+                    {language === 'ar' ? 'استكشف مجموعاتنا الحصرية وأضف قطعك المفضلة.' : 'Explore our exclusive collections and add your favorite pieces.'}
                   </p>
                   <button
                     type="button"
@@ -103,7 +105,7 @@ export const CartDrawer: React.FC = () => {
                     }}
                     className="mt-8 bg-[#8b1a2a] text-white hover:bg-brand-charcoal px-8 py-3.5 text-[11px] tracking-widest uppercase font-bold rounded-full transition-colors duration-300 shadow-md"
                   >
-                    Discover the Shop
+                    {language === 'ar' ? 'اكتشف المتجر' : 'Discover the Shop'}
                   </button>
                 </div>
               ) : (
@@ -127,7 +129,7 @@ export const CartDrawer: React.FC = () => {
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-neutral-50">
                               <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-bold">
-                                No image
+                                {language === 'ar' ? 'لا توجد صورة' : 'No image'}
                               </span>
                             </div>
                           )}
@@ -149,7 +151,7 @@ export const CartDrawer: React.FC = () => {
                             {/* Variants (Size & Color Pills) */}
                             <div className="flex flex-wrap items-center gap-2 mt-2.5">
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-white border border-brand-border/20 text-brand-text-muted">
-                                Size {item.selectedSize}
+                                {language === 'ar' ? 'المقاس' : 'Size'} {item.selectedSize}
                               </span>
                               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-white border border-brand-border/20 text-brand-text-muted">
                                 <span
@@ -232,27 +234,27 @@ export const CartDrawer: React.FC = () => {
                   {/* Promo Code - Integrated Input */}
                   <div>
                     <form onSubmit={handleApplyPromo} className="relative flex items-center w-full border border-brand-border/30 rounded-xl overflow-hidden focus-within:border-[#d4af37] focus-within:ring-1 focus-within:ring-[#d4af37] transition-all bg-brand-cream/20">
-                      <div className="pl-4 text-[#d4af37]">
+                      <div className="pl-4 rtl:pl-0 rtl:pr-4 text-[#d4af37]">
                         <Tag size={15} />
                       </div>
                       <input
                         type="text"
                         value={promoInput}
                         onChange={(e) => setPromoInput(e.target.value)}
-                        placeholder={promoCode ? `Applied: ${promoCode}` : 'Promo code'}
-                        className="flex-1 bg-transparent py-3 pl-3 pr-2 text-xs uppercase tracking-wider text-brand-charcoal placeholder-brand-text-muted focus:outline-none font-bold"
+                        placeholder={promoCode ? (language === 'ar' ? `تم التطبيق: ${promoCode}` : `Applied: ${promoCode}`) : (language === 'ar' ? 'رمز الترويجي' : 'Promo code')}
+                        className="flex-1 bg-transparent py-3 pl-3 pr-2 rtl:pl-2 rtl:pr-3 text-xs uppercase tracking-wider text-brand-charcoal placeholder-brand-text-muted focus:outline-none font-bold"
                       />
                       <button
                         type="submit"
-                        className="px-5 py-3 text-[11px] font-black tracking-widest uppercase text-brand-charcoal hover:text-[#8b1a2a] transition-colors border-l border-brand-border/20"
+                        className="px-5 py-3 text-[11px] font-black tracking-widest uppercase text-brand-charcoal hover:text-[#8b1a2a] transition-colors border-l rtl:border-l-0 rtl:border-r border-brand-border/20"
                       >
-                        Apply
+                        {language === 'ar' ? 'تطبيق' : 'Apply'}
                       </button>
                     </form>
-                    {promoError && <p className="text-red-500 text-[11px] font-bold mt-2 ml-1">{promoError}</p>}
+                    {promoError && <p className="text-red-500 text-[11px] font-bold mt-2 ml-1 rtl:mr-1">{promoError}</p>}
                     {promoCode && (
-                      <p className="text-emerald-600 text-[11px] font-bold mt-2 ml-1">
-                        Promo &quot;{promoCode}&quot; applied successfully.
+                      <p className="text-emerald-600 text-[11px] font-bold mt-2 ml-1 rtl:mr-1">
+                        {language === 'ar' ? `تم تطبيق الرمز الترويجي "${promoCode}" بنجاح.` : `Promo "${promoCode}" applied successfully.`}
                       </p>
                     )}
                   </div>
@@ -260,23 +262,23 @@ export const CartDrawer: React.FC = () => {
                   {/* Summary */}
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between text-brand-text-muted">
-                      <span className="font-light">Subtotal</span>
+                      <span className="font-light">{language === 'ar' ? 'المجموع الفرعي' : 'Subtotal'}</span>
                       <span className="font-medium text-brand-charcoal">
                         ﷼{Number(cartTotal).toLocaleString('en-OM')}
                       </span>
                     </div>
                     {discount > 0 && (
                       <div className="flex justify-between text-emerald-600">
-                        <span className="font-light">Discount ({discount * 100}%)</span>
+                        <span className="font-light">{language === 'ar' ? 'الخصم' : 'Discount'} ({discount * 100}%)</span>
                         <span className="font-medium">-﷼{Number(finalDiscount).toLocaleString('en-OM')}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-brand-text-muted pb-3 border-b border-brand-border/15">
-                      <span className="font-light">Shipping</span>
-                      <span className="font-medium text-brand-charcoal">Complimentary</span>
+                      <span className="font-light">{language === 'ar' ? 'الشحن' : 'Shipping'}</span>
+                      <span className="font-medium text-brand-charcoal">{language === 'ar' ? 'مجاني' : 'Complimentary'}</span>
                     </div>
                     <div className="flex justify-between items-center pt-1">
-                      <span className="font-display text-lg font-bold text-brand-charcoal uppercase">Total</span>
+                      <span className="font-display text-lg font-bold text-brand-charcoal uppercase">{language === 'ar' ? 'المجموع الكلي' : 'Total'}</span>
                       <span className="font-display text-2xl font-black text-[#8b1a2a] tracking-tight">
                         ﷼{Number(grandTotal).toLocaleString('en-OM')}
                       </span>
@@ -289,8 +291,8 @@ export const CartDrawer: React.FC = () => {
                     onClick={handleCheckoutClick}
                     className="group w-full bg-[#8b1a2a] text-white hover:bg-brand-charcoal py-4 flex items-center justify-center gap-2.5 tracking-[0.2em] text-[11px] uppercase font-black rounded-full transition-all duration-300 hover:shadow-[0_10px_20px_rgba(139,26,42,0.2)] hover:-translate-y-0.5"
                   >
-                    Proceed to Checkout
-                    <ArrowRight size={15} className="transform group-hover:translate-x-1.5 transition-transform duration-300 ease-out" />
+                    {language === 'ar' ? 'الانتقال إلى الدفع' : 'Proceed to Checkout'}
+                    <ArrowRight size={15} className="transform group-hover:translate-x-1.5 rtl:group-hover:-translate-x-1.5 transition-transform duration-300 ease-out rtl:rotate-180" />
                   </button>
                 </div>
               </div>

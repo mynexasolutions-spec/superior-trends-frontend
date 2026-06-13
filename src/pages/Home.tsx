@@ -24,6 +24,8 @@ import {
 } from "framer-motion";
 import { ImagePlaceholder } from "../components/ImagePlaceholder";
 import { useShop } from "../context/ShopContext";
+import { useLanguage } from "../context/LanguageContext";
+import { translateDynamic } from "../locales/dynamicTranslations";
 import {
   useSections,
   mapDbProduct,
@@ -140,8 +142,9 @@ function CarouselProductCard({
   variant?: "carousel" | "grid";
 }) {
   const { wishlist, toggleWishlist, addToCart } = useShop();
+  const { language } = useLanguage();
   const isWishlisted = wishlist.includes(product.id);
-  const categoryLabel = getCategoryLabel(product.category);
+  const categoryLabel = translateDynamic(getCategoryLabel(product.category), language);
   const subCategory = product.name.split(" ").slice(0, 2).join(" ");
   const priceOMR = Number(product.price).toLocaleString("en-OM");
   const mrpOMR = Number(
@@ -173,19 +176,19 @@ function CarouselProductCard({
 
         {product.isNew ? (
           <span className="absolute top-3 left-3 z-10 bg-emerald-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-widest shadow">
-            New
+            {language === 'ar' ? 'جديد' : 'New'}
           </span>
         ) : product.isBestSeller ? (
           <span className="absolute top-3 left-3 z-10 bg-[#8b1a2a] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-widest shadow">
-            Premium
+            {language === 'ar' ? 'فاخر' : 'Premium'}
           </span>
         ) : null}
 
         <button
           type="button"
           onClick={() => toggleWishlist(product.id)}
-          className="absolute top-3 right-3 z-10 rounded-full bg-white border border-gray-100 p-2 shadow-sm hover:scale-110 transition-transform"
-          aria-label="Add to wishlist"
+          className="absolute top-3 right-3 z-10 rounded-full bg-white border border-gray-100 p-2 shadow-sm hover:scale-110 transition-transform cursor-pointer"
+          aria-label={language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to wishlist'}
         >
           <Heart
             className={`h-4 w-4 ${isWishlisted ? "fill-[#8b1a2a] stroke-[#8b1a2a]" : "stroke-brand-charcoal"}`}
@@ -193,7 +196,7 @@ function CarouselProductCard({
         </button>
       </div>
 
-      <div className="p-4 flex flex-col gap-2.5 flex-1 text-left">
+      <div className="p-4 flex flex-col gap-2.5 flex-1 text-left rtl:text-right">
         <span className="text-sm font-bold uppercase tracking-widest text-brand-text-muted leading-snug">
           {categoryLabel} / {subCategory}
         </span>
@@ -223,9 +226,9 @@ function CarouselProductCard({
               product.colors[0] || { name: "Default", hex: "#000000" },
             )
           }
-          className="mt-auto w-full border border-[#8b1a2a] text-[#8b1a2a] hover:bg-[#8b1a2a] hover:text-white text-xs sm:text-sm font-bold py-2.5 rounded-lg tracking-widest uppercase transition-all duration-300 bg-white"
+          className="mt-auto w-full border border-[#8b1a2a] text-[#8b1a2a] hover:bg-[#8b1a2a] hover:text-white text-xs sm:text-sm font-bold py-2.5 rounded-lg tracking-widest uppercase transition-all duration-300 bg-white cursor-pointer"
         >
-          Add to Cart
+          {language === 'ar' ? 'أضف إلى السلة' : 'Add to Cart'}
         </button>
       </div>
     </motion.div>
@@ -276,7 +279,7 @@ function CarouselHeader({
             active:scale-95 transition-all duration-200 shadow-sm
           "
         >
-          <ChevronLeft size={16} strokeWidth={2} />
+          <ChevronLeft size={16} strokeWidth={2} className="rtl:rotate-180" />
         </button>
 
         {/* Center */}
@@ -320,7 +323,7 @@ function CarouselHeader({
             active:scale-95 transition-all duration-200 shadow-sm
           "
         >
-          <ChevronRight size={16} strokeWidth={2} />
+          <ChevronRight size={16} strokeWidth={2} className="rtl:rotate-180" />
         </button>
 
       </div>
@@ -337,6 +340,7 @@ const normalizeSectionType = (type?: string) => {
 
 /** Type 2 — Our Collections style: small horizontal cards */
 function SectionCollections({ section }: { section: HomepageSection }) {
+  const { language } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
   const scroll = (dir: number) =>
     scrollRef.current?.scrollBy({ left: dir * 200, behavior: "smooth" });
@@ -345,13 +349,13 @@ function SectionCollections({ section }: { section: HomepageSection }) {
 
   return (
     <Section className="px-4 sm:px-6 lg:px-8 mb-16">
-      <CarouselHeader title={section.title} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
+      <CarouselHeader title={translateDynamic(section.title, language)} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
       <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-4">
         {products.map((product: Product) => (
           <Link key={product.id} to={`/product/${product.id}`} className="flex flex-col w-[calc((100vw-32px-16px)/2)] sm:w-[calc((100vw-48px-48px)/4)] lg:w-[calc((100vw-165px)/7)] shrink-0 snap-start rounded-2xl overflow-hidden border border-brand-border/40 bg-white shadow-sm hover:shadow-md transition-all group">
-            <ImagePlaceholder aspectRatio="aspect-[4/3]" src={product.images?.[0]} alt={product.name} label={product.name} subLabel={getCategoryLabel(product.category)} />
+            <ImagePlaceholder aspectRatio="aspect-[4/3]" src={product.images?.[0]} alt={product.name} label={product.name} subLabel={translateDynamic(getCategoryLabel(product.category), language)} />
             <div className="p-3 text-center">
-              <span className="text-xs tracking-widest font-black uppercase text-[#d4af37]">{getCategoryLabel(product.category)}</span>
+              <span className="text-xs tracking-widest font-black uppercase text-[#d4af37]">{translateDynamic(getCategoryLabel(product.category), language)}</span>
               <h4 className="font-display font-bold text-sm text-brand-charcoal mt-1 group-hover:text-[#8b1a2a] line-clamp-2">{product.name}</h4>
             </div>
           </Link>
@@ -359,7 +363,7 @@ function SectionCollections({ section }: { section: HomepageSection }) {
       </CenteredScrollRow>
       <div className="flex justify-center mt-8 px-4">
         <Link to={linkUrl} className="px-10 py-3 rounded-full bg-[#8b1a2a] text-white text-[11px] font-black uppercase tracking-[0.25em] hover:bg-[#d4af37] hover:text-[#1a0d0f] active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-[#d4af37]/20">
-          View All
+          {language === 'ar' ? 'عرض الكل' : 'View All'}
         </Link>
       </div>
     </Section>
@@ -606,6 +610,7 @@ function SplitGridText({
  * Mobile: 2×2 staggered grid | Desktop: two horizontal image+text cards
  */
 function SectionSplit({ section }: { section: HomepageSection }) {
+  const { language } = useLanguage();
   const p0 = section.products?.[0] ? mapDbProduct(section.products[0]) : null;
   const p1 = section.products?.[1] ? mapDbProduct(section.products[1]) : null;
 
@@ -621,26 +626,26 @@ function SectionSplit({ section }: { section: HomepageSection }) {
         <SplitGridImage
           className="col-start-1 row-start-1"
           imageSrc={leftImage}
-          title={section.title || "Ethnic Collection"}
+          title={translateDynamic(section.title || "Ethnic Collection", language)}
           linkUrl={section.linkUrl || (p0 ? `/product/${p0.id}` : "/shop")}
           delay={0}
         />
         <SplitGridText
           className="col-start-2 row-start-1"
-          subtitle={section.subtitleRight || "Western Trend"}
-          title={section.titleRight || p1?.name || "New Season"}
-          description={section.descriptionRight || p1?.description}
-          buttonText={section.buttonTextRight || "Shop Western"}
+          subtitle={translateDynamic(section.subtitleRight || "Western Trend", language)}
+          title={translateDynamic(section.titleRight || p1?.name || "New Season", language)}
+          description={translateDynamic(section.descriptionRight || p1?.description || "", language)}
+          buttonText={translateDynamic(section.buttonTextRight || "Shop Western", language)}
           linkUrl={section.linkUrlRight || (p1 ? `/product/${p1.id}` : "/shop")}
           backgroundColor={mauve}
           delay={0.06}
         />
         <SplitGridText
           className="col-start-1 row-start-2"
-          subtitle={section.subtitle || "Ethnic Collection"}
-          title={section.title || p0?.name || "Shop Collection"}
-          description={section.description || p0?.description}
-          buttonText={section.buttonText || "Shop Ethnic"}
+          subtitle={translateDynamic(section.subtitle || "Ethnic Collection", language)}
+          title={translateDynamic(section.title || p0?.name || "Shop Collection", language)}
+          description={translateDynamic(section.description || p0?.description || "", language)}
+          buttonText={translateDynamic(section.buttonText || "Shop Ethnic", language)}
           linkUrl={section.linkUrl || (p0 ? `/product/${p0.id}` : "/shop")}
           backgroundColor={maroon}
           delay={0.1}
@@ -648,7 +653,7 @@ function SectionSplit({ section }: { section: HomepageSection }) {
         <SplitGridImage
           className="col-start-2 row-start-2"
           imageSrc={rightImage}
-          title={section.titleRight || "Western Trend"}
+          title={translateDynamic(section.titleRight || "Western Trend", language)}
           linkUrl={section.linkUrlRight || (p1 ? `/product/${p1.id}` : "/shop")}
           delay={0.14}
         />
@@ -659,10 +664,10 @@ function SectionSplit({ section }: { section: HomepageSection }) {
         <SplitPromoBox
           imageLeft
           imageSrc={leftImage}
-          subtitle={section.subtitle || "Ethnic Collection"}
-          title={section.title || p0?.name || "Shop Collection"}
-          description={section.description || p0?.description}
-          buttonText={section.buttonText ?? undefined}
+          subtitle={translateDynamic(section.subtitle || "Ethnic Collection", language)}
+          title={translateDynamic(section.title || p0?.name || "Shop Collection", language)}
+          description={translateDynamic(section.description || p0?.description || "", language)}
+          buttonText={section.buttonText ? translateDynamic(section.buttonText, language) : undefined}
           linkUrl={section.linkUrl ?? (p0 ? `/product/${p0.id}` : "/shop")}
           backgroundColor={maroon}
           delay={0}
@@ -670,10 +675,10 @@ function SectionSplit({ section }: { section: HomepageSection }) {
         <SplitPromoBox
           imageLeft={false}
           imageSrc={rightImage}
-          subtitle={section.subtitleRight || "Western Trend"}
-          title={section.titleRight || p1?.name || "New Season"}
-          description={section.descriptionRight || p1?.description}
-          buttonText={section.buttonTextRight ?? undefined}
+          subtitle={translateDynamic(section.subtitleRight || "Western Trend", language)}
+          title={translateDynamic(section.titleRight || p1?.name || "New Season", language)}
+          description={translateDynamic(section.descriptionRight || p1?.description || "", language)}
+          buttonText={section.buttonTextRight ? translateDynamic(section.buttonTextRight, language) : undefined}
           linkUrl={section.linkUrlRight ?? (p1 ? `/product/${p1.id}` : "/shop")}
           backgroundColor={mauve}
           delay={0.1}
@@ -685,6 +690,7 @@ function SectionSplit({ section }: { section: HomepageSection }) {
 
 /** Type 4 — Shop by Department: large vertical category cards (now horizontal carousel) */
 function SectionDepartments({ section }: { section: HomepageSection }) {
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
   const scroll = (dir: number) =>
@@ -694,7 +700,7 @@ function SectionDepartments({ section }: { section: HomepageSection }) {
 
   return (
     <Section className="px-4 sm:px-6 lg:px-8 mb-16">
-      <CarouselHeader title={section.title} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
+      <CarouselHeader title={translateDynamic(section.title, language)} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
       <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-5 sm:gap-6">
         {products.map((product: Product, i: number) => (
           <motion.div
@@ -712,11 +718,11 @@ function SectionDepartments({ section }: { section: HomepageSection }) {
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
             <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col items-center text-center gap-3">
-              <span className="text-[10px] sm:text-xs tracking-[0.22em] uppercase font-bold text-[#d4af37]">{getCategoryLabel(product.category)}</span>
+              <span className="text-[10px] sm:text-xs tracking-[0.22em] uppercase font-bold text-[#d4af37]">{translateDynamic(getCategoryLabel(product.category), language)}</span>
               <h3 className="font-display font-extrabold text-lg text-white uppercase tracking-wider">{product.name}</h3>
               <p className="text-xs sm:text-[13px] text-white/70 max-w-[240px] line-clamp-2">{product.description}</p>
               <span className="mt-2 bg-white text-brand-charcoal px-6 py-2.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-colors duration-300 group-hover:bg-[#8b1a2a] group-hover:text-white">
-                Explore Collection
+                {language === 'ar' ? 'اكتشف المجموعة' : 'Explore Collection'}
               </span>
             </div>
           </motion.div>
@@ -724,7 +730,7 @@ function SectionDepartments({ section }: { section: HomepageSection }) {
       </CenteredScrollRow>
       <div className="flex justify-center mt-8 px-4">
         <Link to={linkUrl} className="px-10 py-3 rounded-full bg-[#8b1a2a] text-white text-[11px] font-black uppercase tracking-[0.25em] hover:bg-[#d4af37] hover:text-[#1a0d0f] active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-[#d4af37]/20">
-          View All
+          {language === 'ar' ? 'عرض الكل' : 'View All'}
         </Link>
       </div>
     </Section>
@@ -733,6 +739,7 @@ function SectionDepartments({ section }: { section: HomepageSection }) {
 
 /** Type 1 — Product carousel (horizontal scroll, reference site) */
 function SectionCarousel({ section }: { section: HomepageSection }) {
+  const { language } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
   const scroll = (dir: number) =>
     scrollRef.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
@@ -741,7 +748,7 @@ function SectionCarousel({ section }: { section: HomepageSection }) {
 
   return (
     <Section className="px-4 sm:px-6 lg:px-8 mb-16">
-      <CarouselHeader title={section.title} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
+      <CarouselHeader title={translateDynamic(section.title, language)} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
       <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-5 sm:gap-6">
         {products.map((uiProduct: Product, i: number) => (
           <CarouselProductCard key={uiProduct.id} product={uiProduct} delay={i * 0.05} variant="carousel" />
@@ -749,7 +756,7 @@ function SectionCarousel({ section }: { section: HomepageSection }) {
       </CenteredScrollRow>
       <div className="flex justify-center mt-8 px-4">
         <Link to={linkUrl} className="px-10 py-3 rounded-full bg-[#8b1a2a] text-white text-[11px] font-black uppercase tracking-[0.25em] hover:bg-[#d4af37] hover:text-[#1a0d0f] active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-[#d4af37]/20">
-          View All
+          {language === 'ar' ? 'عرض الكل' : 'View All'}
         </Link>
       </div>
     </Section>
@@ -813,32 +820,11 @@ const accentStyles: Record<string, {
     bar: "bg-rose-500",
   },
 };
-const features = [
-  {
-    icon: <Truck className="w-6 h-6" strokeWidth={1.5} />,
-    title: "Free Shipping",
-    desc: "On all orders above ﷼999. Nationwide delivery.",
-  },
-  {
-    icon: <RefreshCcw className="w-6 h-6" strokeWidth={1.5} />,
-    title: "Easy Returns",
-    desc: "Hassle-free 7-day return policy.",
-  },
-  {
-    icon: <Lock className="w-6 h-6" strokeWidth={1.5} />,
-    title: "Secure Payment",
-    desc: "100% secure payments via UPI & Cards.",
-  },
-  {
-    icon: <Diamond className="w-6 h-6" strokeWidth={1.5} />,
-    title: "Premium Quality",
-    desc: "Handpicked & quality-checked products.",
-  },
-];
-
 /* ═══════════════════════════════════════════════════════════ */
 export const Home: React.FC = () => {
   const navigate = useNavigate();
+  const { language, t } = useLanguage();
+
   const {
     data: dynamicSections,
     isLoading: sectionsLoading,
@@ -855,6 +841,30 @@ export const Home: React.FC = () => {
   const yText = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacityText = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
+  const heroImages = [
+    "/images/044125e3-b200-4bd6-823f-5b0888f8c4eb.jpg",
+    "/images/12a68134-df4c-4c64-a3a9-95de5fd1ff56.jpg",
+    "/images/1f1095af-54b1-427f-8572-ef93a407c190.jpg",
+    "/images/36ee276f-d866-4738-b2b6-c273c21ee298.jpg",
+    "/images/56bd3c7e-571e-4fb6-ac19-312d90009d37.jpg",
+    "/images/5ae8bbe8-6725-478b-8849-b767ec87b2fe.jpg",
+    "/images/6a1975af-8f79-495f-aeed-c80c53ee3eda.jpg",
+    "/images/6f072607-96d2-4e03-9e53-3ed12453c31e.jpg",
+    "/images/93f5ef64-8878-46dc-b4ce-8e1f0db1160e.jpg",
+    "/images/9d6a2dda-3971-474a-ac49-ed22e351580a.jpg",
+    "/images/b153d57c-9cdb-40e3-a70e-9f2380e7f5a9.jpg",
+    "/images/bd762e90-6a2b-4d67-8a31-3cfdbb41ec3f.jpg"
+  ];
+
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 4500); // Rotate Hero images every 4.5 seconds
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
   /* ── Interactive Brand Story State ── */
   const [activeStoryTab, setActiveStoryTab] = useState(0);
   const [isHoveredStory, setIsHoveredStory] = useState(false);
@@ -867,30 +877,53 @@ export const Home: React.FC = () => {
     return () => clearInterval(interval);
   }, [isHoveredStory]);
 
+  const features = [
+    {
+      icon: <Truck className="w-6 h-6" strokeWidth={1.5} />,
+      title: language === 'ar' ? "شحن مجاني" : "Free Shipping",
+      desc: language === 'ar' ? "على جميع الطلبات التي تزيد عن ﷼٥٠. توصيل سريع." : "On all orders above ﷼50. Worldwide delivery.",
+    },
+    {
+      icon: <RefreshCcw className="w-6 h-6" strokeWidth={1.5} />,
+      title: language === 'ar' ? "إرجاع سهل" : "Easy Returns",
+      desc: language === 'ar' ? "سياسة إرجاع مريحة خلال ٧ أيام." : "Hassle-free 7-day return policy.",
+    },
+    {
+      icon: <Lock className="w-6 h-6" strokeWidth={1.5} />,
+      title: language === 'ar' ? "دفع آمن" : "Secure Payment",
+      desc: language === 'ar' ? "مدفوعات آمنة ومحمية بنسبة ١٠٠٪." : "100% secure payments.",
+    },
+    {
+      icon: <Diamond className="w-6 h-6" strokeWidth={1.5} />,
+      title: language === 'ar' ? "جودة ممتازة" : "Premium Quality",
+      desc: language === 'ar' ? "منتجات منتقاة بعناية ومضمونة الجودة." : "Handpicked & quality-checked products.",
+    },
+  ];
+
   const brandStats = [
     {
-      label: "Happy Customers",
+      label: language === 'ar' ? "العملاء السعداء" : "Happy Customers",
       value: "5,000+",
       icon: <ShieldCheck className="h-5 w-5" />,
       bg: "bg-[#8b1a2a]/10 text-[#8b1a2a]",
       color: "text-[#8b1a2a]",
     },
     {
-      label: "Curated Designs",
+      label: language === 'ar' ? "التصاميم الحصرية" : "Curated Designs",
       value: "100+",
       icon: <TrendingUp className="h-5 w-5" />,
       bg: "bg-emerald-500/10 text-emerald-500",
       color: "text-emerald-600",
     },
     {
-      label: "Cities Reached",
+      label: language === 'ar' ? "المدن المغطاة" : "Cities Reached",
       value: "150+",
       icon: <Landmark className="h-5 w-5" />,
       bg: "bg-blue-500/10 text-blue-500",
       color: "text-blue-600",
     },
     {
-      label: "Average Rating",
+      label: language === 'ar' ? "متوسط التقييم" : "Average Rating",
       value: "4.9 / 5",
       icon: <Star className="h-5 w-5 fill-[#d4af37] stroke-[#d4af37]" />,
       bg: "bg-amber-500/10 text-amber-500",
@@ -901,32 +934,20 @@ export const Home: React.FC = () => {
   const testimonials = [
     {
       stars: 5,
-      text: "The fabric quality on the satin set is incredible. Tailoring fits perfectly, and shipment arrived on time.",
-      name: "Anjali K.",
+      text: language === 'ar' ? "جودة الأقمشة ممتازة جداً. الخياطة والتفصيل مناسبان تماماً، وتصل الشحنة في وقتها المحدد." : "The fabric quality on the satin set is incredible. Tailoring fits perfectly, and shipment arrived on time.",
+      name: language === 'ar' ? "أنجالي ك." : "Anjali K.",
       verified: true,
     },
     {
       stars: 5,
-      text: "Superior Trends is my go-to boutique. The sarees have stunning handloom work. Truly authentic.",
-      name: "Meera R.",
+      text: language === 'ar' ? "سوبريور تريندز هو متجري المفضل دائماً. ملابسه تملك تصاميم ونقوش مذهلة وأصلية." : "Superior Trends is my go-to boutique. The sarees have stunning handloom work. Truly authentic.",
+      name: language === 'ar' ? "ميرا ر." : "Meera R.",
       verified: true,
     },
     {
       stars: 5,
-      text: "Absolutely gorgeous silhouettes. The custom sizing options are a lifesaver. Will definitely shop again.",
-      name: "Simran S.",
-      verified: true,
-    },
-    {
-      stars: 5,
-      text: "Exceptional design and quality. The western cord sets are extremely comfortable and chic.",
-      name: "Priyah T.",
-      verified: true,
-    },
-    {
-      stars: 5,
-      text: "Every item I buy is a masterpiece. Customer support was very helpful with custom tailoring requests.",
-      name: "Kajal P.",
+      text: language === 'ar' ? "قصات وتفاصيل رائعة للغاية. خيارات الخياطة والمقاسات المخصصة مفيدة جداً. سأكرر التجربة بالتأكيد." : "Absolutely gorgeous silhouettes. The custom sizing options are a lifesaver. Will definitely shop again.",
+      name: language === 'ar' ? "سيمران س." : "Simran S.",
       verified: true,
     },
   ];
@@ -939,15 +960,26 @@ export const Home: React.FC = () => {
           ref={heroRef}
           className="relative rounded-2xl sm:rounded-3xl overflow-hidden min-h-[52vh] sm:min-h-[58vh] md:min-h-[68vh] flex flex-col justify-end"
         >
-          {/* ── Background image with parallax ── */}
+          {/* ── Background image with parallax and crossfade slideshow ── */}
           <motion.div
-            className="absolute inset-0 bg-cover bg-center scale-105"
-            style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop')`,
-              filter: 'brightness(0.38)',
-              y: yBg,
-            }}
-          />
+            className="absolute inset-0 scale-105"
+            style={{ y: yBg }}
+          >
+            <AnimatePresence mode="popLayout">
+              <motion.div
+                key={currentHeroIndex}
+                initial={{ opacity: 0, scale: 1.06 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.2, ease: "easeInOut" }}
+                className="absolute inset-0 bg-cover bg-center"
+                style={{
+                  backgroundImage: `url('${heroImages[currentHeroIndex]}')`,
+                  filter: 'brightness(0.38)',
+                }}
+              />
+            </AnimatePresence>
+          </motion.div>
 
           {/* ── Layered gradients for depth ── */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10 pointer-events-none" />
@@ -962,14 +994,14 @@ export const Home: React.FC = () => {
               <span className="text-[#d4af37] text-[9px] font-black tracking-tight">ST</span>
             </div>
             <span className="text-[8px] font-bold uppercase tracking-[0.25em] text-white/50 hidden sm:block">
-              Al Alisha Collection
+              {t('common.alAlishaCollection')}
             </span>
           </div>
 
           {/* ── Content ── */}
           <motion.div
             style={{ y: yText, opacity: opacityText }}
-            className="relative z-10 px-6 sm:px-10 md:px-14 pb-10 sm:pb-14 pt-24 max-w-2xl"
+            className="relative z-10 px-6 sm:px-10 md:px-14 pb-10 sm:pb-14 pt-24 max-w-2xl text-left rtl:text-right"
           >
             <motion.div
               className="space-y-5"
@@ -980,74 +1012,102 @@ export const Home: React.FC = () => {
               {/* Eyebrow */}
               <div className="flex items-center gap-3">
                 <div className="h-px w-8 bg-[#d4af37]/70" />
-                <span className="text-[9px] font-black uppercase tracking-[0.35em] text-[#d4af37]">
-                  New Season · 2026
+                <span className={`font-black uppercase text-[#d4af37] ${language === 'ar' ? 'text-[11px] tracking-normal' : 'text-[9px] tracking-[0.35em]'}`}>
+                  {language === 'ar' ? 'موسم جديد · ٢٠٢٦' : 'New Season · 2026'}
                 </span>
               </div>
 
               {/* Headline */}
-              <h1 className="font-display text-[2.2rem] sm:text-5xl md:text-6xl font-black leading-[1.05] tracking-tight uppercase text-white">
-                Discover Your
-                <br />
-                <span className="relative inline-block mt-1">
-                  <span className="text-[#d4af37]">Signature</span>
-                  {' Style'}
-                  {/* swoosh underline */}
-                  <svg
-                    className="absolute -bottom-1.5 left-0 w-[60%]"
-                    viewBox="0 0 160 8"
-                    preserveAspectRatio="none"
-                    fill="none"
-                  >
-                    <path
-                      d="M2 6 C40 2, 120 2, 158 6"
-                      stroke="#d4af37"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      opacity="0.6"
-                    />
-                  </svg>
-                </span>
+              <h1 className={`font-display font-black leading-[1.05] tracking-tight uppercase text-white ${language === 'ar' ? 'text-[2.8rem] sm:text-6xl md:text-7xl' : 'text-[2.2rem] sm:text-5xl md:text-6xl'}`}>
+                {language === 'ar' ? (
+                  <>
+                    اكتشف
+                    <br />
+                    <span className="relative inline-block mt-1">
+                      <span className="text-[#d4af37]">أسلوبك</span>
+                      {' الخاص'}
+                      <svg
+                        className="absolute -bottom-1.5 left-0 w-[60%]"
+                        viewBox="0 0 160 8"
+                        preserveAspectRatio="none"
+                        fill="none"
+                      >
+                        <path
+                          d="M2 6 C40 2, 120 2, 158 6"
+                          stroke="#d4af37"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          opacity="0.6"
+                        />
+                      </svg>
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Discover Your
+                    <br />
+                    <span className="relative inline-block mt-1">
+                      <span className="text-[#d4af37]">Signature</span>
+                      {' Style'}
+                      <svg
+                        className="absolute -bottom-1.5 left-0 w-[60%]"
+                        viewBox="0 0 160 8"
+                        preserveAspectRatio="none"
+                        fill="none"
+                      >
+                        <path
+                          d="M2 6 C40 2, 120 2, 158 6"
+                          stroke="#d4af37"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          opacity="0.6"
+                        />
+                      </svg>
+                    </span>
+                  </>
+                )}
               </h1>
 
               {/* Body */}
-              <p className="text-[13px] sm:text-sm text-white/65 leading-relaxed font-light max-w-sm">
-                Artisan craftsmanship woven into contemporary silhouettes.
-                Custom designs built for effortless, enduring sophistication.
+              <p className={`text-white/65 leading-relaxed font-light max-w-sm ${language === 'ar' ? 'text-[15px] sm:text-base' : 'text-[13px] sm:text-sm'}`}>
+                {language === 'ar'
+                  ? "حرفة يدوية إبداعية منسوجة في تصاميم عصرية مميزة تناسب ذوقك الرفيع وأناقتك الدائمة."
+                  : "Artisan craftsmanship woven into contemporary silhouettes. Custom designs built for effortless, enduring sophistication."}
               </p>
 
               {/* CTAs */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
                   onClick={() => navigate('/shop')}
-                  className="
-              group flex items-center gap-2
-              bg-[#8b1a2a] hover:bg-[#d4af37] text-white hover:text-[#1a0d0f]
-              px-7 py-3.5 rounded-full
-              text-[11px] font-black uppercase tracking-widest
-              shadow-lg shadow-[#8b1a2a]/30 hover:shadow-[#d4af37]/30
-              transition-all duration-300 active:scale-[0.97]
-            "
+                  className={`
+                    group flex items-center gap-2
+                    bg-[#8b1a2a] hover:bg-[#d4af37] text-white hover:text-[#1a0d0f]
+                    px-7 py-3.5 rounded-full
+                    font-black uppercase
+                    shadow-lg shadow-[#8b1a2a]/30 hover:shadow-[#d4af37]/30
+                    transition-all duration-300 active:scale-[0.97]
+                    ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}
+                  `}
                 >
-                  Shop Now
-                  <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                  {t('common.shopNow')}
+                  <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform rtl:rotate-180" />
                 </button>
                 <button
                   onClick={() => navigate('/shop')}
-                  className="
-              flex items-center gap-2
-              border border-white/25 text-white/80
-              hover:border-white/60 hover:text-white hover:bg-white/8
-              px-7 py-3.5 rounded-full
-              text-[11px] font-black uppercase tracking-widest
-              transition-all duration-300 backdrop-blur-sm
-            "
+                  className={`
+                    flex items-center gap-2
+                    border border-white/25 text-white/80
+                    hover:border-white/60 hover:text-white hover:bg-white/8
+                    px-7 py-3.5 rounded-full
+                    font-black uppercase
+                    transition-all duration-300 backdrop-blur-sm
+                    ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}
+                  `}
                 >
-                  View Collections
+                  {language === 'ar' ? "عرض المجموعات" : "View Collections"}
                 </button>
               </div>
 
-              {/* Social proof strip */}
               {/* Social proof strip */}
               <div className="flex items-center gap-4 pt-1">
                 <div className="flex -space-x-2">
@@ -1064,8 +1124,8 @@ export const Home: React.FC = () => {
                     />
                   ))}
                 </div>
-                <p className="text-[10px] text-white/45 font-medium">
-                  <span className="text-white/70 font-bold">2,400+</span> customers this season
+                <p className={`text-white/45 font-medium ${language === 'ar' ? 'text-[12px]' : 'text-[10px]'}`}>
+                  <span className="text-white/70 font-bold">2,400+</span> {language === 'ar' ? 'عميل هذا الموسم' : 'customers this season'}
                 </p>
               </div>
             </motion.div>
@@ -1073,7 +1133,7 @@ export const Home: React.FC = () => {
         </div>
       </Section>
 
-      {/* ── 2. ADMIN HOMEPAGE SECTIONS (Display Order 0, 1, 2… right after Hero) ── */}
+      {/* ── 2. ADMIN HOMEPAGE SECTIONS ── */}
       {sectionsLoading && (
         <>
           <HomeSplitSkeleton />
@@ -1082,9 +1142,9 @@ export const Home: React.FC = () => {
         </>
       )}
       {sectionsError && !sectionsLoading && (
-        <Section className="px-4 sm:px-6 lg:px-8 mb-16">
-          <p className="text-center text-sm text-neutral-500 font-medium py-12">
-            Collections could not load. Check your connection and refresh.
+        <Section className="px-4 sm:px-6 lg:px-8 mb-16 text-center">
+          <p className="text-sm text-neutral-500 font-medium py-12">
+            {language === 'ar' ? 'عذراً، تعذر تحميل المجموعات. تحقق من اتصالك بالإنترنت.' : 'Collections could not load. Check your connection and refresh.'}
           </p>
         </Section>
       )}
@@ -1095,9 +1155,6 @@ export const Home: React.FC = () => {
         ))}
 
       {/* ── 3. STATS ──────────────────────────────────────────── */}
-
-
-
       <Section className="relative overflow-hidden px-4 sm:px-6 lg:px-8 py-14 bg-[#FAFAF8] border-y border-[#E8E4DD]">
         {/* Ambient glows */}
         <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-indigo-500/[0.06] blur-3xl" />
@@ -1107,13 +1164,13 @@ export const Home: React.FC = () => {
           {/* Header */}
           <div className="text-center">
             <p className="text-[10.5px] font-bold tracking-[0.2em] uppercase text-indigo-600 mb-2">
-              Why Superior Trends
+              {language === 'ar' ? 'لماذا سوبريور تريندز' : 'Why Superior Trends'}
             </p>
             <h2 className="font-display font-black text-2xl sm:text-[26px] text-[#1c1c2e] tracking-tight">
-              Built Different
+              {language === 'ar' ? 'تميزنا يكمن في التفاصيل' : 'Built Different'}
             </h2>
             <p className="text-sm text-[#999] mt-1.5">
-              A premium, transparent shopping experience — by the numbers.
+              {language === 'ar' ? 'تجربة تسوق متميزة وشفافة — بالأرقام والنتائج.' : 'A premium, transparent shopping experience — by the numbers.'}
             </p>
           </div>
 
@@ -1156,7 +1213,7 @@ export const Home: React.FC = () => {
                     {/* Badge */}
                     <div className={`inline-flex items-center gap-1 mt-3 text-[10.5px] font-semibold
                                px-2.5 py-1 rounded-full ${v.badge}`}>
-                      {c.badge ?? "Verified"}
+                      {language === 'ar' ? 'موثق' : (v.badge ?? "Verified")}
                     </div>
                   </div>
                 </motion.div>
@@ -1166,22 +1223,20 @@ export const Home: React.FC = () => {
         </div>
       </Section>
 
-      {/* ── 8. TESTIMONIALS — auto-scroll + manual ─────────────── */}
-
-
+      {/* ── 8. TESTIMONIALS ── */}
       <Section className="mb-12 sm:mb-16 overflow-hidden bg-[#FAFAF8]">
         <div className="w-full">
           {/* Header */}
           <div className="text-center mb-8 sm:mb-10 px-4 sm:px-6 lg:px-8">
             <span className="text-[10.5px] font-bold tracking-[0.22em] uppercase text-[#8b1a2a]">
-              Feedback
+              {language === 'ar' ? 'آراء العملاء' : 'Feedback'}
             </span>
             <h2 className="font-display font-black text-2xl sm:text-[26px] text-[#1c1c2e] mt-2 mb-2.5 tracking-tight uppercase">
-              What Our Customers Say
+              {language === 'ar' ? 'ماذا يقول عملاؤنا عنّا' : 'What Our Customers Say'}
             </h2>
             <div className="w-9 h-[2.5px] bg-[#8b1a2a] mx-auto rounded-full mb-3" />
             <p className="text-xs sm:text-[13px] text-brand-text-muted max-w-xs mx-auto">
-              Real reviews from real shoppers — swipe or use arrows to browse.
+              {language === 'ar' ? 'تقييمات حقيقية من متسوقين حقيقيين — تصفح الآن.' : 'Real reviews from real shoppers — swipe or use arrows to browse.'}
             </p>
           </div>
 
@@ -1222,10 +1277,10 @@ export const Home: React.FC = () => {
               transition={{ duration: 1.2, ease: EASE }}
               src={
                 activeStoryTab === 0
-                  ? "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2074&auto=format&fit=crop"
+                  ? "/images/b153d57c-9cdb-40e3-a70e-9f2380e7f5a9.jpg"
                   : activeStoryTab === 1
-                    ? "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6?q=80&w=1964&auto=format&fit=crop"
-                    : "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2071&auto=format&fit=crop"
+                    ? "/images/bd762e90-6a2b-4d67-8a31-3cfdbb41ec3f.jpg"
+                    : "/images/5ae8bbe8-6725-478b-8849-b767ec87b2fe.jpg"
               }
               alt="Superior Trends Editorial"
               className="w-full h-full object-cover origin-center absolute inset-0"
@@ -1236,23 +1291,23 @@ export const Home: React.FC = () => {
           <div className="absolute bottom-6 left-6 z-20 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-ping" />
             <span className="text-[10px] uppercase font-bold tracking-widest text-[#D4AF37]">
-              Chapter 0{activeStoryTab + 1}
+              {language === 'ar' ? 'الفصل' : 'Chapter'} 0{activeStoryTab + 1}
             </span>
           </div>
         </div>
 
         {/* Right: Interactive Text Content Area */}
-        <div className="w-full md:w-1/2 px-5 py-10 sm:p-12 md:p-16 lg:p-24 flex flex-col justify-center space-y-6 sm:space-y-8 relative z-10 bg-[#0D0D0D]">
+        <div className="w-full md:w-1/2 px-5 py-10 sm:p-12 md:p-16 lg:p-24 flex flex-col justify-center space-y-6 sm:space-y-8 relative z-10 bg-[#0D0D0D] text-left rtl:text-right">
           {/* Top subtle glow */}
           <div className="absolute top-0 right-0 w-[350px] h-[350px] bg-[#D4AF37]/5 rounded-full blur-[100px] pointer-events-none" />
 
           {/* Brand Heading */}
-          <div className="space-y-1.5 text-center md:text-left max-w-md mx-auto md:max-w-none w-full">
+          <div className="space-y-1.5 text-center md:text-left rtl:md:text-right max-w-md mx-auto md:max-w-none w-full">
             <span className="text-xs tracking-[0.35em] text-[#D4AF37] font-extrabold uppercase block">
-              Superior Trends
+              {t('common.superiorTrends')}
             </span>
             <span className="text-xs tracking-[0.2em] text-gray-400 font-bold uppercase block">
-              Al Alisha Collection
+              {t('common.alAlishaCollection')}
             </span>
           </div>
 
@@ -1262,9 +1317,9 @@ export const Home: React.FC = () => {
             style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
           >
             {[
-              { label: "Design Philosophy", id: 0 },
-              { label: "Artisan Heritage", id: 1 },
-              { label: "Bespoke Studio", id: 2 },
+              { label: language === 'ar' ? 'فلسفة التصميم' : "Design Philosophy", id: 0 },
+              { label: language === 'ar' ? 'التراث اليدوي' : "Artisan Heritage", id: 1 },
+              { label: language === 'ar' ? 'خياطة خاصة' : "Bespoke Studio", id: 2 },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -1295,7 +1350,7 @@ export const Home: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.55, ease: EASE }}
-                className="space-y-4 flex flex-col items-center md:items-start text-center md:text-left"
+                className="space-y-4 flex flex-col items-center md:items-start rtl:md:items-end text-center md:text-left rtl:md:text-right"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-xl font-display font-extrabold text-[#D4AF37]">
@@ -1303,38 +1358,59 @@ export const Home: React.FC = () => {
                   </span>
                   <span className="text-xs uppercase font-extrabold tracking-widest text-[#D4AF37] bg-[#D4AF37]/10 px-3 py-1 rounded-full">
                     {activeStoryTab === 0
-                      ? "Sartorial Excellence"
+                      ? (language === 'ar' ? 'التميز في التفصيل' : "Sartorial Excellence")
                       : activeStoryTab === 1
-                        ? "Artisanal Legacy"
-                        : "Uncompromised Quality"}
+                        ? (language === 'ar' ? 'الإرث التقليدي' : "Artisanal Legacy")
+                        : (language === 'ar' ? 'جودة لا تضاهى' : "Uncompromised Quality")}
                   </span>
                 </div>
 
                 <h3 className="font-display font-extrabold text-xl sm:text-3xl lg:text-4xl tracking-tight leading-[1.15]">
                   {activeStoryTab === 0 ? (
-                    <>
-                      Tailored Perfection. <br />
-                      Bold & Sophisticated.
-                    </>
+                    language === 'ar' ? (
+                      <>
+                        تفصيل مثالي. <br />
+                        جرأة ورقي.
+                      </>
+                    ) : (
+                      <>
+                        Tailored Perfection. <br />
+                        Bold & Sophisticated.
+                      </>
+                    )
                   ) : activeStoryTab === 1 ? (
-                    <>
-                      Handloom Heritage. <br />
-                      Artisan Made Sarees.
-                    </>
+                    language === 'ar' ? (
+                      <>
+                        إرث النول اليدوي. <br />
+                        ساري مصنوع يدوياً.
+                      </>
+                    ) : (
+                      <>
+                        Handloom Heritage. <br />
+                        Artisan Made Sarees.
+                      </>
+                    )
                   ) : (
-                    <>
-                      Bespoke Fitting. <br />
-                      Custom Tailored For You.
-                    </>
+                    language === 'ar' ? (
+                      <>
+                        مقاسات خاصة. <br />
+                        تفصيل مخصص لأجلك.
+                      </>
+                    ) : (
+                      <>
+                        Bespoke Fitting. <br />
+                        Custom Tailored For You.
+                      </>
+                    )
                   )}
                 </h3>
 
                 <p className="text-[13px] sm:text-sm text-gray-300 leading-relaxed font-light">
                   {activeStoryTab === 0
-                    ? "Our design house represents the intersection of luxury craftsmanship and modern utility. We design statement pieces—from oversized blazers to flowing satin coordinates—that empower individual expression and stand out in any setting."
+                    ? (language === 'ar' ? "تمثل دار التصميم لدينا نقطة التقاء بين الحرفية الفاخرة والعملية الحديثة. نحن نصمم قطعاً مميزة تمكنك من التعبير عن نفسك بجرأة وثقة." : "Our design house represents the intersection of luxury craftsmanship and modern utility. We design statement pieces—from oversized blazers to flowing satin coordinates—that empower individual expression and stand out in any setting.")
                     : activeStoryTab === 1
-                      ? "Celebrating authentic Indian heritage, our signature Al Alisha range collaborates directly with traditional handloom weavers. We integrate rich fabrics, pure thread embroidery, and classic Banarasi motifs into modern fits."
-                      : "Every individual is unique. Our studio offers customized sizing and tailoring options directly through the platform. By custom-crafting pieces specifically to your dimensions, we minimize textile waste and guarantee a flawless drape."}
+                      ? (language === 'ar' ? "احتفاءً بالتراث الهندي الأصيل، تتعاون مجموعة العليشة المميزة لدينا مباشرة مع نساجي الأنوال اليدوية التقليديين في مختلف المدن." : "Celebrating authentic Indian heritage, our signature Al Alisha range collaborates directly with traditional handloom weavers. We integrate rich fabrics, pure thread embroidery, and classic Banarasi motifs into modern fits.")
+                      : (language === 'ar' ? "كل عميل لدينا هو حالة خاصة. يقدم الاستوديو الخاص بنا خيارات مخصصة للمقاسات والتفصيل مباشرة من خلال المنصة لضمان مظهر مثالي وخياطة تليق بك." : "Every individual is unique. Our studio offers customized sizing and tailoring options directly through the platform. By custom-crafting pieces specifically to your dimensions, we minimize textile waste and guarantee a flawless drape.")}
                 </p>
               </motion.div>
             </AnimatePresence>
@@ -1344,12 +1420,12 @@ export const Home: React.FC = () => {
               <div className="size-11 rounded-full border border-[#D4AF37]/30 flex items-center justify-center shrink-0 bg-[#D4AF37]/5">
                 <Sparkles size={16} className="text-[#D4AF37]" />
               </div>
-              <div className="text-left">
+              <div className="text-left rtl:text-right">
                 <p className="text-[10px] text-white font-bold uppercase tracking-widest">
-                  The House of Superior Trends
+                  {language === 'ar' ? 'بيت سوبريور تريندز' : 'The House of Superior Trends'}
                 </p>
                 <p className="text-[10px] text-gray-400 mt-0.5">
-                  Est. 2024 • Al Alisha Collection
+                  {language === 'ar' ? 'تأسس ٢٠٢٤ • مجموعة العليشة' : 'Est. 2024 • Al Alisha Collection'}
                 </p>
               </div>
             </div>
@@ -1357,9 +1433,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* ── 8.5. BRAND PROMISES (CEO SECTION) ────────────────── */}
-
-
+      {/* ── 8.5. BRAND PROMISES (CEO SECTION) ── */}
       <Section className="px-4 sm:px-6 lg:px-8 mb-16">
         <div className="w-full relative bg-[#FCF8F8] rounded-[24px] overflow-hidden border border-[#8b1a2a]/10">
 
@@ -1422,26 +1496,27 @@ export const Home: React.FC = () => {
         <div className="max-w-lg mx-auto text-center space-y-8">
           <div className="space-y-3">
             <span className="text-xs tracking-[0.3em] uppercase text-[#8b1a2a] font-bold">
-              Join the Circle
+              {language === 'ar' ? 'انضم إلى عائلتنا' : 'Join the Circle'}
             </span>
             <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-brand-charcoal tracking-tight uppercase">
-              Subscribe For Exclusive Access
+              {language === 'ar' ? 'اشترك للحصول على وصول حصري' : 'Subscribe For Exclusive Access'}
             </h2>
             <p className="text-sm sm:text-base text-brand-text-muted leading-relaxed">
-              Receive private notifications for new collection releases, limited
-              batch runs, and special offers.
+              {language === 'ar'
+                ? 'احصل على إشعارات خاصة عند إطلاق المجموعات الجديدة، والكميات المحدودة، والعروض الخاصة.'
+                : 'Receive private notifications for new collection releases, limited batch runs, and special offers.'}
             </p>
           </div>
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              alert("Thank you for subscribing!");
+              alert(language === 'ar' ? 'شكراً لاشتراكك!' : 'Thank you for subscribing!');
             }}
             className="flex gap-2"
           >
             <Input
               type="email"
-              placeholder="Enter your email address"
+              placeholder={language === 'ar' ? 'أدخل عنوان بريدك الإلكتروني' : 'Enter your email address'}
               className="bg-white border-brand-border h-11 text-sm rounded-xl shadow-xs"
               required
             />
@@ -1449,7 +1524,7 @@ export const Home: React.FC = () => {
               type="submit"
               className="bg-[#8b1a2a] hover:bg-brand-charcoal text-white h-11 px-6 rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-300 shrink-0"
             >
-              Subscribe
+              {language === 'ar' ? 'اشترك' : 'Subscribe'}
             </Button>
           </form>
         </div>

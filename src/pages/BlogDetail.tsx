@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Clock, Share2 } from 'lucide-react';
 import { PageShell } from '../components/PageShell';
 import { useBlogPost } from '../hooks/useBlogs';
 import { BlogDetailSkeleton } from '../components/ui/skeleton';
+import { useLanguage } from '../context/LanguageContext';
 
 function renderContent(content: string) {
   const blocks = content.split(/\n\n+/).filter(Boolean);
@@ -14,7 +15,7 @@ function renderContent(content: string) {
       return (
         <h2
           key={i}
-          className="font-display text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#1a1208] mt-12 mb-5"
+          className="font-display text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#1a1208] mt-12 mb-5 text-left rtl:text-right"
         >
           {trimmed.replace(/^##\s+/, '')}
         </h2>
@@ -25,7 +26,7 @@ function renderContent(content: string) {
       return (
         <h3
           key={i}
-          className="font-display text-lg sm:text-xl font-black uppercase tracking-tight text-[#8b1a2a] mt-8 mb-4"
+          className="font-display text-lg sm:text-xl font-black uppercase tracking-tight text-[#8b1a2a] mt-8 mb-4 text-left rtl:text-right"
         >
           {trimmed.replace(/^###\s+/, '')}
         </h3>
@@ -35,7 +36,7 @@ function renderContent(content: string) {
     return (
       <p
         key={i}
-        className="text-[15px] md:text-base text-[#5a4a38] leading-[1.85] mb-5 last:mb-0"
+        className="text-[15px] md:text-base text-[#5a4a38] leading-[1.85] mb-5 last:mb-0 text-left rtl:text-right"
       >
         {trimmed}
       </p>
@@ -46,6 +47,7 @@ function renderContent(content: string) {
 export const BlogDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading, isError } = useBlogPost(slug);
+  const { language, t, isRtl } = useLanguage();
 
   if (isLoading) {
     return <BlogDetailSkeleton />;
@@ -54,21 +56,23 @@ export const BlogDetail: React.FC = () => {
   if (isError || !post) {
     return (
       <PageShell className="bg-[#faf6f0]">
-        <div className="flex flex-col items-center justify-center py-32 gap-5">
-          <p className="text-base text-[#7a6a58] font-medium">This story could not be found.</p>
+        <div className="flex flex-col items-center justify-center py-32 gap-5 text-center">
+          <p className="text-base text-[#7a6a58] font-medium">
+            {language === 'ar' ? 'تعذر العثور على هذه المقالة.' : 'This story could not be found.'}
+          </p>
           <Link
             to="/blogs"
             className="inline-flex items-center gap-2 text-[#8b1a2a] text-[11px] font-black uppercase tracking-[0.22em] hover:-translate-x-0.5 transition-transform duration-200"
           >
-            <ArrowLeft size={14} />
-            Back to Journal
+            <ArrowLeft size={14} className="rtl:rotate-180" />
+            {language === 'ar' ? 'العودة إلى المجلة' : 'Back to Journal'}
           </Link>
         </div>
       </PageShell>
     );
   }
 
-  const dateStr = new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-IN', {
+  const dateStr = new Date(post.publishedAt || post.createdAt).toLocaleDateString(language === 'ar' ? 'ar-OM' : 'en-IN', {
     day: '2-digit',
     month: 'long',
     year: 'numeric',
@@ -92,8 +96,8 @@ export const BlogDetail: React.FC = () => {
           to="/blogs"
           className="group inline-flex items-center gap-2 text-[#8b1a2a] text-[10px] font-black uppercase tracking-[0.25em] mb-8 lg:mb-12 hover:text-[#d4af37] transition-colors duration-200"
         >
-          <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform duration-200" />
-          Style Journal
+          <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform duration-200 rtl:rotate-180" />
+          {language === 'ar' ? 'مجلة الأناقة' : 'Style Journal'}
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
@@ -129,14 +133,14 @@ export const BlogDetail: React.FC = () => {
 
           {/* ── Right: article card ───────────────────────── */}
           <div className="lg:col-span-7 min-w-0">
-            <article className="bg-white border border-[#e8dcc8] rounded-2xl shadow-sm overflow-hidden">
+            <article className="bg-white border border-[#e8dcc8] rounded-2xl shadow-sm overflow-hidden text-left rtl:text-right">
 
               {/* Card body */}
               <div className="p-6 sm:p-9 lg:p-12">
 
                 {/* Tag */}
                 <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-[#d4af37]/10 border border-[#d4af37]/20 text-[9px] font-black uppercase tracking-[0.25em] text-[#b8942a] mb-5">
-                  {post.tag || 'Editorial'}
+                  {post.tag || (language === 'ar' ? 'افتتاحية' : 'Editorial')}
                 </span>
 
                 {/* Title */}
@@ -152,21 +156,21 @@ export const BlogDetail: React.FC = () => {
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <Clock size={13} className="text-[#8b1a2a] shrink-0" strokeWidth={2} />
-                    {post.readMinutes} min read
+                    {language === 'ar' ? `قراءة ${post.readMinutes} دقائق` : `${post.readMinutes} min read`}
                   </span>
                   <button
                     type="button"
                     onClick={handleShare}
-                    className="inline-flex items-center gap-1.5 text-[#1a1208] hover:text-[#8b1a2a] transition-colors duration-200 ml-auto"
+                    className="inline-flex items-center gap-1.5 text-[#1a1208] hover:text-[#8b1a2a] transition-colors duration-200 ltr:ml-auto rtl:mr-auto"
                     aria-label="Share this article"
                   >
                     <Share2 size={13} strokeWidth={2} />
-                    Share
+                    {language === 'ar' ? 'مشاركة' : 'Share'}
                   </button>
                 </div>
 
                 {/* Excerpt — pull quote style */}
-                <blockquote className="border-l-[3px] border-[#8b1a2a] pl-5 mb-8">
+                <blockquote className="border-l-[3px] border-[#8b1a2a] rtl:border-l-0 rtl:border-r-[3px] pl-5 rtl:pl-0 rtl:pr-5 mb-8">
                   <p className="text-[17px] sm:text-lg text-[#1a1208] font-display font-black leading-snug italic">
                     {post.excerpt}
                   </p>
@@ -179,27 +183,20 @@ export const BlogDetail: React.FC = () => {
               </div>
 
               {/* ── Card footer CTA ─────────────────────── */}
-              {/*
-                FIX: was using negative margins (-mx-6 -mb-6 etc.) to bleed
-                the footer to card edges — fragile, breaks at different
-                padding breakpoints. Now uses border-t inside the card with
-                a bg-[#faf6f0] surface to achieve the same two-tone look
-                without any negative margin hacks.
-              */}
               <div className="border-t border-[#e8dcc8] bg-[#faf6f0] px-6 sm:px-9 lg:px-12 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#1a1208] mb-0.5">
-                    Superior Trends
+                    {t('common.superiorTrends')}
                   </p>
                   <p className="text-[13px] text-[#7a6a58]">
-                    Al Alisha Collection
+                    {t('common.alAlishaCollection')}
                   </p>
                 </div>
                 <Link
                   to="/shop"
-                  className="inline-flex items-center justify-center bg-[#8b1a2a] text-white px-7 py-3 text-[11px] font-black uppercase tracking-[0.22em] rounded-full hover:bg-[#701522] hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#8b1a2a]/20 active:scale-95 transition-all duration-200 shrink-0"
+                  className="inline-flex items-center justify-center bg-[#8b1a2a] text-white px-7 py-3 text-[11px] font-black uppercase tracking-[0.22em] rounded-full hover:bg-[#701522] hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#8b1a2a]/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
                 >
-                  Shop the Collection
+                  {language === 'ar' ? 'تسوق المجموعة' : 'Shop the Collection'}
                 </Link>
               </div>
 

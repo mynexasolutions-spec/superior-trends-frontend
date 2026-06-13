@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Search, Heart, ShoppingBag, Menu, X, User,
-  Truck, ChevronDown, Home, Compass, ArrowRight,
+  Truck, ChevronDown, Home, Compass, ArrowRight, Globe,
 } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCategories } from '../hooks/useProducts';
 import { FREE_SHIPPING_MIN_INR } from '../lib/formatCurrency';
+import { useLanguage } from '../context/LanguageContext';
 
 // ─── tiny helpers ────────────────────────────────────────────────────────────
 
@@ -36,6 +37,7 @@ export const Navbar: React.FC = () => {
   const { wishlist, cartCount, setIsCartOpen } = useShop();
   const { user, logout } = useAuthStore();
   const { data: categories } = useCategories();
+  const { language, setLanguage, t } = useLanguage();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [shopExpanded, setShopExpanded] = useState(false);
@@ -82,11 +84,11 @@ export const Navbar: React.FC = () => {
   const closeMega = () => { megaMenuTimeout.current = setTimeout(() => setIsMegaMenuOpen(false), 120); };
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Shop', path: '/shop' },
-    { name: 'Blogs', path: '/blogs' },
-    { name: 'About Us', path: '/about' },
-    { name: 'Contact Us', path: '/contact' },
+    { name: t('common.home'), path: '/' },
+    { name: t('common.shop'), path: '/shop' },
+    { name: t('common.blogs'), path: '/blogs' },
+    { name: t('common.aboutUs'), path: '/about' },
+    { name: t('common.contactUs'), path: '/contact' },
   ];
 
   const isActive = (path: string) =>
@@ -101,15 +103,15 @@ export const Navbar: React.FC = () => {
       <div className="fixed top-0 left-0 right-0 z-40 w-full">
 
         {/* Announcement bar */}
-        <div className="bg-gradient-to-r from-[#8b1a2a] via-[#a22033] to-[#8b1a2a] text-white py-2 px-4 flex items-center justify-center gap-2 text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest select-none border-b border-[#d4af37]/20 shadow-sm">
+        <div className={`bg-gradient-to-r from-[#8b1a2a] via-[#a22033] to-[#8b1a2a] text-white py-2 px-4 flex items-center justify-center gap-2 font-extrabold uppercase select-none border-b border-[#d4af37]/20 shadow-sm ${language === 'ar' ? 'text-[12px] sm:text-[13px] tracking-normal' : 'text-[10px] sm:text-[11px] tracking-widest'}`}>
           <Truck size={11} className="shrink-0 hidden sm:block opacity-85 text-[#d4af37]" />
-          <span>Free shipping over ﷼{FREE_SHIPPING_MIN_INR.toLocaleString('en-OM')}</span>
+          <span>{t('common.freeShipping')}{FREE_SHIPPING_MIN_INR.toLocaleString('en-OM')}</span>
           <span className="opacity-40 hidden sm:inline">·</span>
           <Link
             to="/shop"
             className="hidden sm:inline underline underline-offset-2 hover:text-[#d4af37] transition-colors"
           >
-            Shop Now
+            {t('common.shopNow')}
           </Link>
         </div>
 
@@ -128,11 +130,11 @@ export const Navbar: React.FC = () => {
                   <span className="font-display text-white font-black text-sm sm:text-[15px] tracking-tight">ST</span>
                 </div>
                 <div className="flex flex-col leading-none min-w-0">
-                  <span className="font-display font-black text-sm sm:text-lg tracking-tight text-brand-charcoal group-hover:text-[#8b1a2a] uppercase truncate transition-colors duration-200">
-                    Superior Trends
+                  <span className={`font-display font-black text-brand-charcoal group-hover:text-[#8b1a2a] uppercase truncate transition-colors duration-200 ${language === 'ar' ? 'text-base sm:text-xl' : 'text-sm sm:text-lg tracking-tight'}`}>
+                    {t('common.superiorTrends')}
                   </span>
-                  <span className="hidden sm:block text-[9px] font-black uppercase tracking-[0.22em] text-[#d4af37] truncate mt-0.5">
-                    Al Alisha Collection
+                  <span className={`hidden sm:block font-black uppercase text-[#d4af37] truncate mt-0.5 ${language === 'ar' ? 'text-[11px] tracking-normal mt-1' : 'text-[9px] tracking-[0.22em] mt-0.5'}`}>
+                    {t('common.alAlishaCollection')}
                   </span>
                 </div>
               </Link>
@@ -142,7 +144,7 @@ export const Navbar: React.FC = () => {
                 {navLinks.map((link) => {
                   const active = isActive(link.path);
 
-                  if (link.name === 'Shop') {
+                  if (link.path === '/shop') {
                     return (
                       <div
                         key="shop"
@@ -153,12 +155,12 @@ export const Navbar: React.FC = () => {
                         <Link
                           to="/shop"
                           className={`
-                            flex items-center gap-0.5 text-[11px] font-black uppercase tracking-widest
-                            py-3 transition-colors
+                            flex items-center gap-0.5 font-black uppercase py-3 transition-colors
+                            ${language === 'ar' ? 'text-[14px] tracking-normal' : 'text-[11px] tracking-widest'}
                             ${active ? 'text-[#8b1a2a]' : 'text-neutral-600 hover:text-[#8b1a2a]'}
                           `}
                         >
-                          Shop
+                          {link.name}
                           <ChevronDown
                             size={12}
                             className={`transition-transform duration-200 ${isMegaMenuOpen ? 'rotate-180 text-[#d4af37]' : ''}`}
@@ -196,7 +198,7 @@ export const Navbar: React.FC = () => {
                               <div className="grid grid-cols-3 gap-8">
                                 {categories?.map((cat) => (
                                   <div key={cat.id} className="space-y-3">
-                                    <h4 className="text-[10px] uppercase tracking-[0.2em] text-[#8b1a2a] font-black border-b border-[#8b1a2a]/15 pb-2">
+                                    <h4 className={`font-black border-b border-[#8b1a2a]/15 pb-2 ${language === 'ar' ? 'text-[12px] tracking-normal' : 'text-[10px] uppercase tracking-[0.2em] text-[#8b1a2a]'}`}>
                                       {cat.name}
                                     </h4>
                                     <div className="flex flex-col gap-1.5">
@@ -205,7 +207,7 @@ export const Navbar: React.FC = () => {
                                           <Link
                                             key={child.id}
                                             to={`/shop?category=${child.slug}`}
-                                            className="text-[11px] text-neutral-500 hover:text-[#8b1a2a] tracking-wide transition-colors font-semibold leading-relaxed"
+                                            className={`text-neutral-500 hover:text-[#8b1a2a] transition-colors font-semibold leading-relaxed ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-wide'}`}
                                           >
                                             {child.name}
                                           </Link>
@@ -213,9 +215,9 @@ export const Navbar: React.FC = () => {
                                       ) : (
                                         <Link
                                           to={`/shop?category=${cat.slug}`}
-                                          className="text-[11px] text-neutral-500 hover:text-[#8b1a2a] tracking-wide transition-colors font-semibold"
+                                          className={`text-neutral-500 hover:text-[#8b1a2a] transition-colors font-semibold ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-wide'}`}
                                         >
-                                          All {cat.name}
+                                          {t('common.viewAll')} {cat.name}
                                         </Link>
                                       )}
                                     </div>
@@ -224,14 +226,14 @@ export const Navbar: React.FC = () => {
                               </div>
 
                               <div className="mt-6 pt-4 border-t border-brand-border/20 flex justify-between items-center">
-                                <span className="text-[9px] uppercase tracking-widest text-neutral-400 font-extrabold">
-                                  Superior Trends · Al Alisha Collection
+                                <span className={`text-neutral-400 font-extrabold ${language === 'ar' ? 'text-[11px] tracking-normal' : 'text-[9px] uppercase tracking-widest'}`}>
+                                  {t('common.superiorTrends')} · {t('common.alAlishaCollection')}
                                 </span>
                                 <Link
                                   to="/shop"
-                                  className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#8b1a2a] hover:text-[#d4af37] transition-colors"
+                                  className={`flex items-center gap-1.5 font-black uppercase text-[#8b1a2a] hover:text-[#d4af37] transition-colors ${language === 'ar' ? 'text-[12px] tracking-normal' : 'text-[10px] tracking-widest'}`}
                                 >
-                                  Explore All <ArrowRight size={11} />
+                                  {t('common.viewAll')} <ArrowRight size={11} className="rtl:rotate-180" />
                                 </Link>
                               </div>
                             </motion.div>
@@ -246,8 +248,8 @@ export const Navbar: React.FC = () => {
                       key={link.name}
                       to={link.path}
                       className={`
-                        relative text-[11px] font-black uppercase tracking-widest
-                        py-3 transition-colors
+                        relative font-black uppercase py-3 transition-colors
+                        ${language === 'ar' ? 'text-[14px] tracking-normal' : 'text-[11px] tracking-widest'}
                         ${active ? 'text-[#8b1a2a]' : 'text-neutral-600 hover:text-[#8b1a2a]'}
                       `}
                     >
@@ -267,25 +269,37 @@ export const Navbar: React.FC = () => {
               {/* ── Right actions ── */}
               <div className="flex items-center gap-1 shrink-0">
 
+                {/* Language Switcher */}
+                <button
+                  type="button"
+                  onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
+                  className={`hidden md:flex items-center gap-1.5 text-neutral-650 hover:text-[#8b1a2a] p-2 transition-colors rounded-xl hover:bg-neutral-50 cursor-pointer font-black uppercase ${language === 'ar' ? 'text-[12px] tracking-normal' : 'text-[10px] tracking-widest'}`}
+                  title={language === 'en' ? 'العربية' : 'English'}
+                >
+                  <Globe size={14} className="text-[#d4af37]" />
+                  <span>{language === 'en' ? 'العربية' : 'EN'}</span>
+                </button>
+
                 {/* Desktop search */}
                 <form onSubmit={handleSearchSubmit} className="hidden lg:flex items-center relative mr-1 group/search">
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search products…"
-                    className="
+                    placeholder={t('common.searchPlaceholder')}
+                    className={`
                       bg-neutral-50/80 border border-brand-border/30 rounded-xl
-                      pl-4 pr-9 py-2 text-[11px] text-brand-charcoal
+                      pl-4 pr-9 py-2 text-brand-charcoal
                       placeholder-neutral-400
                       focus:outline-none focus:border-[#8b1a2a] focus:bg-white
                       w-44 xl:w-52 transition-all duration-200 focus:shadow-md focus:shadow-[#8b1a2a]/5
-                    "
+                      ${language === 'ar' ? 'text-[13px]' : 'text-[11px]'}
+                    `}
                   />
                   <button
                     type="submit"
                     aria-label="Search"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-450 hover:text-[#8b1a2a] transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-455 hover:text-[#8b1a2a] transition-colors"
                   >
                     <Search size={13} />
                   </button>
@@ -296,28 +310,29 @@ export const Navbar: React.FC = () => {
                   <div className="hidden md:flex items-center gap-1">
                     <Link
                       to="/orders"
-                      className="text-[10px] font-black uppercase tracking-widest text-neutral-500 hover:text-[#8b1a2a] px-2 py-1.5 transition-colors"
+                      className={`font-black uppercase text-neutral-500 hover:text-[#8b1a2a] px-2 py-1.5 transition-colors ${language === 'ar' ? 'text-[12px] tracking-normal' : 'text-[10px] tracking-widest'}`}
                     >
-                      Orders
+                      {t('common.orders')}
                     </Link>
                     {user.role === 'ADMIN' && (
                       <Link
                         to="/admin"
-                        className="
-                          text-[10px] font-black uppercase tracking-widest
+                        className={`
+                          font-black uppercase
                           text-[#8b1a2a] hover:bg-[#8b1a2a] hover:text-white
                           px-2.5 py-1.5 border-2 border-[#8b1a2a]/30 rounded-xl
                           transition-all duration-150 shadow-sm
-                        "
+                          ${language === 'ar' ? 'text-[12px] tracking-normal' : 'text-[10px] tracking-widest'}
+                        `}
                       >
-                        Admin
+                        {t('common.admin')}
                       </Link>
                     )}
                     <button
                       onClick={() => logout()}
-                      className="text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-red-650 px-2 py-1.5 transition-colors cursor-pointer"
+                      className={`font-black uppercase text-neutral-400 hover:text-red-650 px-2 py-1.5 transition-colors cursor-pointer ${language === 'ar' ? 'text-[12px] tracking-normal' : 'text-[10px] tracking-widest'}`}
                     >
-                      Logout
+                      {t('common.logout')}
                     </button>
                   </div>
                 ) : (
@@ -382,12 +397,12 @@ export const Navbar: React.FC = () => {
         style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}
       >
         {[
-          { to: '/', icon: Home, label: 'Home', match: (p: string) => p === '/' },
-          { to: '/shop', icon: Compass, label: 'Shop', match: (p: string) => p.startsWith('/shop') },
-          { to: '/wishlist', icon: Heart, label: 'Wishlist', match: (p: string) => p === '/wishlist' },
+          { to: '/', icon: Home, label: t('common.home'), match: (p: string) => p === '/' },
+          { to: '/shop', icon: Compass, label: t('common.shop'), match: (p: string) => p.startsWith('/shop') },
+          { to: '/wishlist', icon: Heart, label: t('common.wishlist'), match: (p: string) => p === '/wishlist' },
         ].map(({ to, icon: Icon, label, match }) => {
           const active = match(location.pathname);
-          const isWishlist = label === 'Wishlist';
+          const isWishlist = label === t('common.wishlist');
           return (
             <Link
               key={to}
@@ -406,7 +421,7 @@ export const Navbar: React.FC = () => {
                 />
                 {isWishlist && <Badge count={wishlist.length} />}
               </div>
-              <span className="text-[9px] font-bold uppercase tracking-wider">{label}</span>
+              <span className={`font-bold uppercase ${language === 'ar' ? 'text-[11px] tracking-normal' : 'text-[9px] tracking-wider'}`}>{label}</span>
             </Link>
           );
         })}
@@ -420,7 +435,7 @@ export const Navbar: React.FC = () => {
           `}
         >
           <Search size={20} strokeWidth={isMobileSearchOpen ? 2.5 : 1.8} />
-          <span className="text-[9px] font-bold uppercase tracking-wider">Search</span>
+          <span className={`font-bold uppercase ${language === 'ar' ? 'text-[11px] tracking-normal' : 'text-[9px] tracking-wider'}`}>{t('common.search')}</span>
         </button>
 
         {/* Cart */}
@@ -432,7 +447,7 @@ export const Navbar: React.FC = () => {
             <ShoppingBag size={20} strokeWidth={1.8} />
             <Badge count={cartCount} gold />
           </div>
-          <span className="text-[9px] font-bold uppercase tracking-wider">Cart</span>
+          <span className={`font-bold uppercase ${language === 'ar' ? 'text-[11px] tracking-normal' : 'text-[9px] tracking-wider'}`}>{t('common.cart')}</span>
         </button>
       </nav>
 
@@ -459,7 +474,7 @@ export const Navbar: React.FC = () => {
                 autoFocus
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Type and search products…"
+                placeholder={t('common.typeSearchPlaceholder')}
                 className="
                   w-full bg-neutral-50 border border-neutral-200 rounded-full
                   pl-4 pr-12 py-3 text-sm text-neutral-800
@@ -519,8 +534,8 @@ export const Navbar: React.FC = () => {
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#8b1a2a] to-[#d4af37] flex items-center justify-center">
                     <span className="text-white text-[10px] font-black">ST</span>
                   </div>
-                  <span className="font-display font-black text-sm uppercase text-[#8b1a2a] tracking-wide">
-                    Menu
+                  <span className={`font-display font-black uppercase text-[#8b1a2a] ${language === 'ar' ? 'text-[16px] tracking-normal' : 'text-sm tracking-wide'}`}>
+                    {t('common.menu')}
                   </span>
                 </div>
                 <button
@@ -540,7 +555,7 @@ export const Navbar: React.FC = () => {
                     type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search products…"
+                    placeholder={t('common.searchPlaceholder')}
                     className="
                       w-full bg-neutral-50 border border-neutral-200 rounded-full
                       pl-4 pr-10 py-2.5 text-sm text-neutral-800
@@ -561,7 +576,7 @@ export const Navbar: React.FC = () => {
               {/* Nav links */}
               <nav className="flex-1 overflow-y-auto overscroll-contain px-5 py-2">
                 {navLinks.map((link) => {
-                  if (link.name === 'Shop') {
+                  if (link.path === '/shop') {
                     const shopActive = location.pathname.startsWith('/shop');
                     return (
                       <div key="shop-mobile" className="border-b border-neutral-50">
@@ -570,11 +585,12 @@ export const Navbar: React.FC = () => {
                           onClick={() => setShopExpanded((o) => !o)}
                           className={`
                             w-full flex items-center justify-between py-4
-                            text-[13px] font-black uppercase tracking-widest
+                            font-black uppercase
+                            ${language === 'ar' ? 'text-[15px] tracking-normal' : 'text-[13px] tracking-widest'}
                             ${shopActive ? 'text-[#8b1a2a]' : 'text-neutral-800'}
                           `}
                         >
-                          Shop
+                          {link.name}
                           <ChevronDown
                             size={16}
                             className={`transition-transform duration-200 ${shopExpanded ? 'rotate-180 text-[#d4af37]' : 'text-neutral-400'}`}
@@ -594,16 +610,16 @@ export const Navbar: React.FC = () => {
                                 <Link
                                   to="/shop"
                                   onClick={closeMobileMenu}
-                                  className="block text-[11px] font-black uppercase tracking-widest text-[#8b1a2a] py-1"
+                                  className={`block font-black uppercase text-[#8b1a2a] py-1 ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}`}
                                 >
-                                  All Garments
+                                  {t('common.allGarments')}
                                 </Link>
                                 {categories?.map((cat) => (
                                   <div key={cat.id}>
                                     <Link
                                       to={`/shop?category=${cat.slug}`}
                                       onClick={closeMobileMenu}
-                                      className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700 py-1 hover:text-[#8b1a2a] transition-colors"
+                                      className={`block font-bold uppercase text-neutral-700 py-1 hover:text-[#8b1a2a] transition-colors ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-wider'}`}
                                     >
                                       {cat.name}
                                     </Link>
@@ -614,7 +630,7 @@ export const Navbar: React.FC = () => {
                                             key={child.id}
                                             to={`/shop?category=${child.slug}`}
                                             onClick={closeMobileMenu}
-                                            className="block text-[11px] text-neutral-500 hover:text-[#8b1a2a] py-0.5 transition-colors"
+                                            className={`block text-neutral-500 hover:text-[#8b1a2a] py-0.5 transition-colors ${language === 'ar' ? 'text-[13px]' : 'text-[11px]'}`}
                                           >
                                             {child.name}
                                           </Link>
@@ -638,8 +654,8 @@ export const Navbar: React.FC = () => {
                       to={link.path}
                       onClick={closeMobileMenu}
                       className={`
-                        block py-4 text-[13px] font-black uppercase tracking-widest
-                        border-b border-neutral-50 transition-colors
+                        block py-4 font-black uppercase transition-colors
+                        ${language === 'ar' ? 'text-[15px] tracking-normal' : 'text-[13px] tracking-widest'}
                         ${active ? 'text-[#8b1a2a]' : 'text-neutral-800 hover:text-[#8b1a2a]'}
                       `}
                     >
@@ -651,60 +667,72 @@ export const Navbar: React.FC = () => {
 
               {/* Drawer footer */}
               <div className="shrink-0 px-5 py-5 border-t border-neutral-100 space-y-2.5 bg-[#faf8f5]">
+                {/* Mobile Language Switcher */}
+                <button
+                  type="button"
+                  onClick={() => { setLanguage(language === 'en' ? 'ar' : 'en'); closeMobileMenu(); }}
+                  className={`flex items-center justify-center gap-2 w-full border border-neutral-200 text-neutral-700 font-black uppercase py-3.5 rounded-xl hover:bg-neutral-50 cursor-pointer bg-white ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}`}
+                >
+                  <Globe size={14} className="text-[#d4af37]" />
+                  <span>{language === 'en' ? 'العربية' : 'English'}</span>
+                </button>
+
                 {user ? (
                   <>
                     <Link
                       to="/orders"
                       onClick={closeMobileMenu}
-                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-neutral-700 py-2 hover:text-[#8b1a2a] transition-colors"
+                      className={`flex items-center gap-2 font-bold uppercase text-neutral-700 py-2 hover:text-[#8b1a2a] transition-colors ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}`}
                     >
-                      My Orders
+                      {t('orders.title')}
                     </Link>
                     {user.role === 'ADMIN' && (
                       <Link
                         to="/admin"
                         onClick={closeMobileMenu}
-                        className="
-                          block text-center text-[11px] font-black uppercase tracking-widest
+                        className={`
+                          block text-center font-black uppercase
                           text-[#8b1a2a] py-2.5
                           border border-[#8b1a2a]/40 rounded-xl
                           hover:bg-[#8b1a2a] hover:text-white transition-all
-                        "
+                          ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}
+                        `}
                       >
-                        Admin Panel
+                        {t('common.adminPanel')}
                       </Link>
                     )}
                     <button
                       type="button"
                       onClick={() => { logout(); closeMobileMenu(); }}
-                      className="block w-full text-center text-[11px] font-bold uppercase tracking-widest text-red-500 hover:text-red-700 py-2 transition-colors cursor-pointer"
+                      className={`block w-full text-center font-bold uppercase text-red-500 hover:text-red-700 py-2 transition-colors cursor-pointer ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}`}
                     >
-                      Logout
+                      {t('common.logout')}
                     </button>
                   </>
                 ) : (
                   <Link
                     to="/auth"
                     onClick={closeMobileMenu}
-                    className="flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-widest text-neutral-700 py-2.5 hover:text-[#8b1a2a] transition-colors"
+                    className={`flex items-center justify-center gap-2 font-bold uppercase text-neutral-700 py-2.5 hover:text-[#8b1a2a] transition-colors ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}`}
                   >
-                    <User size={15} /> Sign In
+                    <User size={15} /> {t('common.signIn')}
                   </Link>
                 )}
 
                 <Link
                   to="/shop"
                   onClick={closeMobileMenu}
-                  className="
+                  className={`
                     flex items-center justify-center gap-2
                     w-full bg-[#8b1a2a] text-white
-                    text-[11px] font-black uppercase tracking-widest
+                    font-black uppercase
                     py-3.5 rounded-xl
                     hover:bg-[#6b1420] active:scale-[0.98]
                     transition-all duration-150
-                  "
+                    ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}
+                  `}
                 >
-                  Shop Now <ArrowRight size={13} />
+                  {t('common.shopNow')} <ArrowRight size={13} className="rtl:rotate-180" />
                 </Link>
               </div>
             </motion.div>

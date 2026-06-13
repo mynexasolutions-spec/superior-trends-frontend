@@ -4,15 +4,10 @@ import { PageHeader } from '../components/PageHeader';
 import { PageShell } from '../components/PageShell';
 import { useSubmitContact } from '../hooks/useContact';
 import { useToast } from '../hooks/useToast';
-
-const INFO_ITEMS = [
-  { icon: Mail,  label: 'Email',   value: 'support@superiortrends.com', href: 'mailto:support@superiortrends.com' },
-  { icon: Phone, label: 'Phone',   value: '+968 9876 5432',             href: 'tel:+96898765432' },
-  { icon: MapPin,label: 'Studio',  value: 'Muscat, Sultanate of Oman',  href: '#' },
-  { icon: Clock, label: 'Hours',   value: 'Mon – Sat, 10 am – 7 pm',   href: '#' },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export const Contact: React.FC = () => {
+  const { language, t } = useLanguage();
   const [name, setName]       = useState('');
   const [email, setEmail]     = useState('');
   const [subject, setSubject] = useState('');
@@ -20,6 +15,33 @@ export const Contact: React.FC = () => {
 
   const submitContact = useSubmitContact();
   const { showToast } = useToast();
+
+  const INFO_ITEMS = [
+    { 
+      icon: Mail,  
+      label: language === 'ar' ? 'البريد الإلكتروني' : 'Email',   
+      value: 'support@superiortrends.com', 
+      href: 'mailto:support@superiortrends.com' 
+    },
+    { 
+      icon: Phone, 
+      label: language === 'ar' ? 'الهاتف' : 'Phone',   
+      value: '+968 9876 5432',             
+      href: 'tel:+96898765432' 
+    },
+    { 
+      icon: MapPin,
+      label: language === 'ar' ? 'الموقع' : 'Studio',  
+      value: language === 'ar' ? 'مسقط، سلطنة عمان' : 'Muscat, Sultanate of Oman',  
+      href: '#' 
+    },
+    { 
+      icon: Clock, 
+      label: language === 'ar' ? 'أوقات العمل' : 'Hours',   
+      value: language === 'ar' ? 'الإثنين - السبت، ١٠ صباحاً - ٧ مساءً' : 'Mon – Sat, 10 am – 7 pm',   
+      href: '#' 
+    },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,12 +53,12 @@ export const Contact: React.FC = () => {
         subject: subject.trim() || undefined,
         message: message.trim(),
       });
-      showToast(res.message || 'Message sent successfully!', 'success');
+      showToast(res.message || (language === 'ar' ? 'تم إرسال رسالتك بنجاح!' : 'Message sent successfully!'), 'success');
       setName(''); setEmail(''); setSubject(''); setMessage('');
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        'Could not send message. Please try again.';
+        (language === 'ar' ? 'تعذر إرسال الرسالة. يرجى المحاولة مرة أخرى.' : 'Could not send message. Please try again.');
       showToast(msg, 'error');
     }
   };
@@ -44,15 +66,15 @@ export const Contact: React.FC = () => {
   return (
     <PageShell className="pb-24">
       <PageHeader
-        eyebrow="Get in Touch"
-        title="Contact Us"
-        subtitle="Questions about orders, sizing, or wholesale? We're here to help."
+        eyebrow={language === 'ar' ? 'تواصل معنا' : 'Get in Touch'}
+        title={language === 'ar' ? 'اتصل بنا' : 'Contact Us'}
+        subtitle={language === 'ar' ? 'لديك استفسار عن الطلبات، المقاسات، أو البيع بالجملة؟ نحن هنا للمساعدة.' : "Questions about orders, sizing, or wholesale? We're here to help."}
       />
 
-      <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
+      <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start text-left rtl:text-right">
 
         {/* ── Info column ─────────────────────────────────────────── */}
-        <div className="lg:col-span-4 space-y-3">
+        <div className="lg:col-span-4 space-y-3 w-full">
           {INFO_ITEMS.map(({ icon: Icon, label, value, href }) => (
             <a
               key={label}
@@ -72,7 +94,15 @@ export const Contact: React.FC = () => {
           {/* Brand note */}
           <div className="mt-6 pt-6 border-t border-brand-border/30">
             <p className="text-[11px] text-neutral-400 leading-relaxed">
-              We typically respond within <span className="text-[#8b1a2a] font-semibold">24 hours</span>. For urgent matters, please call us directly.
+              {language === 'ar' ? (
+                <>
+                  نقوم بالرد عادةً خلال <span className="text-[#8b1a2a] font-semibold">٢٤ ساعة</span>. للمسائل العاجلة، يرجى الاتصال بنا مباشرة.
+                </>
+              ) : (
+                <>
+                  We typically respond within <span className="text-[#8b1a2a] font-semibold">24 hours</span>. For urgent matters, please call us directly.
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -80,11 +110,11 @@ export const Contact: React.FC = () => {
         {/* ── Form column ─────────────────────────────────────────── */}
         <form
           onSubmit={handleSubmit}
-          className="lg:col-span-8 bg-white border border-brand-border/30 rounded-3xl p-6 sm:p-10 shadow-[0_4px_24px_rgba(0,0,0,0.05)]"
+          className="lg:col-span-8 bg-white border border-brand-border/30 rounded-3xl p-6 sm:p-10 shadow-[0_4px_24px_rgba(0,0,0,0.05)] w-full"
         >
           <div className="mb-7">
             <h2 className="font-display text-xl sm:text-2xl font-extrabold uppercase tracking-tight text-[#111111]">
-              Send a Message
+              {language === 'ar' ? 'إرسال رسالة' : 'Send a Message'}
             </h2>
             <div className="flex gap-1.5 mt-3">
               <div className="w-8 h-[3px] bg-[#8b1a2a] rounded-full" />
@@ -94,15 +124,15 @@ export const Contact: React.FC = () => {
 
           <div className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <Field label="Full Name" required>
+              <Field label={language === 'ar' ? 'الاسم الكامل' : 'Full Name'} required>
                 <input
                   type="text" required value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Your full name"
+                  placeholder={language === 'ar' ? 'الاسم الكامل الخاص بك' : 'Your full name'}
                   className="w-full px-4 py-3 rounded-xl text-sm bg-[#FDFAF7] border border-brand-border/50 text-[#111111] placeholder:text-neutral-400 focus:outline-none focus:border-[#8b1a2a] focus:ring-2 focus:ring-[#8b1a2a]/10 focus:bg-white transition-all"
                 />
               </Field>
-              <Field label="Email Address" required>
+              <Field label={language === 'ar' ? 'البريد الإلكتروني' : 'Email Address'} required>
                 <input
                   type="email" required value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -112,20 +142,20 @@ export const Contact: React.FC = () => {
               </Field>
             </div>
 
-            <Field label="Subject" optional>
+            <Field label={language === 'ar' ? 'الموضوع' : 'Subject'} optional>
               <input
                 type="text" value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="Order inquiry, sizing, wholesale…"
+                placeholder={language === 'ar' ? 'استفسار عن طلب، المقاس، البيع بالجملة...' : 'Order inquiry, sizing, wholesale…'}
                 className="w-full px-4 py-3 rounded-xl text-sm bg-[#FDFAF7] border border-brand-border/50 text-[#111111] placeholder:text-neutral-400 focus:outline-none focus:border-[#8b1a2a] focus:ring-2 focus:ring-[#8b1a2a]/10 focus:bg-white transition-all"
               />
             </Field>
 
-            <Field label="Message" required>
+            <Field label={language === 'ar' ? 'الرسالة' : 'Message'} required>
               <textarea
                 required rows={5} value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="How can we help you today?"
+                placeholder={language === 'ar' ? 'كيف يمكننا مساعدتك اليوم؟' : 'How can we help you today?'}
                 className="w-full px-4 py-3 rounded-xl text-sm bg-[#FDFAF7] border border-brand-border/50 text-[#111111] placeholder:text-neutral-400 focus:outline-none focus:border-[#8b1a2a] focus:ring-2 focus:ring-[#8b1a2a]/10 focus:bg-white resize-none transition-all"
               />
             </Field>
@@ -134,12 +164,12 @@ export const Contact: React.FC = () => {
               <button
                 type="submit"
                 disabled={submitContact.isPending}
-                className="inline-flex items-center gap-2.5 bg-[#8b1a2a] text-white px-9 py-3.5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#6b1420] hover:shadow-lg hover:shadow-[#8b1a2a]/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                className="inline-flex items-center gap-2.5 bg-[#8b1a2a] text-white px-9 py-3.5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#6b1420] hover:shadow-lg hover:shadow-[#8b1a2a]/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 cursor-pointer"
               >
                 {submitContact.isPending ? (
-                  <><Loader2 size={14} className="animate-spin" /><span>Sending…</span></>
+                  <><Loader2 size={14} className="animate-spin" /><span>{language === 'ar' ? 'جاري الإرسال...' : 'Sending…'}</span></>
                 ) : (
-                  <><span>Send Message</span><Send size={13} className="shrink-0" /></>
+                  <><span>{language === 'ar' ? 'إرسال الرسالة' : 'Send Message'}</span><Send size={13} className="shrink-0 rtl:rotate-180" /></>
                 )}
               </button>
             </div>
@@ -157,12 +187,13 @@ function Field({ label, required, optional, children }: {
   optional?: boolean;
   children: React.ReactNode;
 }) {
+  const { language } = useLanguage();
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5 w-full">
       <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-500">
         {label}
-        {required && <span className="text-[#8b1a2a] ml-0.5">*</span>}
-        {optional && <span className="ml-1 font-normal normal-case tracking-normal text-neutral-400">(optional)</span>}
+        {required && <span className="text-[#8b1a2a] mx-0.5">*</span>}
+        {optional && <span className="mx-1 font-normal normal-case tracking-normal text-neutral-400">{language === 'ar' ? '(اختياري)' : '(optional)'}</span>}
       </label>
       {children}
     </div>

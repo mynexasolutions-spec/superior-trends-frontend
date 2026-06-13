@@ -31,6 +31,8 @@ import { CustomerReviewsCarousel, resolveReviewItems } from '../components/produ
 import { ProductDetailSkeleton, Skeleton } from '../components/ui/skeleton';
 import { formatINR } from '../lib/formatCurrency';
 import { useToast } from '../hooks/useToast';
+import { useLanguage } from '../context/LanguageContext';
+import { translateDynamic } from '../locales/dynamicTranslations';
 
 /* ─── helpers ──────────────────────────────────────────────────────── */
 function pct(price: number, mrp: number) {
@@ -41,6 +43,7 @@ function pct(price: number, mrp: number) {
 export const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { addToCart, toggleWishlist, isInWishlist } = useShop();
+  const { language } = useLanguage();
   const { showToast } = useToast();
   const { data: product, isLoading, isError } = useProduct(id);
   const { data: apiReviews, isLoading: reviewsLoading } = useProductReviews(id);
@@ -102,10 +105,10 @@ export const ProductDetail: React.FC = () => {
         }
       }
       setReviewImages((prev) => [...prev, ...urls]);
-      showToast('Image(s) uploaded successfully ✦', 'success');
+      showToast(language === 'ar' ? 'تم رفع الصور بنجاح ✦' : 'Image(s) uploaded successfully ✦', 'success');
     } catch (err) {
       console.error(err);
-      showToast('Failed to upload image.', 'error');
+      showToast(language === 'ar' ? 'فشل رفع الصور.' : 'Failed to upload image.', 'error');
     } finally {
       setIsUploadingImage(false);
     }
@@ -118,15 +121,15 @@ export const ProductDetail: React.FC = () => {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      showToast('Please sign in to write a review.', 'error');
+      showToast(language === 'ar' ? 'يرجى تسجيل الدخول لكتابة مراجعة.' : 'Please sign in to write a review.', 'error');
       return;
     }
     if (reviewRating < 1 || reviewRating > 5) {
-      showToast('Please select a rating.', 'error');
+      showToast(language === 'ar' ? 'يرجى تحديد التقييم.' : 'Please select a rating.', 'error');
       return;
     }
     if (!reviewBody.trim()) {
-      showToast('Please write a review comment.', 'error');
+      showToast(language === 'ar' ? 'يرجى كتابة تعليق المراجعة.' : 'Please write a review comment.', 'error');
       return;
     }
 
@@ -139,7 +142,7 @@ export const ProductDetail: React.FC = () => {
         images: reviewImages.length > 0 ? reviewImages : null,
       });
 
-      showToast('Review submitted successfully for moderation ✦', 'success');
+      showToast(language === 'ar' ? 'تم تقديم المراجعة بنجاح بانتظار المراجعة ✦' : 'Review submitted successfully for moderation ✦', 'success');
       setSubmitSuccess(true);
       setIsReviewFormOpen(false);
       // Reset form
@@ -149,7 +152,7 @@ export const ProductDetail: React.FC = () => {
       setReviewImages([]);
     } catch (err: any) {
       console.error(err);
-      showToast(err.response?.data?.message || 'Failed to submit review.', 'error');
+      showToast(err.response?.data?.message || (language === 'ar' ? 'فشل إرسال المراجعة.' : 'Failed to submit review.'), 'error');
     }
   };
 
@@ -235,22 +238,22 @@ export const ProductDetail: React.FC = () => {
 
   if (isError || !product) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-5 px-4 font-display">
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-5 px-4 font-display text-center">
         <div className="w-16 h-16 rounded-full bg-[#8b1a2a]/10 flex items-center justify-center">
           <Package size={28} className="text-[#8b1a2a]" />
         </div>
         <h2 className="font-display text-2xl text-brand-charcoal font-extrabold uppercase tracking-tight">
-          Product Not Found
+          {language === 'ar' ? 'لم يتم العثور على المنتج' : 'Product Not Found'}
         </h2>
         <p className="text-sm text-brand-text-muted max-w-xs text-center">
-          This item is no longer in our catalog. Browse our full collection below.
+          {language === 'ar' ? 'هذا المنتج لم يعد متوفراً في كتالوجنا. تصفح مجموعتنا الكاملة أدناه.' : 'This item is no longer in our catalog. Browse our full collection below.'}
         </p>
         <Link
           to="/shop"
           className="inline-flex items-center gap-2 bg-[#8b1a2a] text-white hover:bg-[#6b1420] px-8 py-3 text-xs tracking-widest uppercase font-bold rounded-full shadow-lg transition-all"
         >
-          <ArrowLeft size={14} />
-          Return to Shop
+          <ArrowLeft size={14} className="rtl:rotate-180" />
+          {language === 'ar' ? 'العودة إلى المتجر' : 'Return to Shop'}
         </Link>
       </div>
     );
@@ -270,10 +273,10 @@ export const ProductDetail: React.FC = () => {
       setColorError(missingColor);
       showToast(
         missingSize && missingColor
-          ? 'Please select a size and colour.'
+          ? (language === 'ar' ? 'يرجى اختيار المقاس واللون.' : 'Please select a size and colour.')
           : missingSize
-            ? 'Please select a size.'
-            : 'Please select a colour.',
+            ? (language === 'ar' ? 'يرجى اختيار المقاس.' : 'Please select a size.')
+            : (language === 'ar' ? 'يرجى اختيار اللون.' : 'Please select a colour.'),
         'error',
       );
       document.getElementById('size-selector')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -282,7 +285,7 @@ export const ProductDetail: React.FC = () => {
     setSizeError(false);
     setColorError(false);
     addToCart(product, quantity, selectedSize, selectedColor, { mode: 'set' });
-    showToast('Added to your basket ✦', 'success');
+    showToast(language === 'ar' ? 'تمت الإضافة إلى السلة ✦' : 'Added to your basket ✦', 'success');
   };
 
   const toggleAccordion = (section: 'desc' | 'care' | 'shipping') =>
@@ -294,10 +297,10 @@ export const ProductDetail: React.FC = () => {
       {/* ── Breadcrumb ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-3">
         <nav className="flex items-center gap-1.5 text-[10px] sm:text-xs uppercase tracking-widest text-brand-text-muted font-semibold">
-          <Link to="/" className="hover:text-[#8b1a2a] transition-colors">Home</Link>
-          <span className="text-[#d4af37] text-[8px]">▸</span>
-          <Link to="/shop" className="hover:text-[#8b1a2a] transition-colors">Shop</Link>
-          <span className="text-[#d4af37] text-[8px]">▸</span>
+          <Link to="/" className="hover:text-[#8b1a2a] transition-colors">{language === 'ar' ? 'الرئيسية' : 'Home'}</Link>
+          <span className="text-[#d4af37] text-[8px] rtl:rotate-180">▸</span>
+          <Link to="/shop" className="hover:text-[#8b1a2a] transition-colors">{language === 'ar' ? 'المتجر' : 'Shop'}</Link>
+          <span className="text-[#d4af37] text-[8px] rtl:rotate-180">▸</span>
           <span className="text-brand-charcoal truncate max-w-[140px] sm:max-w-xs">{product.name}</span>
         </nav>
       </div>
@@ -318,7 +321,7 @@ export const ProductDetail: React.FC = () => {
               {discount && (
                 <div className="absolute top-4 left-4 z-20">
                   <span className="bg-[#8b1a2a] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg shadow-[#8b1a2a]/40">
-                    −{discount}% OFF
+                    {language === 'ar' ? `خصم −${discount}%` : `−${discount}% OFF`}
                   </span>
                 </div>
               )}
@@ -406,7 +409,7 @@ export const ProductDetail: React.FC = () => {
                 {/* Zoom hint */}
                 <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm text-white text-[9px] font-semibold px-2.5 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   <ZoomIn size={10} />
-                  Hover to zoom
+                  {language === 'ar' ? 'مرر للتكبير' : 'Hover to zoom'}
                 </div>
               </div>
             </div>
@@ -473,9 +476,9 @@ export const ProductDetail: React.FC = () => {
             {/* Trust strip — desktop */}
             <div className="hidden lg:grid grid-cols-3 gap-3 mt-1">
               {[
-                { icon: Truck, label: 'Free Shipping', sub: 'Orders above ₹999' },
-                { icon: RefreshCw, label: '7-Day Returns', sub: 'Hassle-free policy' },
-                { icon: ShieldCheck, label: 'Secure Payment', sub: '100% encrypted' },
+                { icon: Truck, label: language === 'ar' ? 'شحن مجاني' : 'Free Shipping', sub: language === 'ar' ? 'للطلبات فوق ﷼٥٠' : 'Orders above ₹999' },
+                { icon: RefreshCw, label: language === 'ar' ? 'إرجاع خلال ٧ أيام' : '7-Day Returns', sub: language === 'ar' ? 'سياسة إرجاع سهلة' : 'Hassle-free policy' },
+                { icon: ShieldCheck, label: language === 'ar' ? 'دفع آمن ١٠٠٪' : 'Secure Payment', sub: language === 'ar' ? 'مشفر بالكامل' : '100% encrypted' },
               ].map(({ icon: Icon, label, sub }) => (
                 <div
                   key={label}
@@ -500,12 +503,12 @@ export const ProductDetail: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 mb-2.5">
                 <span className="text-[10px] uppercase tracking-[0.25em] text-[#d4af37] font-extrabold">
-                  {product.category}
+                  {translateDynamic(product.category, language)}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-[#d4af37]" />
                 <span className="text-[10px] uppercase tracking-[0.25em] text-brand-text-muted font-semibold flex items-center gap-1">
                   <Sparkles size={9} className="text-[#d4af37]" />
-                  New Arrival
+                  {language === 'ar' ? 'وصل حديثاً' : 'New Arrival'}
                 </span>
               </div>
               <h1 className="font-display text-2xl sm:text-3xl xl:text-4xl font-extrabold text-brand-charcoal uppercase leading-tight tracking-tight">
@@ -536,11 +539,15 @@ export const ProductDetail: React.FC = () => {
                 </div>
               )}
               <span className="text-xs text-brand-text-muted">
-                <span className="font-bold text-brand-charcoal">{reviewItems.length}</span> {reviewItems.length === 1 ? 'review' : 'reviews'}
+                <span className="font-bold text-brand-charcoal">{reviewItems.length}</span>{' '}
+                {reviewItems.length === 1 
+                  ? (language === 'ar' ? 'تقييم' : 'review') 
+                  : (language === 'ar' ? 'تقييمات' : 'reviews')
+                }
               </span>
               {product.stock !== undefined && product.stock <= 10 && product.stock > 0 && (
                 <span className="text-[10px] font-black uppercase tracking-widest text-[#8b1a2a] bg-[#8b1a2a]/8 px-2.5 py-1 rounded-full animate-pulse">
-                  Only {product.stock} left!
+                  {language === 'ar' ? `تبقت ${product.stock} قطع فقط!` : `Only ${product.stock} left!`}
                 </span>
               )}
             </div>
@@ -556,33 +563,33 @@ export const ProductDetail: React.FC = () => {
                     {formatINR(mrp)}
                   </span>
                   <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-2.5 py-1 rounded-full border border-emerald-200">
-                    Save {formatINR(mrp - product.price)}
+                    {language === 'ar' ? `وفر ${formatINR(mrp - product.price)}` : `Save ${formatINR(mrp - product.price)}`}
                   </span>
                 </>
               )}
             </div>
 
             {/* Short description */}
-            <p className="text-sm sm:text-[15px] text-brand-text-muted leading-relaxed border-l-2 border-[#d4af37] pl-3.5">
+            <p className="text-sm sm:text-[15px] text-brand-text-muted leading-relaxed border-l-2 border-[#d4af37] pl-3.5 rtl:pl-0 rtl:pr-3.5 rtl:border-l-0 rtl:border-r-2 text-left rtl:text-right">
               {product.description}
             </p>
 
             <div className="h-px bg-gradient-to-r from-[#d4af37]/40 via-[#8b1a2a]/20 to-transparent" />
 
             {/* Color Selector */}
-            <div className="space-y-3" id="color-selector">
+            <div className="space-y-3 text-left rtl:text-right" id="color-selector">
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-[0.2em] font-extrabold text-brand-charcoal">
-                  Colour
+                  {language === 'ar' ? 'اللون' : 'Colour'}
                   {selectedColor && (
-                    <span className="text-[#d4af37] font-semibold ml-2 normal-case tracking-normal">
-                      · {selectedColor.name}
+                    <span className="text-[#d4af37] font-semibold ml-2 rtl:ml-0 rtl:mr-2 normal-case tracking-normal">
+                      · {translateDynamic(selectedColor.name, language)}
                     </span>
                   )}
                 </span>
                 {colorError && (
                   <span className="text-[10px] text-red-500 font-bold uppercase tracking-wide animate-pulse whitespace-nowrap">
-                    Required ←
+                    {language === 'ar' ? 'مطلوب ←' : 'Required ←'}
                   </span>
                 )}
               </div>
@@ -594,7 +601,7 @@ export const ProductDetail: React.FC = () => {
                     onClick={() => { setSelectedColor(color); setColorError(false); }}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    title={color.name}
+                    title={translateDynamic(color.name, language)}
                     className={`relative w-10 h-10 rounded-full p-1 transition-all shadow-sm m-1 ${selectedColor?.name === color.name
                       ? 'shadow-[#d4af37]/50 shadow-md'
                       : ''
@@ -616,19 +623,19 @@ export const ProductDetail: React.FC = () => {
             </div>
 
             {/* Size Selector */}
-            <div id="size-selector" className="space-y-3 scroll-mt-24">
+            <div id="size-selector" className="space-y-3 scroll-mt-24 text-left rtl:text-right">
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-[0.2em] font-extrabold text-brand-charcoal">
-                  Size
+                  {language === 'ar' ? 'المقاس' : 'Size'}
                   {selectedSize && (
-                    <span className="text-[#d4af37] font-semibold ml-2 normal-case tracking-normal">
+                    <span className="text-[#d4af37] font-semibold ml-2 rtl:ml-0 rtl:mr-2 normal-case tracking-normal">
                       · {selectedSize}
                     </span>
                   )}
                 </span>
                 {sizeError && (
                   <span className="text-[10px] text-red-500 font-bold uppercase tracking-wide animate-pulse">
-                    Required ←
+                    {language === 'ar' ? 'مطلوب ←' : 'Required ←'}
                   </span>
                 )}
               </div>
@@ -652,9 +659,9 @@ export const ProductDetail: React.FC = () => {
             </div>
 
             {/* Quantity */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 text-left rtl:text-right">
               <span className="text-xs uppercase tracking-[0.2em] font-extrabold text-brand-charcoal w-8">
-                Qty
+                {language === 'ar' ? 'الكمية' : 'Qty'}
               </span>
               <div className="flex items-center border-2 border-brand-border/40 rounded-xl bg-white overflow-hidden shadow-sm">
                 <motion.button
@@ -687,9 +694,9 @@ export const ProductDetail: React.FC = () => {
                 onClick={handleAddToCart}
                 whileHover={{ scale: 1.015, y: -1 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex-1 relative overflow-hidden bg-[#8b1a2a] text-white py-4 text-sm font-extrabold uppercase tracking-widest rounded-2xl shadow-lg shadow-[#8b1a2a]/25 transition-all hover:shadow-[#8b1a2a]/40 hover:shadow-xl"
+                className="flex-1 relative overflow-hidden bg-[#8b1a2a] text-white py-4 text-sm font-extrabold uppercase tracking-widest rounded-2xl shadow-lg shadow-[#8b1a2a]/25 transition-all hover:shadow-[#8b1a2a]/40 hover:shadow-xl cursor-pointer"
               >
-                <span className="relative z-10">Add to Cart</span>
+                <span className="relative z-10">{language === 'ar' ? 'أضف إلى السلة' : 'Add to Cart'}</span>
                 <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-700" />
               </motion.button>
 
@@ -698,11 +705,14 @@ export const ProductDetail: React.FC = () => {
                 onClick={() => toggleWishlist(product.id)}
                 whileHover={{ scale: 1.05, y: -1 }}
                 whileTap={{ scale: 0.92 }}
-                className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center transition-all shadow-sm ${isFavorite
+                className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center transition-all shadow-sm cursor-pointer ${isFavorite
                   ? 'border-[#d4af37] bg-[#d4af37]/10 shadow-[#d4af37]/20'
                   : 'border-brand-border/50 bg-white hover:border-[#d4af37]/60'
                   }`}
-                aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
+                aria-label={isFavorite 
+                  ? (language === 'ar' ? 'إزالة من المفضلة' : 'Remove from wishlist') 
+                  : (language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to wishlist')
+                }
               >
                 <Heart
                   size={20}
@@ -714,9 +724,9 @@ export const ProductDetail: React.FC = () => {
             {/* Trust strip — mobile */}
             <div className="grid grid-cols-3 gap-2 lg:hidden mt-1">
               {[
-                { icon: Truck, label: 'Free Shipping', sub: '₹999+' },
-                { icon: RefreshCw, label: '7-Day Returns', sub: 'Easy policy' },
-                { icon: ShieldCheck, label: 'Secure Pay', sub: 'Encrypted' },
+                { icon: Truck, label: language === 'ar' ? 'شحن مجاني' : 'Free Shipping', sub: language === 'ar' ? '﷼٥٠+' : '₹999+' },
+                { icon: RefreshCw, label: language === 'ar' ? 'إرجاع ٧ أيام' : '7-Day Returns', sub: language === 'ar' ? 'سهل ومرن' : 'Easy policy' },
+                { icon: ShieldCheck, label: language === 'ar' ? 'دفع آمن' : 'Secure Pay', sub: language === 'ar' ? 'مشفر' : 'Encrypted' },
               ].map(({ icon: Icon, label, sub }) => (
                 <div
                   key={label}
@@ -730,10 +740,10 @@ export const ProductDetail: React.FC = () => {
             </div>
 
             {/* Badge row */}
-            <div className="flex flex-wrap items-center gap-2 pt-1">
+            <div className="flex flex-wrap items-center gap-2 pt-1 text-left rtl:text-right">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-[#8b1a2a] bg-[#8b1a2a]/6 px-3 py-1.5 rounded-full border border-[#8b1a2a]/15">
                 <BadgeCheck size={12} />
-                Authentic Product
+                {language === 'ar' ? 'منتج أصلي ١٠٠٪' : 'Authentic Product'}
               </span>
               {product.sku && (
                 <span className="text-[10px] text-brand-text-muted font-mono bg-neutral-100 px-2.5 py-1 rounded-full">
@@ -742,7 +752,7 @@ export const ProductDetail: React.FC = () => {
               )}
               {product.stock !== undefined && product.stock > 0 && (
                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                  In Stock · {product.stock} units
+                  {language === 'ar' ? `متوفر · ${product.stock} قطعة` : `In Stock · ${product.stock} units`}
                 </span>
               )}
             </div>
@@ -760,19 +770,21 @@ export const ProductDetail: React.FC = () => {
             <div className="flex items-center gap-2 mb-5">
               <div className="w-1 h-5 bg-[#8b1a2a] rounded-full" />
               <h2 className="font-display font-extrabold text-base sm:text-lg text-brand-charcoal uppercase tracking-tight">
-                Product Specs
+                {language === 'ar' ? 'مواصفات المنتج' : 'Product Specs'}
               </h2>
             </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-5 text-left rtl:text-right">
               {[
-                product.sku && { label: 'SKU', value: product.sku, mono: true },
-                { label: 'Category', value: product.category },
+                product.sku && { label: language === 'ar' ? 'رمز المنتج' : 'SKU', value: product.sku, mono: true },
+                { label: language === 'ar' ? 'الفئة' : 'Category', value: translateDynamic(product.category, language) },
                 product.stock !== undefined && {
-                  label: 'Availability',
-                  value: product.stock > 0 ? `${product.stock} in stock` : 'Out of stock',
+                  label: language === 'ar' ? 'التوفر' : 'Availability',
+                  value: product.stock > 0 
+                    ? (language === 'ar' ? `متوفر في المخزون (${product.stock})` : `${product.stock} in stock`) 
+                    : (language === 'ar' ? 'نفذت الكمية' : 'Out of stock'),
                   color: product.stock > 0 ? 'text-emerald-600' : 'text-red-500',
                 },
-                { label: 'Sizes', value: displaySizes.join(', ') },
+                { label: language === 'ar' ? 'المقاسات المتاحة' : 'Sizes', value: displaySizes.join(', ') },
               ]
                 .filter(Boolean)
                 .map((item: any) => (
@@ -788,7 +800,7 @@ export const ProductDetail: React.FC = () => {
             </div>
 
             {product.details.filter(Boolean).length > 0 && (
-              <div className="mt-5 pt-4 border-t border-neutral-100 space-y-2.5">
+              <div className="mt-5 pt-4 border-t border-neutral-100 space-y-2.5 text-left rtl:text-right">
                 {product.details.filter(Boolean).map((detail, idx) => (
                   <div key={idx} className="flex items-start gap-2 text-sm text-brand-text-muted">
                     <span className="text-[#d4af37] mt-0.5 shrink-0 text-xs">✦</span>
@@ -804,21 +816,37 @@ export const ProductDetail: React.FC = () => {
             <div className="flex items-center gap-2 mb-5">
               <div className="w-1 h-5 bg-[#d4af37] rounded-full" />
               <h2 className="font-display font-extrabold text-base sm:text-lg text-brand-charcoal uppercase tracking-tight">
-                More Information
+                {language === 'ar' ? 'مزيد من المعلومات' : 'More Information'}
               </h2>
             </div>
             {(
               [
-                { key: 'desc' as const, label: 'Description', content: product.description },
-                { key: 'care' as const, label: 'Care Instructions', content: 'Hand wash cold in mild detergent. Do not bleach. Air dry flat away from direct sunlight. Iron on low heat if needed.' },
-                { key: 'shipping' as const, label: 'Shipping & Returns', content: 'Free shipping on orders above ₹999. Standard delivery in 3–5 business days. Express delivery available at checkout. Easy 7-day returns for unworn items with tags.' },
+                { 
+                  key: 'desc' as const, 
+                  label: language === 'ar' ? 'الوصف' : 'Description', 
+                  content: product.description 
+                },
+                { 
+                  key: 'care' as const, 
+                  label: language === 'ar' ? 'تعليمات العناية' : 'Care Instructions', 
+                  content: language === 'ar' 
+                    ? 'يُغسل يدوياً بماء بارد وبمنظف لطيف. لا تستخدم المبيض. يُجفف بشكل مسطح بعيداً عن أشعة الشمس المباشرة. يُكوى على درجة حرارة منخفضة إذا لزم الأمر.' 
+                    : 'Hand wash cold in mild detergent. Do not bleach. Air dry flat away from direct sunlight. Iron on low heat if needed.' 
+                },
+                { 
+                  key: 'shipping' as const, 
+                  label: language === 'ar' ? 'الشحن والمرتجعات' : 'Shipping & Returns', 
+                  content: language === 'ar' 
+                    ? 'شحن مجاني للطلبات التي تزيد عن ﷼٥٠. التوصيل القياسي في غضون ٣-٥ أيام عمل. التوصيل السريع متاح عند الدفع. إرجاع سهل خلال ٧ أيام للملابس غير الملبوسة مع إبقاء البطاقات الأصلية.' 
+                    : 'Free shipping on orders above ₹999. Standard delivery in 3–5 business days. Express delivery available at checkout. Easy 7-day returns for unworn items with tags.' 
+                },
               ] as const
             ).map(({ key, label, content }) => (
-              <div key={key} className="border-b border-neutral-100 last:border-0">
+              <div key={key} className="border-b border-neutral-100 last:border-0 text-left rtl:text-right">
                 <button
                   type="button"
                   onClick={() => toggleAccordion(key)}
-                  className="w-full flex items-center justify-between py-4 text-left group/acc"
+                  className="w-full flex items-center justify-between py-4 text-left rtl:text-right group/acc"
                 >
                   <span className="text-xs sm:text-sm uppercase tracking-widest font-extrabold text-brand-charcoal group-hover/acc:text-[#8b1a2a] transition-colors">
                     {label}
@@ -858,10 +886,10 @@ export const ProductDetail: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-6 overflow-hidden">
         <div className="text-center mb-10">
           <span className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-[#8b1a2a] font-extrabold">
-            Customer Feedback
+            {language === 'ar' ? 'آراء العملاء' : 'Customer Feedback'}
           </span>
           <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-brand-charcoal mt-1.5 uppercase tracking-tight">
-            What They Say
+            {language === 'ar' ? 'ماذا يقولون' : 'What They Say'}
           </h2>
           <div className="flex items-center justify-center gap-2 mt-2">
             <div className="h-px w-12 bg-[#d4af37]/60" />
@@ -873,9 +901,9 @@ export const ProductDetail: React.FC = () => {
         {/* Breakdown Summary Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12 bg-white rounded-3xl p-6 sm:p-8 border border-brand-border/20 shadow-sm max-w-5xl mx-auto">
           {/* Rating aggregate summary */}
-          <div className="lg:col-span-4 flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:pr-8 lg:border-r border-neutral-100">
+          <div className="lg:col-span-4 flex flex-col items-center lg:items-start text-center lg:text-left rtl:text-right gap-4 lg:pr-8 lg:border-r rtl:lg:border-r-0 rtl:lg:border-l border-neutral-100 w-full">
             <h3 className="text-xs uppercase tracking-widest font-extrabold text-brand-charcoal">
-              Overall Rating
+              {language === 'ar' ? 'التقييم العام' : 'Overall Rating'}
             </h3>
             <div className="flex items-baseline gap-2.5">
               <span className="text-5xl sm:text-6xl font-black text-brand-charcoal leading-none">
@@ -894,22 +922,25 @@ export const ProductDetail: React.FC = () => {
             </div>
             <p className="text-xs text-brand-text-muted">
               {starBreakdown.total > 0
-                ? <>Based on <span className="font-bold text-brand-charcoal">{starBreakdown.total}</span> verified reviews</>
-                : 'No reviews yet — be the first!'}
+                ? (language === 'ar' 
+                    ? <>بناءً على <span className="font-bold text-brand-charcoal">{starBreakdown.total}</span> تقييمات موثقة</>
+                    : <>Based on <span className="font-bold text-brand-charcoal">{starBreakdown.total}</span> verified reviews</>
+                  )
+                : (language === 'ar' ? 'لا توجد تقييمات بعد — كن أول من يكتب تقييماً!' : 'No reviews yet — be the first!')}
             </p>
 
             {/* Write Review CTA — smart state */}
             {isAuthenticated && myReviewStatus?.hasReviewed ? (
               // Already reviewed
-              <div className="mt-2 w-full">
+              <div className="mt-2 w-full text-left rtl:text-right">
                 <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold px-4 py-2.5 rounded-xl">
                   <BadgeCheck size={14} className="text-emerald-600 shrink-0" />
                   <div>
-                    <p className="font-extrabold uppercase tracking-wide">Review Submitted</p>
+                    <p className="font-extrabold uppercase tracking-wide">{language === 'ar' ? 'تم تقديم المراجعة' : 'Review Submitted'}</p>
                     <p className="text-emerald-700/80 font-normal normal-case tracking-normal">
                       {myReviewStatus.existingReview?.status === 'APPROVED'
-                        ? 'Your review is live.'
-                        : 'Pending moderation approval.'}
+                        ? (language === 'ar' ? 'تقييمك منشور الآن.' : 'Your review is live.')
+                        : (language === 'ar' ? 'بانتظار موافقة الإدارة.' : 'Pending moderation approval.')}
                     </p>
                   </div>
                 </div>
@@ -917,7 +948,7 @@ export const ProductDetail: React.FC = () => {
                 {myReviewStatus.existingReview && (
                   <div className="mt-2.5 pl-1 space-y-1.5 bg-white border border-brand-border/20 rounded-xl p-3 shadow-sm">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold">Your rating:</span>
+                      <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold">{language === 'ar' ? 'تقييمك:' : 'Your rating:'}</span>
                       <div className="flex gap-0.5">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
@@ -945,10 +976,12 @@ export const ProductDetail: React.FC = () => {
             ) : isAuthenticated && myReviewStatus && !myReviewStatus.isEligible ? (
               // Logged in but no delivered order
               <div className="mt-2 w-full">
-                <div className="flex items-start gap-2 bg-neutral-50 border border-neutral-200 text-neutral-600 text-xs px-4 py-2.5 rounded-xl">
+                <div className="flex items-start gap-2 bg-neutral-50 border border-neutral-200 text-neutral-600 text-xs px-4 py-2.5 rounded-xl text-left rtl:text-right">
                   <Package size={13} className="shrink-0 mt-0.5 text-neutral-400" />
                   <p className="leading-relaxed">
-                    Only customers with a <span className="font-bold text-neutral-800">delivered order</span> can leave a review.
+                    {language === 'ar' 
+                      ? <>فقط العملاء الذين لديهم <span className="font-bold text-neutral-800">طلب تم تسليمه</span> يمكنهم كتابة مراجعة.</>
+                      : <>Only customers with a <span className="font-bold text-neutral-800">delivered order</span> can leave a review.</>}
                   </p>
                 </div>
               </div>
@@ -958,23 +991,23 @@ export const ProductDetail: React.FC = () => {
                 type="button"
                 onClick={() => {
                   if (!isAuthenticated) {
-                    showToast('Please sign in to write a review.', 'error');
+                    showToast(language === 'ar' ? 'يرجى تسجيل الدخول لكتابة مراجعة.' : 'Please sign in to write a review.', 'error');
                     return;
                   }
                   setIsReviewFormOpen((prev) => !prev);
                   setSubmitSuccess(false);
                 }}
-                className="mt-2 w-full lg:w-auto inline-flex items-center justify-center bg-[#8b1a2a] text-white hover:bg-[#701420] text-xs font-extrabold uppercase tracking-widest px-6 py-3 rounded-xl shadow-md transition-all active:scale-[0.98]"
+                className="mt-2 w-full lg:w-auto inline-flex items-center justify-center bg-[#8b1a2a] text-white hover:bg-[#701420] text-xs font-extrabold uppercase tracking-widest px-6 py-3 rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer"
               >
-                Write A Review
+                {language === 'ar' ? 'اكتب مراجعة' : 'Write A Review'}
               </button>
             )}
           </div>
 
           {/* Star breakdown details */}
           <div className="lg:col-span-8 w-full flex flex-col gap-3">
-            <h3 className="text-xs uppercase tracking-widest font-extrabold text-brand-charcoal text-center lg:text-left mb-1">
-              Rating Distribution
+            <h3 className="text-xs uppercase tracking-widest font-extrabold text-brand-charcoal text-center lg:text-left rtl:lg:text-right mb-1">
+              {language === 'ar' ? 'توزيع التقييمات' : 'Rating Distribution'}
             </h3>
             {([5, 4, 3, 2, 1] as const).map((stars) => {
               const pctValue = starBreakdown[stars] || 0;
@@ -1013,11 +1046,11 @@ export const ProductDetail: React.FC = () => {
               >
                 <form
                   onSubmit={handleReviewSubmit}
-                  className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8b1a2a]/20 shadow-lg space-y-5"
+                  className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8b1a2a]/20 shadow-lg space-y-5 text-left rtl:text-right"
                 >
                   <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                     <h3 className="font-display font-extrabold text-sm uppercase tracking-wider text-brand-charcoal">
-                      Write Your Review
+                      {language === 'ar' ? 'اكتب مراجعتك' : 'Write Your Review'}
                     </h3>
                     <button
                       type="button"
@@ -1031,7 +1064,7 @@ export const ProductDetail: React.FC = () => {
                   {/* Stars selector */}
                   <div className="space-y-1.5">
                     <label className="block text-[10px] font-extrabold uppercase tracking-widest text-neutral-400">
-                      Your Rating *
+                      {language === 'ar' ? 'تقييمك *' : 'Your Rating *'}
                     </label>
                     <div className="flex items-center gap-1">
                       {Array.from({ length: 5 }).map((_, i) => {
@@ -1044,18 +1077,20 @@ export const ProductDetail: React.FC = () => {
                             onMouseEnter={() => setReviewHoverRating(ratingVal)}
                             onMouseLeave={() => setReviewHoverRating(0)}
                             onClick={() => setReviewRating(ratingVal)}
-                            className="p-1 -ml-1 transition-transform hover:scale-110"
+                            className="p-1 -ml-1 transition-transform hover:scale-110 cursor-pointer"
                           >
                             <Star
                               size={28}
-                              className={`transition-colors ${active ? 'fill-[#d4af37] text-[#d4af37]' : 'text-neutral-200'
-                                }`}
+                              className={`transition-colors ${active ? 'fill-[#d4af37] text-[#d4af37]' : 'text-neutral-200'}`}
                             />
                           </button>
                         );
                       })}
-                      <span className="text-xs font-black text-brand-charcoal ml-2">
-                        {reviewRating} Star{reviewRating > 1 ? 's' : ''}
+                      <span className="text-xs font-black text-brand-charcoal ml-2 rtl:ml-0 rtl:mr-2">
+                        {reviewRating} {reviewRating === 1 
+                          ? (language === 'ar' ? 'نجمة' : 'Star') 
+                          : (language === 'ar' ? 'نجوم' : 'Stars')
+                        }
                       </span>
                     </div>
                   </div>
@@ -1063,11 +1098,11 @@ export const ProductDetail: React.FC = () => {
                   {/* Title */}
                   <div className="space-y-1.5">
                     <label className="block text-[10px] font-extrabold uppercase tracking-widest text-neutral-400">
-                      Review Title (Optional)
+                      {language === 'ar' ? 'عنوان المراجعة (اختياري)' : 'Review Title (Optional)'}
                     </label>
                     <input
                       type="text"
-                      placeholder="Example: Soft fabric, fits perfectly!"
+                      placeholder={language === 'ar' ? 'مثال: قماش ناعم، يناسب تماماً!' : 'Example: Soft fabric, fits perfectly!'}
                       value={reviewTitle}
                       onChange={(e) => setReviewTitle(e.target.value)}
                       className="w-full px-4 py-3 text-sm bg-white border border-neutral-200 rounded-xl focus:outline-none focus:border-[#8b1a2a] focus:ring-4 focus:ring-[#8b1a2a]/8 transition-all"
@@ -1077,11 +1112,11 @@ export const ProductDetail: React.FC = () => {
                   {/* Review Body */}
                   <div className="space-y-1.5">
                     <label className="block text-[10px] font-extrabold uppercase tracking-widest text-neutral-400">
-                      Review Description *
+                      {language === 'ar' ? 'وصف المراجعة *' : 'Review Description *'}
                     </label>
                     <textarea
                       rows={4}
-                      placeholder="Share your detailed feedback on the product design, comfort, sizing, and overall quality..."
+                      placeholder={language === 'ar' ? 'شاركنا بتعليقاتك بالتفصيل حول تصميم المنتج، والراحة، والمقاس، والجودة الإجمالية...' : 'Share your detailed feedback on the product design, comfort, sizing, and overall quality...'}
                       value={reviewBody}
                       onChange={(e) => setReviewBody(e.target.value)}
                       required
@@ -1092,13 +1127,13 @@ export const ProductDetail: React.FC = () => {
                   {/* Image upload */}
                   <div className="space-y-1.5">
                     <label className="block text-[10px] font-extrabold uppercase tracking-widest text-neutral-400">
-                      Product Images (Optional)
+                      {language === 'ar' ? 'صور المنتج (اختياري)' : 'Product Images (Optional)'}
                     </label>
                     <div className="flex flex-wrap gap-3 items-center">
                       {/* Add Image Button */}
                       <label className="size-16 rounded-xl border border-dashed border-neutral-300 hover:border-[#8b1a2a] flex flex-col items-center justify-center text-neutral-400 hover:text-[#8b1a2a] cursor-pointer transition-colors shadow-sm">
                         <Camera size={18} />
-                        <span className="text-[9px] font-bold mt-1 uppercase">Add</span>
+                        <span className="text-[9px] font-bold mt-1 uppercase">{language === 'ar' ? 'إضافة' : 'Add'}</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -1116,7 +1151,7 @@ export const ProductDetail: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => removeUploadedImage(idx)}
-                            className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                           >
                             <X size={14} className="text-white" />
                           </button>
@@ -1135,9 +1170,12 @@ export const ProductDetail: React.FC = () => {
                   <button
                     type="submit"
                     disabled={createReviewMutation.isPending || isUploadingImage}
-                    className="w-full flex items-center justify-center gap-2.5 bg-[#8b1a2a] hover:bg-[#7a1624] text-white text-xs font-extrabold uppercase tracking-widest py-3.5 rounded-xl transition-all disabled:opacity-50 active:scale-[0.99] shadow-md hover:shadow-lg"
+                    className="w-full flex items-center justify-center gap-2.5 bg-[#8b1a2a] hover:bg-[#7a1624] text-white text-xs font-extrabold uppercase tracking-widest py-3.5 rounded-xl transition-all disabled:opacity-50 active:scale-[0.99] shadow-md hover:shadow-lg cursor-pointer"
                   >
-                    {createReviewMutation.isPending ? 'Submitting…' : 'Submit Review'}
+                    {createReviewMutation.isPending 
+                      ? (language === 'ar' ? 'جاري الإرسال...' : 'Submitting…') 
+                      : (language === 'ar' ? 'إرسال المراجعة' : 'Submit Review')
+                    }
                   </button>
                 </form>
               </motion.div>
@@ -1146,14 +1184,16 @@ export const ProductDetail: React.FC = () => {
 
           {/* Submit success alert */}
           {submitSuccess && (
-            <div className="max-w-xl mx-auto mb-10 bg-emerald-50 border border-emerald-200 rounded-3xl p-5 flex items-start gap-3.5 shadow-sm">
+            <div className="max-w-xl mx-auto mb-10 bg-emerald-50 border border-emerald-200 rounded-3xl p-5 flex items-start gap-3.5 shadow-sm text-left rtl:text-right">
               <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
               <div>
                 <h4 className="text-xs uppercase tracking-widest font-extrabold text-emerald-800">
-                  Review Submitted Successfully
+                  {language === 'ar' ? 'تم تقديم المراجعة بنجاح' : 'Review Submitted Successfully'}
                 </h4>
                 <p className="text-xs text-emerald-700/90 leading-relaxed mt-1">
-                  Thank you! Your feedback is pending administrative approval. It will appear on this page as soon as it is approved by our moderation team.
+                  {language === 'ar' 
+                    ? 'شكراً لك! تعليقك قيد المراجعة الإدارية وسوف يظهر على هذه الصفحة بمجرد موافقة فريقنا عليه.' 
+                    : 'Thank you! Your feedback is pending administrative approval. It will appear on this page as soon as it is approved by our moderation team.'}
                 </p>
               </div>
             </div>
@@ -1177,10 +1217,10 @@ export const ProductDetail: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
               <span className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-[#8b1a2a] font-extrabold">
-                Discover More
+                {language === 'ar' ? 'اكتشف المزيد' : 'Discover More'}
               </span>
               <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-brand-charcoal mt-1.5 uppercase tracking-tight">
-                You May Also Like
+                {language === 'ar' ? 'قد يعجبك أيضاً' : 'You May Also Like'}
               </h2>
               <div className="flex items-center justify-center gap-2 mt-2">
                 <div className="h-px w-12 bg-[#d4af37]/60" />
@@ -1200,7 +1240,7 @@ export const ProductDetail: React.FC = () => {
       {/* ── Floating Mobile CTA ── */}
       <div className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-white/95 backdrop-blur-md border-t border-brand-border/30 px-4 py-3 shadow-2xl shadow-black/10">
         <div className="max-w-lg mx-auto flex items-center gap-3">
-          <div className="flex flex-col justify-center min-w-0">
+          <div className="flex flex-col justify-center min-w-0 text-left rtl:text-right">
             <span className="text-[10px] uppercase tracking-widest text-brand-text-muted font-semibold truncate">
               {product.name}
             </span>
@@ -1212,9 +1252,9 @@ export const ProductDetail: React.FC = () => {
             type="button"
             onClick={handleAddToCart}
             whileTap={{ scale: 0.96 }}
-            className="flex-1 bg-[#8b1a2a] text-white py-3.5 text-xs font-extrabold uppercase tracking-widest rounded-xl shadow-md shadow-[#8b1a2a]/30 transition-all active:scale-95"
+            className="flex-1 bg-[#8b1a2a] text-white py-3.5 text-xs font-extrabold uppercase tracking-widest rounded-xl shadow-md shadow-[#8b1a2a]/30 transition-all active:scale-95 cursor-pointer"
           >
-            Add to Cart
+            {language === 'ar' ? 'أضف إلى السلة' : 'Add to Cart'}
           </motion.button>
           <motion.button
             type="button"

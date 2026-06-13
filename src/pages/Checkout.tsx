@@ -27,6 +27,7 @@ import { useToast } from '../hooks/useToast';
 import { useSettings } from '../hooks/useSettings';
 import { useApplyCouponMutation, useActiveCoupons } from '../hooks/useCoupons';
 import type { OrderRow } from '../lib/orderTypes';
+import { useLanguage } from '../context/LanguageContext';
 
 type CheckoutStep = 'shipping' | 'payment' | 'confirmation';
 type PaymentMethod = 'RAZORPAY' | 'COD';
@@ -68,7 +69,19 @@ const STEPS: { key: CheckoutStep; label: string; num: string }[] = [
 ];
 
 function StepBar({ step }: { step: CheckoutStep }) {
+  const { language } = useLanguage();
   const idx = STEPS.findIndex((s) => s.key === step);
+
+  const getStepLabel = (key: CheckoutStep) => {
+    if (language === 'ar') {
+      if (key === 'shipping') return 'الشحن';
+      if (key === 'payment') return 'الدفع';
+      return 'تأكيد الطلب';
+    }
+    if (key === 'shipping') return 'Shipping';
+    if (key === 'payment') return 'Payment';
+    return 'Confirmed';
+  };
 
   return (
     <div className="relative mb-14">
@@ -181,7 +194,7 @@ function StepBar({ step }: { step: CheckoutStep }) {
                     }
                   `}
                 >
-                  {s.label}
+                  {getStepLabel(s.key)}
                 </span>
 
                 {active && (
@@ -202,6 +215,7 @@ function StepBar({ step }: { step: CheckoutStep }) {
 /* ── Main component ─────────────────────────────────────────────── */
 export const Checkout: React.FC = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const { cart, cartTotal, discount, clearCart } = useShop();
   const { user, isAuthenticated, isLoading: authLoading } = useAuthStore();
   const { showToast } = useToast();
@@ -259,12 +273,13 @@ export const Checkout: React.FC = () => {
 
   const validateShipping = () => {
     const errors: Record<string, string> = {};
-    if (!formData.email) errors.email = 'Email is required';
-    if (!formData.firstName) errors.firstName = 'First name is required';
-    if (!formData.lastName) errors.lastName = 'Last name is required';
-    if (!formData.address) errors.address = 'Address is required';
-    if (!formData.city) errors.city = 'City is required';
-    if (!formData.postalCode) errors.postalCode = 'Postal code is required';
+    const isAr = language === 'ar';
+    if (!formData.email) errors.email = isAr ? 'البريد الإلكتروني مطلوب' : 'Email is required';
+    if (!formData.firstName) errors.firstName = isAr ? 'الاسم الأول مطلوب' : 'First name is required';
+    if (!formData.lastName) errors.lastName = isAr ? 'الاسم الأخير مطلوب' : 'Last name is required';
+    if (!formData.address) errors.address = isAr ? 'العنوان مطلوب' : 'Address is required';
+    if (!formData.city) errors.city = isAr ? 'المدينة مطلوبة' : 'City is required';
+    if (!formData.postalCode) errors.postalCode = isAr ? 'الرمز البريدي مطلوب' : 'Postal code is required';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -276,12 +291,12 @@ export const Checkout: React.FC = () => {
       const res = await applyCouponMutation.mutateAsync({ code: couponCode.trim(), subtotal: cartTotal });
       setAppliedCoupon(res.coupon);
       setCouponDiscount(res.discount);
-      showToast('Coupon applied! 🎉', 'success');
+      showToast(language === 'ar' ? 'تم تطبيق القسيمة! 🎉' : 'Coupon applied! 🎉', 'success');
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Invalid coupon code';
-      setCouponError(msg);
-      showToast(msg, 'error');
+      setCouponError(language === 'ar' ? 'كود القسيمة غير صالح' : msg);
+      showToast(language === 'ar' ? 'كود القسيمة غير صالح' : msg, 'error');
     }
   };
 
@@ -312,34 +327,34 @@ export const Checkout: React.FC = () => {
   });
 
   const handlePayWithCod = async () => {
-    if (!validateShipping()) { setStep('shipping'); showToast('Please complete shipping details', 'error'); return; }
+    if (!validateShipping()) { setStep('shipping'); showToast(language === 'ar' ? 'يرجى إكمال تفاصيل الشحن' : 'Please complete shipping details', 'error'); return; }
     setPayLoading(true);
     try {
       const order = await createCheckoutOrder({ ...buildOrderPayload(), paymentMethod: 'COD' });
       await clearCart();
       setConfirmedOrder(order);
       setStep('confirmation');
-      showToast('Order placed! Pay cash on delivery.', 'success');
+      showToast(language === 'ar' ? 'تم تسجيل طلبك! الدفع عند الاستلام.' : 'Order placed! Pay cash on delivery.', 'success');
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Could not place order. Please try again.';
-      showToast(msg, 'error');
+      showToast(language === 'ar' ? 'فشل تسجيل الطلب. يرجى المحاولة مرة أخرى.' : msg, 'error');
     } finally { setPayLoading(false); }
   };
 
   const handlePayWithRazorpay = async () => {
-    if (!validateShipping()) { setStep('shipping'); showToast('Please complete shipping details', 'error'); return; }
+    if (!validateShipping()) { setStep('shipping'); showToast(language === 'ar' ? 'يرجى إكمال تفاصيل الشحن' : 'Please complete shipping details', 'error'); return; }
     setPayLoading(true);
     try {
       const scriptOk = await loadRazorpayScript();
-      if (!scriptOk) { showToast('Could not load payment gateway. Check your connection.', 'error'); return; }
+      if (!scriptOk) { showToast(language === 'ar' ? 'تعذر تحميل بوابة الدفع. تحقق من اتصالك.' : 'Could not load payment gateway. Check your connection.', 'error'); return; }
       const order = await createCheckoutOrder({ ...buildOrderPayload(), paymentMethod: 'RAZORPAY' });
       const { razorpayOrder, keyId } = await createRazorpayOrder(order.id);
       openRazorpayCheckout({
         key: keyId,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency || 'OMR',
-        name: 'Superior Trends',
-        description: `Order ${order.orderNumber}`,
+        name: language === 'ar' ? 'سوبريور تريندز' : 'Superior Trends',
+        description: `${language === 'ar' ? 'الطلب رقم' : 'Order'} ${order.orderNumber}`,
         order_id: razorpayOrder.id,
         prefill: { name: `${formData.firstName} ${formData.lastName}`.trim(), email: formData.email, contact: formData.phone },
         theme: { color: '#8b1a2a' },
@@ -353,16 +368,16 @@ export const Checkout: React.FC = () => {
             await clearCart();
             setConfirmedOrder(verified || order);
             setStep('confirmation');
-            showToast('Payment successful! Thank you ✦', 'success');
+            showToast(language === 'ar' ? 'تم الدفع بنجاح! شكراً لك ✦' : 'Payment successful! Thank you ✦', 'success');
           } catch {
-            showToast('Payment received but verification failed. Contact support with your payment ID.', 'error');
+            showToast(language === 'ar' ? 'تم استلام الدفعة ولكن فشل التحقق. اتصل بالدعم الفني.' : 'Payment received but verification failed. Contact support with your payment ID.', 'error');
           } finally { setPayLoading(false); }
         },
-        modal: { ondismiss: () => { setPayLoading(false); showToast('Payment cancelled', 'info'); } },
+        modal: { ondismiss: () => { setPayLoading(false); showToast(language === 'ar' ? 'تم إلغاء عملية الدفع' : 'Payment cancelled', 'info'); } },
       });
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Could not start payment. Please try again.';
-      showToast(msg, 'error');
+      showToast(language === 'ar' ? 'تعذر بدء عملية الدفع. يرجى المحاولة مرة أخرى.' : msg, 'error');
       setPayLoading(false);
     }
   };
@@ -377,7 +392,9 @@ export const Checkout: React.FC = () => {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 font-display">
         <Loader2 className="animate-spin text-[#8b1a2a]" size={32} />
-        <span className="text-xs uppercase tracking-widest text-brand-text-muted font-bold">Loading…</span>
+        <span className="text-xs uppercase tracking-widest text-brand-text-muted font-bold">
+          {language === 'ar' ? 'جاري التحميل…' : 'Loading…'}
+        </span>
       </div>
     );
   }
@@ -390,15 +407,19 @@ export const Checkout: React.FC = () => {
           <ShoppingBag size={32} className="text-[#8b1a2a]" />
         </div>
         <div className="text-center space-y-1">
-          <h2 className="font-display text-2xl font-extrabold uppercase text-brand-charcoal">Your cart is empty</h2>
-          <p className="text-sm text-brand-text-muted">Add some items before checking out.</p>
+          <h2 className="font-display text-2xl font-extrabold uppercase text-brand-charcoal">
+            {language === 'ar' ? 'سلة المشتريات فارغة' : 'Your cart is empty'}
+          </h2>
+          <p className="text-sm text-brand-text-muted">
+            {language === 'ar' ? 'أضف بعض المنتجات قبل إتمام الطلب.' : 'Add some items before checking out.'}
+          </p>
         </div>
         <Link
           to="/shop"
           className="inline-flex items-center gap-2 bg-[#8b1a2a] text-white px-8 py-3.5 text-xs font-extrabold uppercase tracking-widest rounded-full shadow-lg shadow-[#8b1a2a]/25 hover:bg-[#6b1420] transition-all"
         >
-          Browse Collection
-          <ArrowRight size={14} />
+          {language === 'ar' ? 'تصفح التشكيلة' : 'Browse Collection'}
+          <ArrowRight size={14} className="rtl:rotate-180" />
         </Link>
       </div>
     );
@@ -406,15 +427,15 @@ export const Checkout: React.FC = () => {
 
   /* ── Order Summary sidebar (shared) ── */
   const OrderSummary = () => (
-    <div className="bg-white border border-brand-border/30 rounded-2xl shadow-sm overflow-hidden sticky top-24">
+    <div className="bg-white border border-brand-border/30 rounded-2xl shadow-sm overflow-hidden sticky top-24 text-left rtl:text-right">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#8b1a2a] to-[#6b1420] px-5 py-4 flex items-center gap-2">
         <ShoppingBag size={16} className="text-white/80" />
         <h3 className="font-display font-extrabold uppercase tracking-wider text-sm text-white">
-          Order Summary
+          {language === 'ar' ? 'ملخص الطلب' : 'Order Summary'}
         </h3>
-        <span className="ml-auto text-[10px] font-black text-white/70 bg-white/15 px-2 py-0.5 rounded-full">
-          {cart.reduce((s, i) => s + i.quantity, 0)} items
+        <span className="ml-auto rtl:ml-0 rtl:mr-auto text-[10px] font-black text-white/70 bg-white/15 px-2 py-0.5 rounded-full">
+          {cart.reduce((s, i) => s + i.quantity, 0)} {language === 'ar' ? 'منتجات' : 'items'}
         </span>
       </div>
 
@@ -423,7 +444,7 @@ export const Checkout: React.FC = () => {
         {cart.map((item, idx) => {
           const imageUrl = getProductImageUrl(item.product.images, 120);
           return (
-            <div key={idx} className="flex gap-3 p-4">
+            <div key={idx} className="flex gap-3 p-4 text-left rtl:text-right">
               <div className="w-14 h-16 shrink-0 rounded-xl overflow-hidden bg-[#F3EFEA] border border-brand-border/20">
                 {imageUrl && <img src={imageUrl} alt="" className="w-full h-full object-cover" />}
               </div>
@@ -432,8 +453,8 @@ export const Checkout: React.FC = () => {
                   {item.product.name}
                 </p>
                 <p className="text-[10px] text-brand-text-muted mt-0.5">
-                  {item.selectedSize && <span>{item.selectedSize} · </span>}
-                  Qty {item.quantity}
+                  {item.selectedSize && <span>{language === 'ar' ? 'المقاس' : 'Size'} {item.selectedSize} · </span>}
+                  {language === 'ar' ? 'الكمية' : 'Qty'} {item.quantity}
                 </p>
               </div>
               <span className="font-black text-[#8b1a2a] text-sm shrink-0 self-center">
@@ -451,11 +472,11 @@ export const Checkout: React.FC = () => {
           onClick={() => setCouponOpen((p) => !p)}
           className="w-full flex items-center justify-between text-[10px] uppercase tracking-widest font-extrabold text-brand-charcoal"
         >
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 text-left rtl:text-right">
             <Tag size={12} className="text-[#d4af37]" />
-            Promo Code
+            {language === 'ar' ? 'رمز ترويجي' : 'Promo Code'}
             {appliedCoupon && (
-              <span className="text-emerald-600 text-[9px] font-black">(Applied!)</span>
+              <span className="text-emerald-600 text-[9px] font-black">({language === 'ar' ? 'مطبق!' : 'Applied!'})</span>
             )}
           </span>
           <motion.div animate={{ rotate: couponOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -484,15 +505,15 @@ export const Checkout: React.FC = () => {
                       const res = await applyCouponMutation.mutateAsync({ code: val, subtotal: cartTotal });
                       setAppliedCoupon(res.coupon);
                       setCouponDiscount(res.discount);
-                      showToast('Coupon applied! 🎉', 'success');
+                      showToast(language === 'ar' ? 'تم تطبيق القسيمة! 🎉' : 'Coupon applied! 🎉', 'success');
                     } catch (err: unknown) {
                       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Invalid coupon';
-                      setCouponError(msg);
+                      setCouponError(language === 'ar' ? 'كود القسيمة غير صالح' : msg);
                     }
                   }}
                   className="w-full text-[10px] font-bold uppercase px-3 py-2 rounded-lg border border-neutral-200 bg-neutral-50 focus:outline-none cursor-pointer tracking-wider"
                 >
-                  <option value="">— Available Offers —</option>
+                  <option value="">{language === 'ar' ? '— العروض المتاحة —' : '— Available Offers —'}</option>
                   {activeCoupons.map((c) => {
                     const meetsMin = cartTotal >= c.minimumOrder;
                     const text =
@@ -523,7 +544,7 @@ export const Checkout: React.FC = () => {
                     onClick={() => { setAppliedCoupon(null); setCouponDiscount(0); setCouponCode(''); }}
                     className="bg-red-50 text-red-600 border-2 border-red-200 px-3 py-2 rounded-xl text-xs font-extrabold uppercase hover:bg-red-100 transition-colors"
                   >
-                    Remove
+                    {language === 'ar' ? 'إزالة' : 'Remove'}
                   </button>
                 ) : (
                   <button
@@ -532,7 +553,7 @@ export const Checkout: React.FC = () => {
                     disabled={applyCouponMutation.isPending || !couponCode.trim()}
                     className="bg-[#8b1a2a] text-white px-4 py-2 rounded-xl text-xs font-extrabold uppercase hover:bg-[#6b1420] disabled:opacity-50 transition-colors"
                   >
-                    {applyCouponMutation.isPending ? '…' : 'Apply'}
+                    {applyCouponMutation.isPending ? '…' : (language === 'ar' ? 'تطبيق' : 'Apply')}
                   </button>
                 )}
               </div>
@@ -543,7 +564,7 @@ export const Checkout: React.FC = () => {
               {appliedCoupon && (
                 <p className="text-[10px] text-emerald-600 font-black flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {appliedCoupon.code} applied — saving {formatINR(couponDiscount)}
+                  {language === 'ar' ? `تم تطبيق ${appliedCoupon.code} — توفير ` : `${appliedCoupon.code} applied — saving `} {formatINR(couponDiscount)}
                 </p>
               )}
             </motion.div>
@@ -554,35 +575,35 @@ export const Checkout: React.FC = () => {
       {/* Pricing breakdown */}
       <div className="border-t border-neutral-100 p-4 space-y-2.5">
         <div className="flex justify-between text-sm text-brand-text-muted">
-          <span>Subtotal</span>
+          <span>{language === 'ar' ? 'المجموع الفرعي' : 'Subtotal'}</span>
           <span className="font-semibold text-brand-charcoal">{formatINR(cartTotal)}</span>
         </div>
         {finalDiscount > 0 && (
           <div className="flex justify-between text-sm text-emerald-600">
-            <span className="font-semibold">Discount</span>
+            <span className="font-semibold">{language === 'ar' ? 'الخصم' : 'Discount'}</span>
             <span className="font-extrabold">-{formatINR(finalDiscount)}</span>
           </div>
         )}
         <div className="flex justify-between text-sm text-brand-text-muted">
           <span className="flex items-center gap-1">
             <Truck size={12} className="text-[#d4af37]" />
-            Shipping
+            {language === 'ar' ? 'الشحن' : 'Shipping'}
           </span>
           {shippingFee === 0 ? (
-            <span className="text-emerald-600 font-extrabold text-xs uppercase">Free</span>
+            <span className="text-emerald-600 font-extrabold text-xs uppercase">{language === 'ar' ? 'مجاني' : 'Free'}</span>
           ) : (
             <span className="font-semibold text-brand-charcoal">{formatINR(shippingFee)}</span>
           )}
         </div>
         {cartTotal < freeShippingThreshold && shippingFee > 0 && (
           <p className="text-[10px] text-[#8b1a2a] font-semibold bg-[#8b1a2a]/5 rounded-lg px-2 py-1.5">
-            Add {formatINR(freeShippingThreshold - cartTotal)} more for free shipping
+            {language === 'ar' ? 'أضف ' : 'Add '} {formatINR(freeShippingThreshold - cartTotal)} {language === 'ar' ? ' إضافية للحصول على شحن مجاني' : ' more for free shipping'}
           </p>
         )}
 
         {/* Grand total */}
         <div className="flex justify-between items-center pt-2 mt-1 border-t-2 border-dashed border-[#d4af37]/30">
-          <span className="font-extrabold uppercase tracking-wider text-brand-charcoal text-sm">Total</span>
+          <span className="font-extrabold uppercase tracking-wider text-brand-charcoal text-sm">{language === 'ar' ? 'المجموع الكلي' : 'Total'}</span>
           <span className="font-black text-[#8b1a2a] text-2xl tracking-tight">{formatINR(grandTotal)}</span>
         </div>
       </div>
@@ -591,7 +612,7 @@ export const Checkout: React.FC = () => {
       <div className="border-t border-neutral-100 px-4 py-3 flex items-center justify-center gap-1.5">
         <Lock size={11} className="text-[#d4af37]" />
         <span className="text-[10px] uppercase tracking-widest font-extrabold text-brand-text-muted">
-          Secure · Encrypted Checkout
+          {language === 'ar' ? 'دفع آمن ومشفّر بالكامل' : 'Secure · Encrypted Checkout'}
         </span>
       </div>
     </div>
@@ -603,11 +624,11 @@ export const Checkout: React.FC = () => {
       <div className="border-b border-brand-border/20 bg-white/70 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
           <Link to="/" className="font-display text-base font-black uppercase tracking-widest text-brand-charcoal">
-            Superior <span className="text-[#8b1a2a]">Trends</span>
+            {language === 'ar' ? 'سوبريور ' : 'Superior '}<span className="text-[#8b1a2a]">{language === 'ar' ? 'تريندز' : 'Trends'}</span>
           </Link>
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-brand-text-muted font-bold">
             <Lock size={11} className="text-[#d4af37]" />
-            Secure Checkout
+            {language === 'ar' ? 'إتمام الدفع الآمن' : 'Secure Checkout'}
           </div>
         </div>
       </div>
@@ -645,14 +666,14 @@ export const Checkout: React.FC = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35 }}
-                    className="relative z-10"
+                    className="relative z-10 text-center"
                   >
                     <p className="text-[10px] uppercase tracking-[0.3em] text-[#d4af37] font-extrabold mb-1">
                       <Sparkles className="inline mr-1" size={10} />
-                      Thank you
+                      {language === 'ar' ? 'شكراً لك' : 'Thank you'}
                     </p>
                     <h2 className="font-display text-3xl font-black text-white uppercase tracking-tight">
-                      Order Confirmed!
+                      {language === 'ar' ? 'تم تأكيد طلبك!' : 'Order Confirmed!'}
                     </h2>
                   </motion.div>
                 </div>
@@ -662,12 +683,12 @@ export const Checkout: React.FC = () => {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="p-8 space-y-5"
+                  className="p-8 space-y-5 text-left rtl:text-right"
                 >
                   {confirmedOrder?.orderNumber && (
                     <div className="bg-[#d4af37]/8 border border-[#d4af37]/25 rounded-xl px-5 py-4 text-center">
                       <p className="text-[10px] uppercase tracking-widest text-brand-text-muted font-bold mb-1">
-                        Order Number
+                        {language === 'ar' ? 'رقم الطلب' : 'Order Number'}
                       </p>
                       <p className="font-mono font-black text-xl text-[#8b1a2a] tracking-wider">
                         {confirmedOrder.orderNumber}
@@ -676,28 +697,27 @@ export const Checkout: React.FC = () => {
                   )}
 
                   <p className="text-sm text-brand-text-muted text-center leading-relaxed">
-                    A confirmation has been sent to{' '}
+                    {language === 'ar' ? 'تم إرسال تأكيد الطلب إلى ' : 'A confirmation has been sent to '}{' '}
                     <strong className="text-brand-charcoal">{formData.email}</strong>.
                   </p>
 
-                  <div className="bg-neutral-50 border border-neutral-100 rounded-xl p-4 flex items-start gap-3">
+                  <div className="bg-neutral-50 border border-neutral-100 rounded-xl p-4 flex items-start gap-3 text-left rtl:text-right">
                     {confirmedOrder?.payments?.[0]?.paymentMethod === 'COD' || paymentMethod === 'COD' ? (
                       <>
                         <Banknote size={18} className="text-[#d4af37] mt-0.5 shrink-0" />
                         <p className="text-sm text-brand-text-muted">
-                          <strong className="text-brand-charcoal">Cash on Delivery</strong> — Pay{' '}
+                          <strong className="text-brand-charcoal">{language === 'ar' ? 'الدفع عند الاستلام' : 'Cash on Delivery'}</strong> — {language === 'ar' ? 'ادفع ' : 'Pay '}{' '}
                           <strong className="text-[#8b1a2a]">
                             {formatINR(Number(confirmedOrder?.total ?? grandTotal))}
                           </strong>{' '}
-                          when your order arrives.
+                          {language === 'ar' ? ' عند وصول طلبك.' : ' when your order arrives.'}
                         </p>
                       </>
                     ) : (
                       <>
                         <CreditCard size={18} className="text-[#d4af37] mt-0.5 shrink-0" />
                         <p className="text-sm text-brand-text-muted">
-                          <strong className="text-brand-charcoal">Payment Successful</strong> — Completed
-                          securely via Razorpay.
+                          <strong className="text-brand-charcoal">{language === 'ar' ? 'تم الدفع بنجاح' : 'Payment Successful'}</strong> — {language === 'ar' ? 'اكتمل الدفع بأمان عبر البوابة الإلكترونية.' : 'Completed securely via Razorpay.'}
                         </p>
                       </>
                     )}
@@ -706,7 +726,7 @@ export const Checkout: React.FC = () => {
                   <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
                     <Package size={15} className="text-emerald-600 shrink-0" />
                     <p className="text-xs text-emerald-700 font-semibold">
-                      Estimated delivery in <strong>3–5 business days</strong>
+                      {language === 'ar' ? 'التوصيل المتوقع خلال ٣-٥ أيام عمل' : 'Estimated delivery in 3–5 business days'}
                     </p>
                   </div>
 
@@ -715,13 +735,13 @@ export const Checkout: React.FC = () => {
                       to="/orders"
                       className="flex-1 bg-[#8b1a2a] text-white py-3.5 text-xs font-extrabold uppercase tracking-widest rounded-xl text-center shadow-md shadow-[#8b1a2a]/25 hover:bg-[#6b1420] transition-all"
                     >
-                      View My Orders
+                      {language === 'ar' ? 'عرض طلباتي' : 'View My Orders'}
                     </Link>
                     <Link
                       to="/shop"
                       className="flex-1 border-2 border-brand-border/50 text-brand-charcoal py-3.5 text-xs font-extrabold uppercase tracking-widest rounded-xl text-center hover:border-[#d4af37] transition-all"
                     >
-                      Continue Shopping
+                      {language === 'ar' ? 'متابعة التسوق' : 'Continue Shopping'}
                     </Link>
                   </div>
                 </motion.div>
@@ -756,16 +776,16 @@ export const Checkout: React.FC = () => {
                           <div className="w-8 h-8 rounded-full bg-[#8b1a2a] flex items-center justify-center">
                             <Truck size={15} className="text-white" />
                           </div>
-                          <div>
+                          <div className="text-left rtl:text-right">
                             <h2 className="font-display text-base font-extrabold uppercase tracking-tight text-brand-charcoal">
-                              Shipping Details
+                              {language === 'ar' ? 'تفاصيل الشحن' : 'Shipping Details'}
                             </h2>
-                            <p className="text-[10px] text-brand-text-muted">Where should we deliver?</p>
+                            <p className="text-[10px] text-brand-text-muted">{language === 'ar' ? 'أين ترغب في توصيل الطلب؟' : 'Where should we deliver?'}</p>
                           </div>
                         </div>
 
-                        <div className="px-6 sm:px-8 py-6 space-y-4">
-                          <Field label="Email Address" error={formErrors.email}>
+                        <div className="px-6 sm:px-8 py-6 space-y-4 text-left rtl:text-right">
+                          <Field label={language === 'ar' ? 'البريد الإلكتروني' : 'Email Address'} error={formErrors.email}>
                             <input
                               type="email"
                               name="email"
@@ -777,27 +797,27 @@ export const Checkout: React.FC = () => {
                           </Field>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <Field label="First Name" error={formErrors.firstName}>
+                            <Field label={language === 'ar' ? 'الاسم الأول' : 'First Name'} error={formErrors.firstName}>
                               <input
                                 name="firstName"
                                 value={formData.firstName}
                                 onChange={handleInputChange}
-                                placeholder="Anjali"
+                                placeholder={language === 'ar' ? 'الاسم' : 'Anjali'}
                                 className={inputCls}
                               />
                             </Field>
-                            <Field label="Last Name" error={formErrors.lastName}>
+                            <Field label={language === 'ar' ? 'الاسم الأخير' : 'Last Name'} error={formErrors.lastName}>
                               <input
                                 name="lastName"
                                 value={formData.lastName}
                                 onChange={handleInputChange}
-                                placeholder="Kapoor"
+                                placeholder={language === 'ar' ? 'الكنية' : 'Kapoor'}
                                 className={inputCls}
                               />
                             </Field>
                           </div>
 
-                          <Field label="Street Address" error={formErrors.address}>
+                          <Field label={language === 'ar' ? 'عنوان الشارع' : 'Street Address'} error={formErrors.address}>
                             <input
                               name="address"
                               value={formData.address}
@@ -807,7 +827,7 @@ export const Checkout: React.FC = () => {
                             />
                           </Field>
 
-                          <Field label="Apartment / Suite (optional)">
+                          <Field label={language === 'ar' ? 'الشقة / الجناح (اختياري)' : 'Apartment / Suite (optional)'}>
                             <input
                               name="apartment"
                               value={formData.apartment}
@@ -818,7 +838,7 @@ export const Checkout: React.FC = () => {
                           </Field>
 
                           <div className="grid grid-cols-2 gap-4">
-                            <Field label="City" error={formErrors.city}>
+                            <Field label={language === 'ar' ? 'المدينة' : 'City'} error={formErrors.city}>
                               <input
                                 name="city"
                                 value={formData.city}
@@ -827,7 +847,7 @@ export const Checkout: React.FC = () => {
                                 className={inputCls}
                               />
                             </Field>
-                            <Field label="PIN Code" error={formErrors.postalCode}>
+                            <Field label={language === 'ar' ? 'الرمز البريدي' : 'PIN Code'} error={formErrors.postalCode}>
                               <input
                                 name="postalCode"
                                 value={formData.postalCode}
@@ -838,12 +858,12 @@ export const Checkout: React.FC = () => {
                             </Field>
                           </div>
 
-                          <Field label="Phone Number">
+                          <Field label={language === 'ar' ? 'رقم الهاتف' : 'Phone Number'}>
                             <input
                               name="phone"
                               value={formData.phone}
                               onChange={handleInputChange}
-                              placeholder="+91 98765 43210"
+                              placeholder="+968 9000 0000"
                               className={inputCls}
                             />
                           </Field>
@@ -855,8 +875,8 @@ export const Checkout: React.FC = () => {
                             to="/shop"
                             className="flex items-center gap-1.5 text-xs uppercase tracking-widest font-extrabold text-brand-text-muted hover:text-brand-charcoal transition-colors"
                           >
-                            <ArrowLeft size={13} />
-                            Back to Shop
+                            <ArrowLeft size={13} className="rtl:rotate-180" />
+                            {language === 'ar' ? 'العودة إلى المتجر' : 'Back to Shop'}
                           </Link>
                           <motion.button
                             type="submit"
@@ -864,8 +884,8 @@ export const Checkout: React.FC = () => {
                             whileTap={{ scale: 0.97 }}
                             className="flex items-center gap-2 bg-[#8b1a2a] text-white px-8 py-3.5 rounded-xl text-xs font-extrabold uppercase tracking-widest shadow-md shadow-[#8b1a2a]/25 hover:bg-[#6b1420] transition-all"
                           >
-                            Continue to Payment
-                            <ArrowRight size={14} />
+                            {language === 'ar' ? 'الانتقال إلى الدفع' : 'Continue to Payment'}
+                            <ArrowRight size={14} className="rtl:rotate-180" />
                           </motion.button>
                         </div>
                       </motion.div>
@@ -886,21 +906,21 @@ export const Checkout: React.FC = () => {
                           <div className="w-8 h-8 rounded-full bg-[#8b1a2a] flex items-center justify-center">
                             <Lock size={14} className="text-white" />
                           </div>
-                          <div>
+                          <div className="text-left rtl:text-right">
                             <h2 className="font-display text-base font-extrabold uppercase tracking-tight text-brand-charcoal">
-                              Payment
+                              {language === 'ar' ? 'الدفع' : 'Payment'}
                             </h2>
-                            <p className="text-[10px] text-brand-text-muted">Choose your payment method</p>
+                            <p className="text-[10px] text-brand-text-muted">{language === 'ar' ? 'اختر طريقة الدفع المفضلة' : 'Choose your payment method'}</p>
                           </div>
                         </div>
 
-                        <div className="px-6 sm:px-8 py-6 space-y-5">
+                        <div className="px-6 sm:px-8 py-6 space-y-5 text-left rtl:text-right">
                           {/* Shipping summary pill */}
-                          <div className="flex items-start gap-3 bg-[#f9f7f4] border border-brand-border/20 rounded-xl px-4 py-3">
+                          <div className="flex items-start gap-3 bg-[#f9f7f4] border border-brand-border/20 rounded-xl px-4 py-3 text-left rtl:text-right">
                             <Truck size={14} className="text-[#d4af37] mt-0.5 shrink-0" />
                             <div className="min-w-0">
                               <p className="text-[10px] uppercase tracking-widest font-extrabold text-brand-text-muted mb-0.5">
-                                Delivering to
+                                {language === 'ar' ? 'جاري التوصيل إلى' : 'Delivering to'}
                               </p>
                               <p className="text-sm font-bold text-brand-charcoal truncate">
                                 {formData.firstName} {formData.lastName} — {formData.address}, {formData.city}{' '}
@@ -917,14 +937,14 @@ export const Checkout: React.FC = () => {
                               onClick={() => setPaymentMethod('RAZORPAY')}
                               whileHover={{ y: -2 }}
                               whileTap={{ scale: 0.98 }}
-                              className={`text-left p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
+                              className={`text-left rtl:text-right p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
                                 paymentMethod === 'RAZORPAY'
                                   ? 'border-[#8b1a2a] bg-[#8b1a2a]/4 shadow-lg shadow-[#8b1a2a]/10'
                                   : 'border-brand-border/40 hover:border-[#8b1a2a]/40 bg-white'
                               }`}
                             >
                               {paymentMethod === 'RAZORPAY' && (
-                                <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-[#8b1a2a] flex items-center justify-center">
+                                <div className="absolute top-2.5 right-2.5 rtl:right-auto rtl:left-2.5 w-4 h-4 rounded-full bg-[#8b1a2a] flex items-center justify-center">
                                   <div className="w-1.5 h-1.5 rounded-full bg-white" />
                                 </div>
                               )}
@@ -932,7 +952,7 @@ export const Checkout: React.FC = () => {
                                 <CreditCard size={20} className={paymentMethod === 'RAZORPAY' ? 'text-[#8b1a2a]' : 'text-neutral-400'} />
                               </div>
                               <p className="font-extrabold text-sm uppercase text-brand-charcoal tracking-wide">Razorpay</p>
-                              <p className="text-[11px] text-brand-text-muted mt-1">UPI · Cards · Net Banking</p>
+                              <p className="text-[11px] text-brand-text-muted mt-1">{language === 'ar' ? 'البطاقات والتحويل الرقمي' : 'UPI · Cards · Net Banking'}</p>
                             </motion.button>
 
                             {/* COD */}
@@ -942,42 +962,41 @@ export const Checkout: React.FC = () => {
                                 onClick={() => setPaymentMethod('COD')}
                                 whileHover={{ y: -2 }}
                                 whileTap={{ scale: 0.98 }}
-                                className={`text-left p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
+                                className={`text-left rtl:text-right p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
                                   paymentMethod === 'COD'
                                     ? 'border-[#8b1a2a] bg-[#8b1a2a]/4 shadow-lg shadow-[#8b1a2a]/10'
                                     : 'border-brand-border/40 hover:border-[#8b1a2a]/40 bg-white'
                                 }`}
                               >
                                 {paymentMethod === 'COD' && (
-                                  <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-[#8b1a2a] flex items-center justify-center">
+                                  <div className="absolute top-2.5 right-2.5 rtl:right-auto rtl:left-2.5 w-4 h-4 rounded-full bg-[#8b1a2a] flex items-center justify-center">
                                     <div className="w-1.5 h-1.5 rounded-full bg-white" />
                                   </div>
                                 )}
                                 <div className="w-10 h-10 rounded-xl bg-[#8b1a2a]/10 flex items-center justify-center mb-3">
                                   <Banknote size={20} className={paymentMethod === 'COD' ? 'text-[#8b1a2a]' : 'text-neutral-400'} />
                                 </div>
-                                <p className="font-extrabold text-sm uppercase text-brand-charcoal tracking-wide">Cash on Delivery</p>
-                                <p className="text-[11px] text-brand-text-muted mt-1">Pay when you receive</p>
+                                <p className="font-extrabold text-sm uppercase text-brand-charcoal tracking-wide">{language === 'ar' ? 'الدفع عند الاستلام' : 'Cash on Delivery'}</p>
+                                <p className="text-[11px] text-brand-text-muted mt-1">{language === 'ar' ? 'الدفع عند الاستلام' : 'Pay when you receive'}</p>
                               </motion.button>
                             )}
                           </div>
 
                           {/* Info callout */}
                           {paymentMethod === 'RAZORPAY' ? (
-                            <div className="flex gap-3 bg-[#faf8f5] border border-brand-border/30 rounded-xl p-4">
+                            <div className="flex gap-3 bg-[#faf8f5] border border-brand-border/30 rounded-xl p-4 text-left rtl:text-right">
                               <Smartphone size={18} className="text-[#8b1a2a] shrink-0 mt-0.5" />
                               <p className="text-xs text-brand-text-muted leading-relaxed">
-                                You'll be securely redirected to Razorpay to complete payment of{' '}
+                                {language === 'ar' ? `سيتم توجيهك بأمان لإتمام عملية دفع بقيمة ` : `You'll be securely redirected to Razorpay to complete payment of `}
                                 <strong className="text-brand-charcoal">{formatINR(grandTotal)}</strong>.
                               </p>
                             </div>
                           ) : (
-                            <div className="flex gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <div className="flex gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4 text-left rtl:text-right">
                               <Banknote size={18} className="text-blue-600 shrink-0 mt-0.5" />
                               <p className="text-xs text-blue-800 leading-relaxed">
-                                Place your order now. Pay{' '}
-                                <strong>{formatINR(grandTotal)}</strong> in cash when the order arrives at your
-                                door.
+                                {language === 'ar' ? 'أرسل طلبك الآن. يرجى تجهيز مبلغ ' : 'Place your order now. Pay '}
+                                <strong>{formatINR(grandTotal)}</strong> {language === 'ar' ? ' نقداً عند استلام طلبك.' : ' in cash when the order arrives at your door.'}
                               </p>
                             </div>
                           )}
@@ -995,26 +1014,26 @@ export const Checkout: React.FC = () => {
                               {payLoading ? (
                                 <>
                                   <Loader2 size={16} className="animate-spin" />
-                                  Processing…
+                                  {language === 'ar' ? 'جاري المعالجة…' : 'Processing…'}
                                 </>
                               ) : paymentMethod === 'COD' ? (
-                                <>Place Order · COD</>
+                                <>{language === 'ar' ? 'تأكيد الطلب · الدفع عند الاستلام' : 'Place Order · COD'}</>
                               ) : (
-                                <>Pay {formatINR(grandTotal)}</>
+                                <>{language === 'ar' ? `دفع ${formatINR(grandTotal)}` : `Pay ${formatINR(grandTotal)}`}</>
                               )}
                             </motion.button>
                           </div>
                         </div>
 
                         {/* Back */}
-                        <div className="px-6 sm:px-8 py-4 border-t border-brand-border/20">
+                        <div className="px-6 sm:px-8 py-4 border-t border-brand-border/20 text-left rtl:text-right">
                           <button
                             type="button"
                             onClick={() => setStep('shipping')}
                             className="flex items-center gap-1.5 text-xs uppercase tracking-widest font-extrabold text-brand-text-muted hover:text-brand-charcoal transition-colors"
                           >
-                            <ArrowLeft size={13} />
-                            Edit Shipping
+                            <ArrowLeft size={13} className="rtl:rotate-180" />
+                            {language === 'ar' ? 'تعديل الشحن' : 'Edit Shipping'}
                           </button>
                         </div>
                       </motion.div>

@@ -6,25 +6,27 @@ import { PageHeader } from '../components/PageHeader';
 import { usePublishedBlogs } from '../hooks/useBlogs';
 import type { BlogPost } from '../lib/blogTypes';
 import { BlogsSkeleton } from '../components/ui/skeleton';
-
-function formatBlogDate(post: BlogPost) {
-  const d = post.publishedAt || post.createdAt;
-  return new Date(d).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
+import { useLanguage } from '../context/LanguageContext';
 
 export const Blogs: React.FC = () => {
+  const { language, t } = useLanguage();
   const { data: posts, isLoading, isError } = usePublishedBlogs();
+
+  function formatBlogDate(post: BlogPost) {
+    const d = post.publishedAt || post.createdAt;
+    return new Date(d).toLocaleDateString(language === 'ar' ? 'ar-OM' : 'en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
 
   return (
     <PageShell className="bg-[#faf6f0] font-sans text-[#1a1208] pb-24">
       <PageHeader
-        eyebrow="Editorial"
-        title="Style Journal"
-        subtitle="Trends, styling tips, and stories from Superior Trends — Al Alisha Collection."
+        eyebrow={language === 'ar' ? 'الافتتاحية' : 'Editorial'}
+        title={language === 'ar' ? 'مجلة الأناقة' : 'Style Journal'}
+        subtitle={language === 'ar' ? 'آخر الصيحات، نصائح التنسيق، وقصص حصرية من سوبريور تريندز — مجموعة العليشة.' : 'Trends, styling tips, and stories from Superior Trends — Al Alisha Collection.'}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14">
@@ -38,10 +40,10 @@ export const Blogs: React.FC = () => {
           <div className="flex flex-col items-center justify-center py-14 px-8 bg-red-50/40 border border-red-100 rounded-2xl max-w-xl mx-auto text-center">
             <AlertCircle className="text-red-400 mb-4" size={28} strokeWidth={1.5} />
             <p className="text-red-800 font-semibold tracking-wide text-[15px]">
-              Couldn't load journal entries.
+              {language === 'ar' ? 'تعذر تحميل مقالات المجلة.' : "Couldn't load journal entries."}
             </p>
             <p className="text-sm text-red-500/80 mt-1.5">
-              Please refresh the page or try again later.
+              {language === 'ar' ? 'يرجى تحديث الصفحة أو المحاولة مرة أخرى لاحقاً.' : 'Please refresh the page or try again later.'}
             </p>
           </div>
 
@@ -52,17 +54,18 @@ export const Blogs: React.FC = () => {
               <BookOpen className="text-[#d4af37]" size={24} strokeWidth={1.75} />
             </div>
             <h3 className="text-base font-display font-black uppercase tracking-wide text-[#1a1208] mb-2">
-              The Journal is Empty
+              {language === 'ar' ? 'المجلة فارغة حالياً' : 'The Journal is Empty'}
             </h3>
             <p className="text-[14px] text-[#7a6a58] max-w-sm leading-relaxed">
-              Our editors are curating new stories, trends, and styling tips. Check back shortly for the
-              latest from the Al Alisha Collection.
+              {language === 'ar' 
+                ? 'يقوم محررينا بإعداد قصص وتصاميم جديدة ونصائح تنسيق مميزة. تفقد الصفحة قريباً لمتابعة أحدث أخبار مجموعة العليشة.'
+                : 'Our editors are curating new stories, trends, and styling tips. Check back shortly for the latest from the Al Alisha Collection.'}
             </p>
           </div>
 
         ) : (
           /* ── Posts grid ─────────────────────────────────── */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 text-left rtl:text-right">
             {posts.map((post: BlogPost, i: number) => (
               <Link
                 key={post.id}
@@ -73,9 +76,9 @@ export const Blogs: React.FC = () => {
                 <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#f0e8da] shrink-0">
 
                   {/* Tag badge */}
-                  <div className="absolute top-3.5 left-3.5 z-20">
+                  <div className="absolute top-3.5 inset-x-3.5 z-20 flex">
                     <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-white/92 backdrop-blur-sm border border-white/60 text-[9px] font-black uppercase tracking-[0.22em] text-[#8b1a2a] shadow-sm">
-                      {post.tag || 'Editorial'}
+                      {post.tag || (language === 'ar' ? 'افتتاحية' : 'Editorial')}
                     </span>
                   </div>
 
@@ -98,7 +101,7 @@ export const Blogs: React.FC = () => {
                         <rect width="100%" height="100%" fill={`url(#weave-${i})`} />
                       </svg>
                       <span className="relative text-[10px] font-black uppercase tracking-[0.3em] text-[#d4af37]/60">
-                        Superior Trends
+                        {t('common.superiorTrends')}
                       </span>
                     </div>
                   )}
@@ -129,13 +132,13 @@ export const Blogs: React.FC = () => {
                       <span>
                         {formatBlogDate(post)}
                         <span className="mx-1.5 opacity-40">·</span>
-                        {post.readMinutes} min read
+                        {language === 'ar' ? `قراءة ${post.readMinutes} دقائق` : `${post.readMinutes} min read`}
                       </span>
                     </div>
 
                     <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.18em] text-[#8b1a2a] opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0 transition-all duration-250">
-                      Read
-                      <ArrowRight size={12} className="shrink-0" />
+                      {language === 'ar' ? 'اقرأ المزيد' : 'Read'}
+                      <ArrowRight size={12} className="shrink-0 rtl:rotate-180" />
                     </span>
                   </div>
                 </div>
