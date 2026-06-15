@@ -36,7 +36,6 @@ import {
   HomeSplitSkeleton,
 } from "../components/ui/skeleton";
 import type { Product } from "../data/products";
-import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { CenteredScrollRow } from "../components/CenteredScrollRow";
@@ -238,12 +237,10 @@ function CarouselProductCard({
 /* ─── Section header with chevrons (reference style) ───────── */
 function CarouselHeader({
   title,
-  linkUrl = "/shop",
   onLeft,
   onRight,
 }: {
   title: string;
-  linkUrl?: string;
   onLeft?: () => void;
   onRight?: () => void;
 }) {
@@ -349,7 +346,7 @@ function SectionCollections({ section }: { section: HomepageSection }) {
 
   return (
     <Section className="px-4 sm:px-6 lg:px-8 mb-16">
-      <CarouselHeader title={translateDynamic(section.title, language)} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
+      <CarouselHeader title={translateDynamic(section.title, language)} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
       <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-4">
         {products.map((product: Product) => (
           <Link key={product.id} to={`/product/${product.id}`} className="flex flex-col w-[calc((100vw-32px-16px)/2)] sm:w-[calc((100vw-48px-48px)/4)] lg:w-[calc((100vw-165px)/7)] shrink-0 snap-start rounded-2xl overflow-hidden border border-brand-border/40 bg-white shadow-sm hover:shadow-md transition-all group">
@@ -700,7 +697,7 @@ function SectionDepartments({ section }: { section: HomepageSection }) {
 
   return (
     <Section className="px-4 sm:px-6 lg:px-8 mb-16">
-      <CarouselHeader title={translateDynamic(section.title, language)} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
+      <CarouselHeader title={translateDynamic(section.title, language)} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
       <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-5 sm:gap-6">
         {products.map((product: Product, i: number) => (
           <motion.div
@@ -748,7 +745,7 @@ function SectionCarousel({ section }: { section: HomepageSection }) {
 
   return (
     <Section className="px-4 sm:px-6 lg:px-8 mb-16">
-      <CarouselHeader title={translateDynamic(section.title, language)} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
+      <CarouselHeader title={translateDynamic(section.title, language)} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
       <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-5 sm:gap-6">
         {products.map((uiProduct: Product, i: number) => (
           <CarouselProductCard key={uiProduct.id} product={uiProduct} delay={i * 0.05} variant="carousel" />

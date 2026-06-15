@@ -13,13 +13,6 @@ import {
 } from "lucide-react";
 import { useAdminStats } from "../../hooks/useAdminStats";
 import { StatCard } from "../../components/admin/StatCard";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
 import { formatINR } from "../../lib/formatCurrency";
 
 export const AdminDashboard: React.FC = () => {

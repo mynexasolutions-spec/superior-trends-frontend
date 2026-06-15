@@ -6,7 +6,7 @@ import { PageShell } from '../components/PageShell';
 import { useLanguage } from '../context/LanguageContext';
 
 export const About: React.FC = () => {
-  const { language, t, isRtl } = useLanguage();
+  const { language, isRtl } = useLanguage();
 
   const values = [
     {

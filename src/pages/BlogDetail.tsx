@@ -47,7 +47,7 @@ function renderContent(content: string) {
 export const BlogDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading, isError } = useBlogPost(slug);
-  const { language, t, isRtl } = useLanguage();
+  const { language, t } = useLanguage();
 
   if (isLoading) {
     return <BlogDetailSkeleton />;
