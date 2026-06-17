@@ -872,18 +872,13 @@ export const Home: React.FC = () => {
   const { data: dbBanners } = useBanners();
 
   const defaultBanners = [
-    { imageUrl: "/images/044125e3-b200-4bd6-823f-5b0888f8c4eb.jpg" },
-    { imageUrl: "/images/12a68134-df4c-4c64-a3a9-95de5fd1ff56.jpg" },
-    { imageUrl: "/images/1f1095af-54b1-427f-8572-ef93a407c190.jpg" },
-    { imageUrl: "/images/36ee276f-d866-4738-b2b6-c273c21ee298.jpg" },
-    { imageUrl: "/images/56bd3c7e-571e-4fb6-ac19-312d90009d37.jpg" },
-    { imageUrl: "/images/5ae8bbe8-6725-478b-8849-b767ec87b2fe.jpg" },
-    { imageUrl: "/images/6a1975af-8f79-495f-aeed-c80c53ee3eda.jpg" },
-    { imageUrl: "/images/6f072607-96d2-4e03-9e53-3ed12453c31e.jpg" },
-    { imageUrl: "/images/93f5ef64-8878-46dc-b4ce-8e1f0db1160e.jpg" },
-    { imageUrl: "/images/9d6a2dda-3971-474a-ac49-ed22e351580a.jpg" },
-    { imageUrl: "/images/b153d57c-9cdb-40e3-a70e-9f2380e7f5a9.jpg" },
-    { imageUrl: "/images/bd762e90-6a2b-4d67-8a31-3cfdbb41ec3f.jpg" }
+    { imageUrl: "/images/50e18412-058c-4638-a475-0e417b0b54fe.png" },
+    { imageUrl: "/images/bae39700-ac7c-49cc-b745-9050993c6514.png" },
+    { imageUrl: "/images/9a9cedce-13c6-437e-918d-a30172c25429.png" },
+     { imageUrl: "/images/f6578e7b-716c-4045-a016-458a3a5d9078.png" },
+    { imageUrl: "/images/b26b5cad-7d0c-4ca6-91cb-e0be2b83dc0a.png" }
+   
+   
   ];
 
   const heroBanners = dbBanners && dbBanners.length > 0 ? dbBanners : defaultBanners;
