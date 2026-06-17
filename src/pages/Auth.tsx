@@ -10,7 +10,7 @@ function Field({
   label: string; icon: React.ReactNode; type?: string;
   placeholder: string; value: string; onChange: (v: string) => void; required?: boolean;
 }) {
-  const { language } = useLanguage();
+
   return (
     <div className="space-y-1.5">
       <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">

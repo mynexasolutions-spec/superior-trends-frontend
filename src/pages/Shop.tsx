@@ -433,7 +433,7 @@ function CategoryBtn({
 }
 
 export const Shop: React.FC = () => {
-  const { language, t, isRtl } = useLanguage();
+  const { language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchCategory = searchParams.get('category');
   const searchKeyword = searchParams.get('search');

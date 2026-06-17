@@ -130,7 +130,7 @@ export const AdminBlogs: React.FC = () => {
 
   /* stats */
   const total     = posts?.length ?? 0;
-  const published = posts?.filter(p => p.isPublished).length ?? 0;
+  const published = posts?.filter((p: BlogPost) => p.isPublished).length ?? 0;
   const drafts    = total - published;
 
   /* ── Shared field styles ── */

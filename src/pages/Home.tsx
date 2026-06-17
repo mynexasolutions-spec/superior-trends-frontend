@@ -728,7 +728,10 @@ function SectionDepartments({ section }: { section: HomepageSection }) {
   return (
     <Section className="px-4 sm:px-6 lg:px-8 mb-16">
       <CarouselHeader title={translateDynamic(section.title, language)} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
+
       <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-4 sm:gap-6">
+
+
         {products.map((product: Product, i: number) => (
           <motion.div
             key={product.id}

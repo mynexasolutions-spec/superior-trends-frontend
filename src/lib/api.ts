@@ -153,6 +153,7 @@ export interface ProductReview {
   review?: string | null;
   status?: string;
   createdAt: string;
+  images?: any;
   user?: {
     id: string;
     name: string;
@@ -400,6 +401,7 @@ export interface Coupon {
   minimumOrder: number;
   maximumDiscount?: number | null;
   usageLimit?: number | null;
+  usageCount?: number;
   startDate: string;
   endDate: string;
   status: boolean;

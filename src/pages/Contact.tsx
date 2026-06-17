@@ -7,7 +7,7 @@ import { useToast } from '../hooks/useToast';
 import { useLanguage } from '../context/LanguageContext';
 
 export const Contact: React.FC = () => {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const [name, setName]       = useState('');
   const [email, setEmail]     = useState('');
   const [subject, setSubject] = useState('');
