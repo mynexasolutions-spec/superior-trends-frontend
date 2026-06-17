@@ -31,12 +31,12 @@ import {
   mapDbProduct,
   type HomepageSection,
 } from "../hooks/useProducts";
+import { useBanners } from "../hooks/useBanners";
 import {
   HomeSectionSkeleton,
   HomeSplitSkeleton,
 } from "../components/ui/skeleton";
 import type { Product } from "../data/products";
-import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { CenteredScrollRow } from "../components/CenteredScrollRow";
@@ -165,7 +165,7 @@ function CarouselProductCard({
       <div className="relative overflow-hidden bg-brand-cream">
         <Link to={`/product/${product.id}`} className="block">
           <ImagePlaceholder
-            aspectRatio="aspect-[6/7]"
+            aspectRatio="aspect-[3/4.1]"
             src={product.images?.[0]}
             alt={product.name}
             label={product.name}
@@ -175,11 +175,11 @@ function CarouselProductCard({
         </Link>
 
         {product.isNew ? (
-          <span className="absolute top-3 left-3 z-10 bg-emerald-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-widest shadow">
+          <span className="absolute top-3 left-3 z-10 bg-gradient-to-r from-[#8b1a2a] via-[#a82436] to-[#8b1a2a] text-white text-[9px] font-black uppercase px-2.5 py-1 rounded-md tracking-widest shadow border border-white/10">
             {language === 'ar' ? 'جديد' : 'New'}
           </span>
         ) : product.isBestSeller ? (
-          <span className="absolute top-3 left-3 z-10 bg-[#8b1a2a] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-widest shadow">
+          <span className="absolute top-3 left-3 z-10 bg-gradient-to-r from-[#d4af37] via-[#f3d06c] to-[#d4af37] text-neutral-950 text-[9px] font-black uppercase px-2.5 py-1 rounded-md tracking-widest shadow border border-white/10">
             {language === 'ar' ? 'فاخر' : 'Premium'}
           </span>
         ) : null}
@@ -197,10 +197,10 @@ function CarouselProductCard({
       </div>
 
       <div className="p-4 flex flex-col gap-2.5 flex-1 text-left rtl:text-right">
-        <span className="text-sm font-bold uppercase tracking-widest text-brand-text-muted leading-snug">
+        <span className="text-[10.5px] sm:text-xs font-bold uppercase tracking-[0.15em] text-brand-text-muted leading-snug">
           {categoryLabel} / {subCategory}
         </span>
-        <h4 className="font-display text-base sm:text-lg font-black text-brand-charcoal line-clamp-2 leading-snug min-h-[3rem]">
+        <h4 className="font-display text-[14px] sm:text-[17px] font-black text-brand-charcoal line-clamp-2 leading-snug min-h-[2.5rem] sm:min-h-[3rem]">
           <Link
             to={`/product/${product.id}`}
             className="hover:text-[#8b1a2a] transition-colors"
@@ -209,10 +209,10 @@ function CarouselProductCard({
           </Link>
         </h4>
         <div className="flex items-center gap-2">
-          <span className="text-base font-black text-[#8b1a2a]">
+          <span className="text-[14.5px] sm:text-base font-black text-[#8b1a2a]">
             ﷼{priceOMR}
           </span>
-          <span className="text-xs sm:text-sm text-brand-text-muted line-through">
+          <span className="text-[11px] sm:text-xs text-brand-text-muted line-through">
             ﷼{mrpOMR}
           </span>
         </div>
@@ -226,7 +226,7 @@ function CarouselProductCard({
               product.colors[0] || { name: "Default", hex: "#000000" },
             )
           }
-          className="mt-auto w-full border border-[#8b1a2a] text-[#8b1a2a] hover:bg-[#8b1a2a] hover:text-white text-xs sm:text-sm font-bold py-2.5 rounded-lg tracking-widest uppercase transition-all duration-300 bg-white cursor-pointer"
+          className="mt-auto w-full border border-[#8b1a2a] text-[#8b1a2a] hover:bg-[#8b1a2a] hover:text-white text-[10.5px] sm:text-xs font-bold py-2 sm:py-2.5 rounded-lg tracking-widest uppercase transition-all duration-300 bg-white cursor-pointer"
         >
           {language === 'ar' ? 'أضف إلى السلة' : 'Add to Cart'}
         </button>
@@ -238,12 +238,10 @@ function CarouselProductCard({
 /* ─── Section header with chevrons (reference style) ───────── */
 function CarouselHeader({
   title,
-  linkUrl = "/shop",
   onLeft,
   onRight,
 }: {
   title: string;
-  linkUrl?: string;
   onLeft?: () => void;
   onRight?: () => void;
 }) {
@@ -287,7 +285,7 @@ function CarouselHeader({
           <span className="text-[10px] font-black uppercase tracking-[0.35em] text-[#d4af37]">
             Superior Trends
           </span>
-          <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl uppercase tracking-tight leading-tight text-[#1a0d0f]">
+          <h2 className="font-display font-black text-[1.5rem] xs:text-[1.8rem] sm:text-4xl md:text-5xl uppercase tracking-tight leading-tight text-[#1a0d0f]">
             {title.split(' ').map((word, i) => (
               <span key={i}>
                 {i === 0
@@ -349,15 +347,44 @@ function SectionCollections({ section }: { section: HomepageSection }) {
 
   return (
     <Section className="px-4 sm:px-6 lg:px-8 mb-16">
-      <CarouselHeader title={translateDynamic(section.title, language)} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
+      <CarouselHeader title={translateDynamic(section.title, language)} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
       <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-4">
         {products.map((product: Product) => (
-          <Link key={product.id} to={`/product/${product.id}`} className="flex flex-col w-[calc((100vw-32px-16px)/2)] sm:w-[calc((100vw-48px-48px)/4)] lg:w-[calc((100vw-165px)/7)] shrink-0 snap-start rounded-2xl overflow-hidden border border-brand-border/40 bg-white shadow-sm hover:shadow-md transition-all group">
-            <ImagePlaceholder aspectRatio="aspect-[4/3]" src={product.images?.[0]} alt={product.name} label={product.name} subLabel={translateDynamic(getCategoryLabel(product.category), language)} />
-            <div className="p-3 text-center">
-              <span className="text-xs tracking-widest font-black uppercase text-[#d4af37]">{translateDynamic(getCategoryLabel(product.category), language)}</span>
-              <h4 className="font-display font-bold text-sm text-brand-charcoal mt-1 group-hover:text-[#8b1a2a] line-clamp-2">{product.name}</h4>
+          <Link
+            key={product.id}
+            to={`/product/${product.id}`}
+            className="relative flex flex-col w-[calc((100vw-32px-16px)/2)] sm:w-[calc((100vw-48px-48px)/4)] lg:w-[calc((100vw-165px)/7)] shrink-0 snap-start rounded-2xl overflow-hidden bg-white shadow-md hover:shadow-xl transition-all duration-300 group border border-[#e8e4dd] hover:border-[#d4af37]/40"
+          >
+            {/* Image with hover zoom + dark overlay */}
+            <div className="relative overflow-hidden">
+              <ImagePlaceholder
+                aspectRatio="aspect-[3/4.1]"
+                src={product.images?.[0]}
+                alt={product.name}
+                label={product.name}
+                subLabel={translateDynamic(getCategoryLabel(product.category), language)}
+                className="transition-transform duration-500 group-hover:scale-[1.07]"
+              />
+              {/* Hover gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Hover: Quick view pill */}
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/95 text-[#8b1a2a] text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-lg">
+                {language === 'ar' ? 'عرض سريع' : 'View Product'}
+              </div>
             </div>
+
+            {/* Card footer */}
+            <div className="px-3 pt-2.5 pb-3 text-center flex flex-col gap-1">
+              <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-[#d4af37]">
+                {translateDynamic(getCategoryLabel(product.category), language)}
+              </span>
+              <h4 className="font-display font-bold text-[13px] md:text-[14px] text-brand-charcoal group-hover:text-[#8b1a2a] leading-snug transition-colors duration-200">
+                {product.name}
+              </h4>
+            </div>
+
+            {/* Bottom gold accent bar */}
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#d4af37] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
         ))}
       </CenteredScrollRow>
@@ -402,7 +429,7 @@ function SplitPromoBox({
     <motion.div
       className={`
         group relative flex flex-col overflow-hidden rounded-[24px] cursor-pointer
-        min-h-[360px] md:min-h-[400px]
+        min-h-[390px] md:min-h-[460px]
         shadow-[0_2px_0_rgba(0,0,0,0.04),0_8px_32px_rgba(0,0,0,0.08)]
         hover:shadow-[0_2px_0_rgba(0,0,0,0.04),0_20px_52px_rgba(0,0,0,0.14)]
         hover:-translate-y-1
@@ -419,7 +446,7 @@ function SplitPromoBox({
       onKeyDown={(e) => e.key === "Enter" && navigate(linkUrl || "/shop")}
     >
       {/* ── Image pane ── */}
-      <div className="w-full md:w-1/2 min-h-[260px] md:min-h-full relative overflow-hidden flex-shrink-0">
+      <div className="w-full md:w-1/2 min-h-[290px] md:min-h-full relative overflow-hidden flex-shrink-0">
         <div className="absolute inset-0 bg-black/10 z-[1] group-hover:bg-black/05 transition-colors duration-300" />
         {imageSrc ? (
           <img
@@ -429,7 +456,7 @@ function SplitPromoBox({
           />
         ) : (
           <ImagePlaceholder
-            aspectRatio="h-full min-h-[260px] md:min-h-[400px]"
+            aspectRatio="h-full min-h-[290px] md:min-h-[470px]"
             src={imageSrc}
             alt={title}
             clean
@@ -459,14 +486,14 @@ function SplitPromoBox({
         {subtitle && (
           <div className="flex items-center gap-2 mb-3">
             <span className="block w-5 h-[1.5px] rounded-full bg-[#D4AF37]" />
-            <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[#D4AF37]">
+            <span className="text-[9px] md:text-[9.5px] lg:text-[10px] font-black uppercase tracking-[0.25em] text-[#D4AF37]">
               {subtitle}
             </span>
           </div>
         )}
 
         {/* Title — two-line with optional gold accent */}
-        <h3 className="font-display font-black text-[22px] lg:text-[26px] leading-[1.1] tracking-tight uppercase text-white mb-3">
+        <h3 className="font-display font-black text-[22px] md:text-[24px] lg:text-[28px] xl:text-[30px] leading-[1.1] tracking-tight uppercase text-white mb-3">
           {title}
           {titleAccent && (
             <>
@@ -478,7 +505,7 @@ function SplitPromoBox({
 
         {/* Description */}
         {description && (
-          <p className="text-[12.5px] text-white/55 leading-[1.7] max-w-[280px] mb-6">
+          <p className="text-[12.5px] md:text-[13px] lg:text-[13.5px] text-white/60 leading-[1.7] max-w-[280px] lg:max-w-[300px] mb-6">
             {description}
           </p>
         )}
@@ -490,13 +517,13 @@ function SplitPromoBox({
             bg-white/10 hover:bg-[#D4AF37]
             border border-white/20 hover:border-[#D4AF37]
             text-white hover:text-[#1a0e00]
-            text-[9.5px] font-black uppercase tracking-[0.18em]
+            text-[9.5px] md:text-[9.5px] lg:text-[10px] font-black uppercase tracking-[0.18em]
             px-[22px] py-[11px] rounded-full
             backdrop-blur-sm
             transition-all duration-250
             group/btn
           "
-          onClick={(e) => { e.stopPropagation(); navigate(linkUrl || "/shop"); }}
+          onClick={(e) => { e.stopPropagation(); navigate(linkUrl || "/shop") }}
         >
           {buttonText || "Shop Now"}
           <span className="text-[13px] transition-transform duration-250 group-hover/btn:translate-x-0.5">
@@ -700,13 +727,12 @@ function SectionDepartments({ section }: { section: HomepageSection }) {
 
   return (
     <Section className="px-4 sm:px-6 lg:px-8 mb-16">
-      <CarouselHeader title={translateDynamic(section.title, language)} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
-      <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-5 sm:gap-6">
+      <CarouselHeader title={translateDynamic(section.title, language)} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
+      <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-4 sm:gap-6">
         {products.map((product: Product, i: number) => (
           <motion.div
             key={product.id}
-            className="relative w-[calc((100vw-32px-20px)/2)] sm:w-[calc((100vw-48px-48px)/3)] lg:w-[calc((100vw-140px)/4)] shrink-0 snap-start rounded-2xl overflow-hidden cursor-pointer group shadow-sm hover:shadow-xl border border-brand-border/20"
-            style={{ height: "min(56vw, 242px)" }}
+            className="relative w-[calc((100vw-48px)/2)] sm:w-[calc((100vw-48px-48px)/3)] lg:w-[calc((100vw-140px)/4)] h-[260px] sm:h-[350px] md:h-[420px] lg:h-[480px] shrink-0 snap-start rounded-2xl overflow-hidden cursor-pointer group shadow-sm hover:shadow-xl border border-brand-border/20"
             onClick={() => navigate(`/product/${product.id}`)}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -716,13 +742,13 @@ function SectionDepartments({ section }: { section: HomepageSection }) {
             <div className="absolute inset-0 group-hover:scale-105 transition-transform duration-700">
               <ImagePlaceholder aspectRatio="h-full" src={product.images?.[0]} alt={product.name} clean />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
-            <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col items-center text-center gap-3">
-              <span className="text-[10px] sm:text-xs tracking-[0.22em] uppercase font-bold text-[#d4af37]">{translateDynamic(getCategoryLabel(product.category), language)}</span>
-              <h3 className="font-display font-extrabold text-lg text-white uppercase tracking-wider">{product.name}</h3>
-              <p className="text-xs sm:text-[13px] text-white/70 max-w-[240px] line-clamp-2">{product.description}</p>
-              <span className="mt-2 bg-white text-brand-charcoal px-6 py-2.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-colors duration-300 group-hover:bg-[#8b1a2a] group-hover:text-white">
-                {language === 'ar' ? 'اكتشف المجموعة' : 'Explore Collection'}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-3 sm:p-5 lg:p-6 flex flex-col items-center text-center gap-1.5 sm:gap-2.5">
+              <span className="text-[9.5px] sm:text-xs tracking-[0.22em] uppercase font-bold text-[#d4af37]">{translateDynamic(getCategoryLabel(product.category), language)}</span>
+              <h3 className="font-display font-extrabold text-[13px] sm:text-base lg:text-lg text-white uppercase tracking-wide leading-tight">{product.name}</h3>
+              <p className="text-[10.5px] sm:text-xs text-white/70 max-w-[140px] sm:max-w-[240px]">{product.description}</p>
+              <span className="mt-1 bg-white text-brand-charcoal px-3.5 py-1.5 sm:px-6 sm:py-2.5 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest transition-colors duration-300 group-hover:bg-[#8b1a2a] group-hover:text-white">
+                {language === 'ar' ? 'اكتشف المجموعة' : 'Explore'}
               </span>
             </div>
           </motion.div>
@@ -748,7 +774,7 @@ function SectionCarousel({ section }: { section: HomepageSection }) {
 
   return (
     <Section className="px-4 sm:px-6 lg:px-8 mb-16">
-      <CarouselHeader title={translateDynamic(section.title, language)} linkUrl={linkUrl} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
+      <CarouselHeader title={translateDynamic(section.title, language)} onLeft={() => scroll(-1)} onRight={() => scroll(1)} />
       <CenteredScrollRow onScrollRef={(el) => { (scrollRef as any).current = el; }} gapClass="gap-5 sm:gap-6">
         {products.map((uiProduct: Product, i: number) => (
           <CarouselProductCard key={uiProduct.id} product={uiProduct} delay={i * 0.05} variant="carousel" />
@@ -786,38 +812,38 @@ function DynamicSection({ section }: { section: HomepageSection }) {
 
 
 const variantMap: Record<number, string> = {
-  0: "indigo",
-  1: "teal",
-  2: "amber",
-  3: "rose",
+  0: "maroon",
+  1: "gold",
+  2: "charcoal",
+  3: "bronze",
 };
 
 const accentStyles: Record<string, {
   icon: string; value: string; badge: string; bar: string;
 }> = {
-  indigo: {
-    icon: "bg-[#EEF0FE] text-indigo-600",
-    value: "text-indigo-700",
-    badge: "bg-[#EEF0FE] text-indigo-600",
-    bar: "bg-indigo-500",
+  maroon: {
+    icon: "bg-[#8b1a2a]/10 text-[#8b1a2a]",
+    value: "text-[#8b1a2a]",
+    badge: "bg-[#8b1a2a]/10 text-[#8b1a2a]",
+    bar: "bg-[#8b1a2a]",
   },
-  teal: {
-    icon: "bg-[#E6FAF7] text-teal-700",
-    value: "text-teal-700",
-    badge: "bg-[#E6FAF7] text-teal-700",
-    bar: "bg-teal-500",
+  gold: {
+    icon: "bg-[#d4af37]/10 text-[#d4af37]",
+    value: "text-[#d4af37]",
+    badge: "bg-[#d4af37]/10 text-[#d4af37]",
+    bar: "bg-[#d4af37]",
   },
-  amber: {
-    icon: "bg-[#FEF3CD] text-amber-600",
-    value: "text-amber-700",
-    badge: "bg-[#FEF3CD] text-amber-600",
-    bar: "bg-amber-500",
+  charcoal: {
+    icon: "bg-[#1c1c2e]/10 text-[#1c1c2e]",
+    value: "text-[#1c1c2e]",
+    badge: "bg-[#1c1c2e]/10 text-[#1c1c2e]",
+    bar: "bg-[#1c1c2e]",
   },
-  rose: {
-    icon: "bg-[#FEE7ED] text-rose-600",
-    value: "text-rose-700",
-    badge: "bg-[#FEE7ED] text-rose-600",
-    bar: "bg-rose-500",
+  bronze: {
+    icon: "bg-[#c5a059]/10 text-[#c5a059]",
+    value: "text-[#c5a059]",
+    badge: "bg-[#c5a059]/10 text-[#c5a059]",
+    bar: "bg-[#c5a059]",
   },
 };
 /* ═══════════════════════════════════════════════════════════ */
@@ -841,29 +867,34 @@ export const Home: React.FC = () => {
   const yText = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacityText = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
-  const heroImages = [
-    "/images/044125e3-b200-4bd6-823f-5b0888f8c4eb.jpg",
-    "/images/12a68134-df4c-4c64-a3a9-95de5fd1ff56.jpg",
-    "/images/1f1095af-54b1-427f-8572-ef93a407c190.jpg",
-    "/images/36ee276f-d866-4738-b2b6-c273c21ee298.jpg",
-    "/images/56bd3c7e-571e-4fb6-ac19-312d90009d37.jpg",
-    "/images/5ae8bbe8-6725-478b-8849-b767ec87b2fe.jpg",
-    "/images/6a1975af-8f79-495f-aeed-c80c53ee3eda.jpg",
-    "/images/6f072607-96d2-4e03-9e53-3ed12453c31e.jpg",
-    "/images/93f5ef64-8878-46dc-b4ce-8e1f0db1160e.jpg",
-    "/images/9d6a2dda-3971-474a-ac49-ed22e351580a.jpg",
-    "/images/b153d57c-9cdb-40e3-a70e-9f2380e7f5a9.jpg",
-    "/images/bd762e90-6a2b-4d67-8a31-3cfdbb41ec3f.jpg"
+  const { data: dbBanners } = useBanners();
+
+  const defaultBanners = [
+    { imageUrl: "/images/044125e3-b200-4bd6-823f-5b0888f8c4eb.jpg" },
+    { imageUrl: "/images/12a68134-df4c-4c64-a3a9-95de5fd1ff56.jpg" },
+    { imageUrl: "/images/1f1095af-54b1-427f-8572-ef93a407c190.jpg" },
+    { imageUrl: "/images/36ee276f-d866-4738-b2b6-c273c21ee298.jpg" },
+    { imageUrl: "/images/56bd3c7e-571e-4fb6-ac19-312d90009d37.jpg" },
+    { imageUrl: "/images/5ae8bbe8-6725-478b-8849-b767ec87b2fe.jpg" },
+    { imageUrl: "/images/6a1975af-8f79-495f-aeed-c80c53ee3eda.jpg" },
+    { imageUrl: "/images/6f072607-96d2-4e03-9e53-3ed12453c31e.jpg" },
+    { imageUrl: "/images/93f5ef64-8878-46dc-b4ce-8e1f0db1160e.jpg" },
+    { imageUrl: "/images/9d6a2dda-3971-474a-ac49-ed22e351580a.jpg" },
+    { imageUrl: "/images/b153d57c-9cdb-40e3-a70e-9f2380e7f5a9.jpg" },
+    { imageUrl: "/images/bd762e90-6a2b-4d67-8a31-3cfdbb41ec3f.jpg" }
   ];
+
+  const heroBanners = dbBanners && dbBanners.length > 0 ? dbBanners : defaultBanners;
 
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   useEffect(() => {
+    if (heroBanners.length === 0) return;
     const interval = setInterval(() => {
-      setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
+      setCurrentHeroIndex((prev) => (prev + 1) % heroBanners.length);
     }, 4500); // Rotate Hero images every 4.5 seconds
     return () => clearInterval(interval);
-  }, [heroImages.length]);
+  }, [heroBanners.length]);
 
   /* ── Interactive Brand Story State ── */
   const [activeStoryTab, setActiveStoryTab] = useState(0);
@@ -950,6 +981,36 @@ export const Home: React.FC = () => {
       name: language === 'ar' ? "سيمران س." : "Simran S.",
       verified: true,
     },
+    {
+      stars: 5,
+      text: language === 'ar' ? "تصميم استثنائي وجودة عالية. طقم الكورد أنيق ومريح جداً. أنصح به بشدة!" : "Exceptional design and quality. The cord sets are extremely chic and comfortable. Highly recommend!",
+      name: language === 'ar' ? "بريا ت." : "Priya T.",
+      verified: true,
+    },
+    {
+      stars: 5,
+      text: language === 'ar' ? "كل قطعة تشعرك وكأنها تحفة فنية. فريق الدعم كان مفيداً جداً في اختيار المقاسات." : "Every piece feels like a masterpiece. The support team was incredibly helpful with sizing guidance.",
+      name: language === 'ar' ? "كاجال ب." : "Kajal P.",
+      verified: true,
+    },
+    {
+      stars: 5,
+      text: language === 'ar' ? "التطريز يدوي الصنع رائع والقماش ناعم جداً. أسرع توصيل تلقيته في حياتي!" : "The hand embroidery is stunning and the fabric is so soft. Fastest delivery I've ever received!",
+      name: language === 'ar' ? "ريا م." : "Riya M.",
+      verified: true,
+    },
+    {
+      stars: 5,
+      text: language === 'ar' ? "اشتريت الساري الحرير وأُذهلت بالجودة. المواد الخام فاخرة وتستحق كل ريال." : "Bought the silk saree and was blown away by the quality. Premium materials — worth every penny.",
+      name: language === 'ar' ? "شيريا ن." : "Shreya N.",
+      verified: true,
+    },
+    {
+      stars: 5,
+      text: language === 'ar' ? "المجموعة الحصرية فعلاً مذهلة. الألوان نابضة بالحياة والتصاميم عصرية. خدمة ممتازة." : "The exclusive collection is truly breathtaking. Vibrant colors and modern designs. Excellent service.",
+      name: language === 'ar' ? "نيها ك." : "Neha K.",
+      verified: true,
+    },
   ];
 
   return (
@@ -958,32 +1019,32 @@ export const Home: React.FC = () => {
       <Section className="px-4 sm:px-6 lg:px-8 pt-6 mb-16">
         <div
           ref={heroRef}
-          className="relative rounded-2xl sm:rounded-3xl overflow-hidden min-h-[52vh] sm:min-h-[58vh] md:min-h-[68vh] flex flex-col justify-end"
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden aspect-[1.32/1] sm:aspect-[16/9] md:aspect-auto md:min-h-[60vh] lg:min-h-[70vh] flex flex-col justify-end"
         >
-          {/* ── Background image with parallax and crossfade slideshow ── */}
-          <motion.div
-            className="absolute inset-0 scale-105"
-            style={{ y: yBg }}
-          >
-            <AnimatePresence mode="popLayout">
-              <motion.div
-                key={currentHeroIndex}
-                initial={{ opacity: 0, scale: 1.06 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.2, ease: "easeInOut" }}
-                className="absolute inset-0 bg-cover bg-center"
+          {/* ── Background image with crossfade slideshow ── */}
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={currentHeroIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <img
+                src={heroBanners[currentHeroIndex]?.imageUrl || ''}
+                alt="Banner"
+                className="absolute inset-0 w-full h-full object-cover object-[center_25%]"
                 style={{
-                  backgroundImage: `url('${heroImages[currentHeroIndex]}')`,
-                  filter: 'brightness(0.38)',
+                  filter: 'brightness(0.98)',
                 }}
               />
-            </AnimatePresence>
-          </motion.div>
+            </motion.div>
+          </AnimatePresence>
 
           {/* ── Layered gradients for depth ── */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r rtl:bg-gradient-to-l from-black/90 via-black/35 to-transparent pointer-events-none" />
 
           {/* ── Gold top accent line ── */}
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#d4af37]/70 to-transparent" />
@@ -1001,10 +1062,10 @@ export const Home: React.FC = () => {
           {/* ── Content ── */}
           <motion.div
             style={{ y: yText, opacity: opacityText }}
-            className="relative z-10 px-6 sm:px-10 md:px-14 pb-10 sm:pb-14 pt-24 max-w-2xl text-left rtl:text-right"
+            className="relative z-10 px-5 sm:px-10 md:px-14 pb-8 sm:pb-12 md:pb-20 lg:pb-28 max-w-3xl text-left rtl:text-right"
           >
             <motion.div
-              className="space-y-5"
+              className="space-y-3 sm:space-y-5"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.85, ease: EASE }}
@@ -1018,7 +1079,7 @@ export const Home: React.FC = () => {
               </div>
 
               {/* Headline */}
-              <h1 className={`font-display font-black leading-[1.05] tracking-tight uppercase text-white ${language === 'ar' ? 'text-[2.8rem] sm:text-6xl md:text-7xl' : 'text-[2.2rem] sm:text-5xl md:text-6xl'}`}>
+              <h1 className={`font-display font-black leading-[1.05] tracking-tight uppercase text-white ${language === 'ar' ? 'text-[1.72rem] xs:text-[2.1rem] sm:text-6xl md:text-7xl' : 'text-[1.42rem] xs:text-[1.72rem] sm:text-5xl md:text-6xl'}`}>
                 {language === 'ar' ? (
                   <>
                     اكتشف
@@ -1069,7 +1130,7 @@ export const Home: React.FC = () => {
               </h1>
 
               {/* Body */}
-              <p className={`text-white/65 leading-relaxed font-light max-w-sm ${language === 'ar' ? 'text-[15px] sm:text-base' : 'text-[13px] sm:text-sm'}`}>
+              <p className={`hidden sm:block text-white/65 leading-relaxed font-light max-w-sm ${language === 'ar' ? 'text-[17px] sm:text-lg' : 'text-[15px] sm:text-base'}`}>
                 {language === 'ar'
                   ? "حرفة يدوية إبداعية منسوجة في تصاميم عصرية مميزة تناسب ذوقك الرفيع وأناقتك الدائمة."
                   : "Artisan craftsmanship woven into contemporary silhouettes. Custom designs built for effortless, enduring sophistication."}
@@ -1082,11 +1143,11 @@ export const Home: React.FC = () => {
                   className={`
                     group flex items-center gap-2
                     bg-[#8b1a2a] hover:bg-[#d4af37] text-white hover:text-[#1a0d0f]
-                    px-7 py-3.5 rounded-full
+                    px-5 py-2.5 sm:px-7 sm:py-3.5 rounded-full
                     font-black uppercase
                     shadow-lg shadow-[#8b1a2a]/30 hover:shadow-[#d4af37]/30
                     transition-all duration-300 active:scale-[0.97]
-                    ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}
+                    ${language === 'ar' ? 'text-[12px] sm:text-[13px] tracking-normal' : 'text-[10px] sm:text-[11px] tracking-widest'}
                   `}
                 >
                   {t('common.shopNow')}
@@ -1098,10 +1159,10 @@ export const Home: React.FC = () => {
                     flex items-center gap-2
                     border border-white/25 text-white/80
                     hover:border-white/60 hover:text-white hover:bg-white/8
-                    px-7 py-3.5 rounded-full
+                    px-5 py-2.5 sm:px-7 sm:py-3.5 rounded-full
                     font-black uppercase
                     transition-all duration-300 backdrop-blur-sm
-                    ${language === 'ar' ? 'text-[13px] tracking-normal' : 'text-[11px] tracking-widest'}
+                    ${language === 'ar' ? 'text-[12px] sm:text-[13px] tracking-normal' : 'text-[10px] sm:text-[11px] tracking-widest'}
                   `}
                 >
                   {language === 'ar' ? "عرض المجموعات" : "View Collections"}
@@ -1109,7 +1170,7 @@ export const Home: React.FC = () => {
               </div>
 
               {/* Social proof strip */}
-              <div className="flex items-center gap-4 pt-1">
+              <div className="hidden sm:flex items-center gap-4 pt-1">
                 <div className="flex -space-x-2">
                   {[
                     'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=48&h=48&fit=crop&crop=face',
@@ -1124,7 +1185,7 @@ export const Home: React.FC = () => {
                     />
                   ))}
                 </div>
-                <p className={`text-white/45 font-medium ${language === 'ar' ? 'text-[12px]' : 'text-[10px]'}`}>
+                <p className={`hidden sm:block text-white/45 font-medium ${language === 'ar' ? 'text-[12px]' : 'text-[10px]'}`}>
                   <span className="text-white/70 font-bold">2,400+</span> {language === 'ar' ? 'عميل هذا الموسم' : 'customers this season'}
                 </p>
               </div>
@@ -1155,27 +1216,27 @@ export const Home: React.FC = () => {
         ))}
 
       {/* ── 3. STATS ──────────────────────────────────────────── */}
-      <Section className="relative overflow-hidden px-4 sm:px-6 lg:px-8 py-14 bg-[#FAFAF8] border-y border-[#E8E4DD]">
-        {/* Ambient glows */}
-        <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-indigo-500/[0.06] blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-teal-500/[0.06] blur-3xl" />
+      <Section className="relative overflow-hidden px-4 sm:px-6 lg:px-8 py-16 bg-gradient-to-b from-[#FAFAF8] via-white to-[#FAFAF8] border-y border-[#E8E4DD]">
+        {/* Ambient glows — brand colors */}
+        <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#8b1a2a]/[0.04] blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#d4af37]/[0.04] blur-3xl" />
 
         <div className="relative w-full space-y-10">
           {/* Header */}
           <div className="text-center">
-            <p className="text-[10.5px] font-bold tracking-[0.2em] uppercase text-indigo-600 mb-2">
+            <p className="text-[10.5px] lg:text-[13px] font-bold tracking-[0.2em] uppercase text-[#8b1a2a] mb-2">
               {language === 'ar' ? 'لماذا سوبريور تريندز' : 'Why Superior Trends'}
             </p>
-            <h2 className="font-display font-black text-2xl sm:text-[26px] text-[#1c1c2e] tracking-tight">
+            <h2 className="font-display font-black text-2xl sm:text-[26px] lg:text-[38px] text-[#1c1c2e] tracking-tight">
               {language === 'ar' ? 'تميزنا يكمن في التفاصيل' : 'Built Different'}
             </h2>
-            <p className="text-sm text-[#999] mt-1.5">
+            <p className="text-sm lg:text-[16px] text-[#999] mt-1.5">
               {language === 'ar' ? 'تجربة تسوق متميزة وشفافة — بالأرقام والنتائج.' : 'A premium, transparent shopping experience — by the numbers.'}
             </p>
           </div>
 
           {/* Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {brandStats.map((c, i) => {
               const v = accentStyles[variantMap[i]];
               return (
@@ -1186,17 +1247,17 @@ export const Home: React.FC = () => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.45, ease: EASE, delay: i * 0.08 }}
                 >
-                  <div className="group relative bg-white border border-[#EDEAE3] rounded-[18px] p-5 overflow-hidden
-                            transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_28px_rgba(0,0,0,0.08)]
-                            hover:border-[#ddd] cursor-default">
+                  <div className="group relative bg-white border border-[#EDEAE3] rounded-2xl p-5 sm:p-6 overflow-hidden
+                            transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_45px_rgba(0,0,0,0.06)]
+                            hover:border-[#d4af37]/30 cursor-default">
 
                     {/* Top accent bar — reveals on hover */}
-                    <div className={`absolute top-0 inset-x-0 h-[3px] rounded-t-[18px] ${v.bar}
+                    <div className={`absolute top-0 inset-x-0 h-[3.5px] rounded-t-2xl ${v.bar}
                               opacity-0 group-hover:opacity-100 transition-opacity duration-250`} />
 
                     {/* Label + Icon */}
                     <div className="flex items-start justify-between mb-3.5">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#aaa] leading-snug max-w-[80px]">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#aaa] leading-snug flex-1 mr-2 rtl:ml-2">
                         {c.label}
                       </span>
                       <div className={`size-9 flex items-center justify-center rounded-[11px] ${v.icon}
@@ -1213,7 +1274,7 @@ export const Home: React.FC = () => {
                     {/* Badge */}
                     <div className={`inline-flex items-center gap-1 mt-3 text-[10.5px] font-semibold
                                px-2.5 py-1 rounded-full ${v.badge}`}>
-                      {language === 'ar' ? 'موثق' : (v.badge ?? "Verified")}
+                      {language === 'ar' ? 'موثق' : 'Verified'}
                     </div>
                   </div>
                 </motion.div>
@@ -1228,14 +1289,14 @@ export const Home: React.FC = () => {
         <div className="w-full">
           {/* Header */}
           <div className="text-center mb-8 sm:mb-10 px-4 sm:px-6 lg:px-8">
-            <span className="text-[10.5px] font-bold tracking-[0.22em] uppercase text-[#8b1a2a]">
+            <span className="text-[9.5px] lg:text-[12px] font-bold tracking-[0.22em] uppercase text-[#8b1a2a]">
               {language === 'ar' ? 'آراء العملاء' : 'Feedback'}
             </span>
-            <h2 className="font-display font-black text-2xl sm:text-[26px] text-[#1c1c2e] mt-2 mb-2.5 tracking-tight uppercase">
+            <h2 className="font-display font-black text-xl sm:text-[26px] lg:text-[32px] text-[#1c1c2e] mt-2 mb-2.5 tracking-tight uppercase">
               {language === 'ar' ? 'ماذا يقول عملاؤنا عنّا' : 'What Our Customers Say'}
             </h2>
             <div className="w-9 h-[2.5px] bg-[#8b1a2a] mx-auto rounded-full mb-3" />
-            <p className="text-xs sm:text-[13px] text-brand-text-muted max-w-xs mx-auto">
+            <p className="text-[11px] sm:text-[13px] lg:text-[15px] text-brand-text-muted max-w-xs lg:max-w-md mx-auto">
               {language === 'ar' ? 'تقييمات حقيقية من متسوقين حقيقيين — تصفح الآن.' : 'Real reviews from real shoppers — swipe or use arrows to browse.'}
             </p>
           </div>
@@ -1266,24 +1327,35 @@ export const Home: React.FC = () => {
         </div>
 
         {/* Left: Dynamic Cinematic Image (Framer Motion Crossfade) */}
-        <div className="w-full md:w-1/2 h-[280px] sm:h-[380px] md:h-[650px] relative overflow-hidden group z-10">
-          <div className="absolute inset-0 bg-black/35 z-10 pointer-events-none" />
+        <div className="w-full md:w-1/2 h-auto md:h-[650px] relative overflow-hidden group z-10 bg-[#0D0D0D]">
+          {/* Invisible spacer image to set natural container height on mobile */}
+          <img
+            src={
+              activeStoryTab === 0
+                ? "/images/41923b59-8c5b-4348-b499-36a800f5536c.png"
+                : activeStoryTab === 1
+                  ? "/images/4902b9e9-3e5a-4fd6-8767-8f524c08fd23.png"
+                  : "/images/fb554f35-a4eb-4f6f-b2df-ee6f09f289f7.png"
+            }
+            alt=""
+            className="w-full h-auto opacity-0 pointer-events-none block md:hidden"
+          />
           <AnimatePresence mode="wait">
             <motion.img
               key={activeStoryTab}
               initial={{ opacity: 0, scale: 1.12 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 1.2, ease: EASE }}
+              transition={{ duration: 1.0, ease: EASE }}
               src={
                 activeStoryTab === 0
-                  ? "/images/b153d57c-9cdb-40e3-a70e-9f2380e7f5a9.jpg"
+                  ? "/images/41923b59-8c5b-4348-b499-36a800f5536c.png"
                   : activeStoryTab === 1
-                    ? "/images/bd762e90-6a2b-4d67-8a31-3cfdbb41ec3f.jpg"
-                    : "/images/5ae8bbe8-6725-478b-8849-b767ec87b2fe.jpg"
+                    ? "/images/4902b9e9-3e5a-4fd6-8767-8f524c08fd23.png"
+                    : "/images/fb554f35-a4eb-4f6f-b2df-ee6f09f289f7.png"
               }
               alt="Superior Trends Editorial"
-              className="w-full h-full object-cover origin-center absolute inset-0"
+              className="w-full h-full object-cover object-top absolute inset-0"
             />
           </AnimatePresence>
 

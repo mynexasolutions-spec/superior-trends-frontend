@@ -437,4 +437,40 @@ export const getActiveCoupons = async () => {
   return data.data.coupons as Coupon[];
 };
 
+// ── BANNERS API ──────────────────────────────────────────────────────────────
+export interface Banner {
+  id: string;
+  title?: string | null;
+  link?: string | null;
+  imageUrl: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const getBanners = async () => {
+  const { data } = await api.get('/banners');
+  return data.data.banners as Banner[];
+};
+
+export const getBannersAdmin = async () => {
+  const { data } = await api.get('/banners/admin');
+  return data.data.banners as Banner[];
+};
+
+export const createBanner = async (payload: { title?: string; link?: string; imageUrl: string; active?: boolean }) => {
+  const { data } = await api.post('/banners', payload);
+  return data.data.banner as Banner;
+};
+
+export const updateBanner = async (id: string, payload: { title?: string; link?: string; imageUrl?: string; active?: boolean }) => {
+  const { data } = await api.put(`/banners/${id}`, payload);
+  return data.data.banner as Banner;
+};
+
+export const deleteBanner = async (id: string) => {
+  const { data } = await api.delete(`/banners/${id}`);
+  return data;
+};
+
 

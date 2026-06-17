@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import logo from '../assets/logo.png';
 
 // ── Social icons ──────────────────────────────────────────────────────────────
 
@@ -75,19 +76,39 @@ export const Footer: React.FC = () => {
 
           {/* Brand column — wider */}
           <div className="md:col-span-4 space-y-7 text-left">
-            <Link to="/" className="inline-block group">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8b1a2a] to-[#d4af37] flex items-center justify-center shadow-lg shrink-0">
-                  <span className="text-white font-black text-sm tracking-tight">ST</span>
-                </div>
-                <div className="flex flex-col leading-none">
-                  <span className="font-display font-black text-white text-base uppercase tracking-[0.18em] group-hover:text-[#d4af37] transition-colors duration-200">
-                    {t('common.superiorTrends')}
-                  </span>
-                  <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#d4af37]/70 mt-0.5">
-                    {t('common.alAlishaCollection')}
-                  </span>
-                </div>
+            <Link
+              to="/"
+              className="flex items-center gap-1.5 shrink-0 group"
+            >
+              <img
+                src={logo}
+                alt="Superior Trends"
+                className="h-[40px] sm:h-[48px] w-auto object-contain block transform group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="flex flex-col leading-none min-w-0">
+                {language === 'ar' ? (
+                  <>
+                    <span className="font-serif font-bold text-white group-hover:text-[#d4af37] uppercase text-base sm:text-lg tracking-wide transition-colors duration-200">
+                      سوبريور تريندز
+                    </span>
+                    <span className="hidden sm:block font-serif font-medium uppercase text-[#d4af37] text-[10.5px] tracking-widest mt-0.5">
+                      مجموعة العليشة
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-serif font-bold text-white group-hover:text-[#d4af37] uppercase text-[14px] sm:text-[17px] tracking-[0.2em] transition-colors duration-200">
+                      SUPERIOR
+                    </span>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="h-[1px] w-2.5 bg-[#d4af37] shrink-0" />
+                      <span className="font-serif font-bold uppercase text-[#d4af37] text-[9.5px] sm:text-[11px] tracking-[0.25em]">
+                        TRENDS
+                      </span>
+                      <span className="h-[1px] w-2.5 bg-[#d4af37] shrink-0" />
+                    </div>
+                  </>
+                )}
               </div>
             </Link>
 

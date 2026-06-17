@@ -11,7 +11,7 @@ const dynamicTranslations: Record<string, Record<string, string>> = {
     'men\'s wear': 'ملابس رجالية',
     'menswear': 'ملابس رجالية',
     'accessories': 'الإكسسوارات',
-    
+
     // Sections / Collections
     'new arrivals': 'وصل حديثاً',
     'best sellers': 'الأكثر مبيعاً',

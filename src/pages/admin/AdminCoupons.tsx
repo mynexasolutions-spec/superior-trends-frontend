@@ -43,6 +43,22 @@ const emptyForm = {
   status: true,
 };
 
+function formatDate(dateStr: string, includeYear = false): string {
+  if (!dateStr) return '—';
+  const datePart = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+  const parts = datePart.split('-');
+  if (parts.length < 3) return '—';
+  const [year, month, day] = parts;
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const mLabel = months[parseInt(month, 10) - 1] || month;
+  const dayNum = parseInt(day, 10);
+  if (includeYear) {
+    const yrShort = year.slice(-2);
+    return `${dayNum} ${mLabel} '${yrShort}`;
+  }
+  return `${dayNum} ${mLabel}`;
+}
+
 function couponStatus(coupon: Coupon): { label: string; cls: string; dot: string } {
   const expired = new Date() > new Date(coupon.endDate);
   if (expired)          return { label: 'Expired',  cls: 'bg-orange-50 text-orange-700 border-orange-200', dot: 'bg-orange-400' };
@@ -147,7 +163,7 @@ export const AdminCoupons: React.FC = () => {
           <button
             type="button"
             onClick={() => { resetForm(); setIsFormOpen(true); }}
-            className="inline-flex items-center gap-2 bg-[#8b1a2a] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#7a1725] active:scale-95 transition-all shadow-sm shadow-[#8b1a2a]/30 whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-[#8b1a2a] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#7a1725] active:scale-95 transition-all shadow-sm shadow-[#8b1a2a]/30 whitespace-nowrap"
           >
             <Plus size={16} /> New Coupon
           </button>
@@ -240,12 +256,12 @@ export const AdminCoupons: React.FC = () => {
 
                         {/* Validity */}
                         <td className="px-5 py-4">
-                          <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                          <div className="flex items-center gap-1.5 text-xs text-neutral-500 whitespace-nowrap">
                             <Calendar size={12} className="text-neutral-400 shrink-0" />
                             <span>
-                              {new Date(coupon.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                              {formatDate(coupon.startDate)}
                               {' — '}
-                              {new Date(coupon.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })}
+                              {formatDate(coupon.endDate, true)}
                             </span>
                           </div>
                         </td>

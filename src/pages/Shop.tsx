@@ -121,10 +121,10 @@ function ShopFiltersPanel({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
 
       {/* ── Categories ──────────────────────────────────────────────────── */}
-      <div className="bg-neutral-50/40 rounded-xl p-3.5 border border-neutral-100/60">
+      <div className="border-b border-neutral-100 pb-5">
         <FilterHeader
           id="categories"
           label={language === 'ar' ? 'الفئات' : 'Category'}
@@ -206,7 +206,7 @@ function ShopFiltersPanel({
       </div>
 
       {/* ── Sections ────────────────────────────────────────────────────── */}
-      <div className="bg-neutral-50/40 rounded-xl p-3.5 border border-neutral-100/60">
+      <div className="border-b border-neutral-100 pb-5">
         <FilterHeader
           id="sections"
           label={language === 'ar' ? 'المجموعات' : 'Collection'}
@@ -242,7 +242,7 @@ function ShopFiltersPanel({
       </div>
 
       {/* ── Sizes ───────────────────────────────────────────────────────── */}
-      <div className="bg-neutral-50/40 rounded-xl p-3.5 border border-neutral-100/60">
+      <div className="border-b border-neutral-100 pb-5">
         <FilterHeader
           id="sizes"
           label={language === 'ar' ? 'المقاس' : 'Size'}
@@ -267,10 +267,10 @@ function ShopFiltersPanel({
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => onToggleSize(size)}
-                      className={`min-w-[42px] px-3.5 py-2.5 text-[11px] font-black uppercase tracking-wider rounded-xl border-2 transition-all duration-200 cursor-pointer shadow-sm ${
+                      className={`min-w-[42px] px-3.5 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl border transition-all duration-250 cursor-pointer shadow-sm ${
                         active
                           ? 'bg-[#8b1a2a] border-[#8b1a2a] text-white shadow-md shadow-[#8b1a2a]/20 scale-105'
-                          : 'border-brand-border/40 text-brand-charcoal bg-white hover:border-[#8b1a2a]/60 hover:text-[#8b1a2a]'
+                          : 'border-neutral-200 text-neutral-600 bg-white hover:border-[#8b1a2a] hover:text-[#8b1a2a]'
                       }`}
                     >
                       {size}
@@ -284,7 +284,7 @@ function ShopFiltersPanel({
       </div>
 
       {/* ── Colors ──────────────────────────────────────────────────────── */}
-      <div className="bg-neutral-50/40 rounded-xl p-3.5 border border-neutral-100/60">
+      <div className="border-b border-neutral-100 pb-5">
         <FilterHeader
           id="colors"
           label={language === 'ar' ? 'اللون' : 'Color'}
@@ -339,7 +339,7 @@ function ShopFiltersPanel({
       </div>
 
       {/* ── Price ───────────────────────────────────────────────────────── */}
-      <div className="bg-neutral-50/40 rounded-xl p-3.5 border border-neutral-100/60">
+      <div>
         <FilterHeader id="price" label={language === 'ar' ? 'الحد الأقصى للسعر' : 'Max Price'} />
         <AnimatePresence initial={false}>
           {openSections.price && (

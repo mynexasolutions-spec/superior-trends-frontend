@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion, useAnimationControls } from 'framer-motion';
+import { useEffect, useMemo, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { BadgeCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card } from '../ui/card';
 import type { ProductReview } from '../../lib/api';
@@ -54,8 +54,7 @@ const FALLBACK_REVIEWS: ReviewCardItem[] = [
 ];
 */
 
-const RESUME_AFTER_MS = 4000;
-const MARQUEE_DURATION = (count: number) => Math.max(28, count * 7);
+
 
 /** Derive initials from a name string */
 function initials(name: string) {
@@ -77,9 +76,9 @@ export function mapApiReviews(reviews: ProductReview[]): ReviewCardItem[] {
     verified: true,
     date: r.createdAt
       ? new Date(r.createdAt).toLocaleDateString('en-IN', {
-          month: 'short',
-          year: 'numeric',
-        })
+        month: 'short',
+        year: 'numeric',
+      })
       : undefined,
   }));
 }
@@ -111,8 +110,9 @@ function ReviewCard({ item }: { item: ReviewCardItem }) {
     <Card
       className="
         group relative
-        w-[min(78vw,220px)] sm:w-[252px] md:w-[268px]
-        shrink-0 snap-start
+        w-[calc(100vw-48px)] sm:w-[252px] md:w-[268px]
+        h-full flex flex-col
+        shrink-0 snap-center
         rounded-[18px] border border-[#EDEAE3] bg-white
         p-4 sm:p-5
         shadow-sm hover:shadow-[0_8px_28px_rgba(0,0,0,0.07)]
@@ -189,25 +189,32 @@ function NavBtn({
   return (
     <button
       type="button"
-      onClick={onClick}
+      // onPointerDown fires BEFORE the scroll container captures touch events
+      // This makes the arrows work reliably on mobile (iOS + Android)
+      onPointerDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick();
+      }}
       aria-label={label}
       className={`
-        absolute top-1/2 -translate-y-1/2 z-20
-        w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10
+        absolute top-1/2 -translate-y-1/2 z-[30]
+        flex
+        w-8 h-8 sm:w-11 sm:h-11
         rounded-full
-        bg-[#8b1a2a] text-white
-        flex items-center justify-center
-        shadow-md
-        hover:bg-[#6b1420] hover:scale-105
+        bg-white border border-[#EDEAE3] text-neutral-400
+        items-center justify-center
+        shadow-sm
+        hover:border-[#8b1a2a] hover:text-white hover:bg-[#8b1a2a] hover:scale-105
         active:scale-95
-        transition-all touch-manipulation
-        ${dir === 'left' ? 'left-3 sm:left-6 lg:left-10' : 'right-3 sm:right-6 lg:right-10'}
+        transition-all touch-manipulation select-none
+        ${dir === 'left' ? 'left-1 sm:left-4 lg:left-8' : 'right-1 sm:right-4 lg:right-8'}
       `}
     >
       {dir === 'left' ? (
-        <ChevronLeft className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
+        <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180" strokeWidth={2.5} />
       ) : (
-        <ChevronRight className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
+        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180" strokeWidth={2.5} />
       )}
     </button>
   );
@@ -216,55 +223,49 @@ function NavBtn({
 // ─── Main Carousel ────────────────────────────────────────────────────────────
 
 export function CustomerReviewsCarousel({ items }: { items: ReviewCardItem[] }) {
-  const loopItems = useMemo(() => [...items, ...items], [items]);
-  const controls = useAnimationControls();
-  const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [playKey, setPlayKey] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const runMarquee = useCallback(() => {
-    controls.set({ x: '0%' });
-    controls.start({
-      x: ['0%', '-50%'],
-      transition: {
-        ease: 'linear',
-        duration: MARQUEE_DURATION(items.length),
-        repeat: Infinity,
-      },
-    });
-  }, [controls, items.length]);
+  // Duplicate the reviews list to make it look like a long loop
+  const loopItems = useMemo(() => {
+    if (items.length === 0) return [];
+    // Repeat the items list 5 times so there's always plenty of cards to swipe
+    return Array(5).fill(items).flat();
+  }, [items]);
 
-  const pauseAuto = useCallback(
-    (delay = RESUME_AFTER_MS) => {
-      controls.stop();
-      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-      resumeTimerRef.current = setTimeout(() => {
-        setPlayKey((k) => k + 1);
-        runMarquee();
-      }, delay);
-    },
-    [controls, runMarquee],
-  );
-
-  const nudge = useCallback(
-    (dir: number) => {
-      controls.stop();
-      controls.start({
-        x: `+=${dir * 18}%`,
-        transition: { duration: 0.45, ease: 'easeOut' },
+  const scroll = (dir: number) => {
+    if (scrollRef.current) {
+      const firstChild = scrollRef.current.firstElementChild as HTMLElement;
+      const cardWidth = firstChild?.getBoundingClientRect().width || 280;
+      scrollRef.current.scrollBy({
+        left: dir * (cardWidth + 16),
+        behavior: 'smooth',
       });
-      pauseAuto(5000);
-    },
-    [controls, pauseAuto],
-  );
+    }
+  };
 
+  // Auto-scroll loop
   useEffect(() => {
-    if (items.length === 0) return;
-    runMarquee();
-    return () => {
-      controls.stop();
-      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    };
-  }, [controls, runMarquee, playKey, loopItems.length]);
+    if (loopItems.length === 0) return;
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        const firstChild = scrollRef.current.firstElementChild as HTMLElement;
+        const cardWidth = firstChild?.getBoundingClientRect().width || 280;
+        const maxScroll = scrollRef.current.scrollWidth - scrollRef.current.clientWidth;
+
+        if (scrollRef.current.scrollLeft >= maxScroll - 10) {
+          // If we reached the end of our cloned cards, scroll back to start
+          scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          scrollRef.current.scrollBy({
+            left: cardWidth + 16,
+            behavior: 'smooth',
+          });
+        }
+      }
+    }, 3500); // Swipes automatically every 3.5 seconds
+
+    return () => clearInterval(interval);
+  }, [loopItems.length]);
 
   if (items.length === 0) {
     return (
@@ -280,33 +281,25 @@ export function CustomerReviewsCarousel({ items }: { items: ReviewCardItem[] }) 
   }
 
   return (
-    <div className="relative w-full min-w-0 overflow-hidden py-2">
+    <div className="relative w-full min-w-0 py-6">
       {/* Edge fade masks */}
       <div className="pointer-events-none absolute left-0 inset-y-0 w-6 sm:w-12 lg:w-20 bg-gradient-to-r from-[#FAFAF8] via-[#FAFAF8]/80 to-transparent z-10" />
       <div className="pointer-events-none absolute right-0 inset-y-0 w-6 sm:w-12 lg:w-20 bg-gradient-to-l from-[#FAFAF8] via-[#FAFAF8]/80 to-transparent z-10" />
 
-      <NavBtn dir="left"  onClick={() => nudge(1)}  label="Previous reviews" />
-      <NavBtn dir="right" onClick={() => nudge(-1)} label="Next reviews" />
+      <NavBtn dir="left" onClick={() => scroll(-1)} label="Previous reviews" />
+      <NavBtn dir="right" onClick={() => scroll(1)} label="Next reviews" />
 
-      <motion.div
-        key={playKey}
-        className="flex gap-2 sm:gap-3 w-max cursor-grab active:cursor-grabbing px-6 sm:px-12 lg:px-20"
-        animate={controls}
-        onHoverStart={() => controls.stop()}
-        onHoverEnd={() => runMarquee()}
-        drag="x"
-        dragConstraints={{ left: -4000, right: 0 }}
-        dragElastic={0.06}
-        onDragStart={() => {
-          controls.stop();
-          if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-        }}
-        onDragEnd={() => pauseAuto(5000)}
+      <div
+        ref={scrollRef}
+        className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none px-6 sm:px-16 lg:px-24 py-4"
+        style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {loopItems.map((item, idx) => (
-          <ReviewCard key={`${item.id}-${idx}`} item={item} />
+          <div key={`${item.id}-${idx}`} className="snap-center shrink-0 flex">
+            <ReviewCard item={item} />
+          </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }

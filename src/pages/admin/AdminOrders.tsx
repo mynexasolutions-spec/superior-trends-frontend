@@ -7,29 +7,6 @@ import { formatINR } from '../../lib/formatCurrency';
 
 const ALL_STATUSES: OrderStatus[] = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 
-/* ─── Scroll-lock helpers ─────────────────────────────────────────────────── */
-const lockedElements: { el: HTMLElement; prev: string }[] = [];
-function lockScroll() {
-  document.querySelectorAll<HTMLElement>('*').forEach((el) => {
-    const style = window.getComputedStyle(el);
-    const isScrollable =
-      ['auto', 'scroll', 'overlay'].includes(style.overflowY) ||
-      ['auto', 'scroll', 'overlay'].includes(style.overflow);
-    if (isScrollable && el.scrollHeight > el.clientHeight) {
-      lockedElements.push({ el, prev: el.style.overflow });
-      el.style.overflow = 'hidden';
-    }
-  });
-  document.body.style.overflow = 'hidden';
-  document.documentElement.style.overflow = 'hidden';
-}
-function unlockScroll() {
-  lockedElements.forEach(({ el, prev }) => { el.style.overflow = prev; });
-  lockedElements.length = 0;
-  document.body.style.overflow = '';
-  document.documentElement.style.overflow = '';
-}
-
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
 function getPaymentMethod(order: OrderRow): string {
   const method = order.payments?.[0]?.paymentMethod?.toUpperCase();
@@ -72,9 +49,22 @@ export const AdminOrders: React.FC = () => {
 
   /* scroll lock */
   useEffect(() => {
-    if (selectedOrder) lockScroll();
-    else unlockScroll();
-    return () => unlockScroll();
+    if (!selectedOrder) return;
+    const scrollY = window.scrollY;
+    const body = document.body;
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.overflow = 'hidden';
+    return () => {
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.overflow = '';
+      window.scrollTo({ top: scrollY, behavior: 'instant' as ScrollBehavior });
+    };
   }, [selectedOrder]);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -219,7 +209,7 @@ export const AdminOrders: React.FC = () => {
                         <td className="px-5 py-4 text-right">
                           <button
                             onClick={() => setSelectedOrder(order)}
-                            className="text-[10px] font-bold text-[#8b1a2a] hover:text-white bg-[#8b1a2a]/6 hover:bg-[#8b1a2a] px-3 py-1.5 rounded-lg border border-[#8b1a2a]/15 hover:border-[#8b1a2a] transition-all uppercase tracking-wider opacity-0 group-hover:opacity-100"
+                            className="text-[10px] font-bold text-[#8b1a2a] hover:text-white bg-[#8b1a2a]/6 hover:bg-[#8b1a2a] px-3 py-1.5 rounded-lg border border-[#8b1a2a]/15 hover:border-[#8b1a2a] transition-all uppercase tracking-wider"
                           >
                             Details
                           </button>
@@ -247,11 +237,11 @@ export const AdminOrders: React.FC = () => {
             />
 
             {/* panel */}
-            <div className="absolute inset-y-0 right-0 flex w-full max-w-2xl pointer-events-none">
-              <div className="pointer-events-auto w-full flex flex-col bg-white shadow-2xl border-l border-neutral-200 h-full">
+            <div className="absolute inset-y-0 right-0 flex w-full max-w-2xl">
+              <div className="w-full bg-white shadow-2xl border-l border-neutral-200 h-full overflow-y-auto overscroll-contain">
 
                 {/* Drawer header */}
-                <div className="shrink-0 flex items-center justify-between px-6 py-5 border-b border-neutral-100 bg-white">
+                <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-5 border-b border-neutral-100 bg-white">
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-base font-bold text-neutral-900">Order Details</h2>
@@ -270,9 +260,8 @@ export const AdminOrders: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Drawer body — only THIS scrolls */}
-                <div className="flex-1 overflow-y-auto overscroll-contain">
-                  <div className="px-6 py-6 space-y-6">
+                {/* Drawer body */}
+                <div className="px-6 py-6 space-y-6">
 
                     {/* Quick stats */}
                     <div className="grid grid-cols-3 gap-3">
@@ -303,7 +292,7 @@ export const AdminOrders: React.FC = () => {
                             className="text-[#8b1a2a] hover:underline flex items-center gap-1"
                           >
                             <Mail size={11} />
-                            <span className="truncate max-w-[140px]">
+                            <span>
                               {selectedOrder.user?.email || (selectedOrder.shippingAddress as any)?.email || '—'}
                             </span>
                           </a>
@@ -445,9 +434,8 @@ export const AdminOrders: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-        );
-      })()}
+            );
+          })()}
     </>
   );
 };

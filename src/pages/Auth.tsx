@@ -172,24 +172,6 @@ export const Auth: React.FC = () => {
           </p>
         </div>
       </div>
-
-      {/* ── Footer peek ─────────────────────────────────────────────────── */}
-      <div className="bg-neutral-900 text-white px-6 py-4 flex items-center justify-between shrink-0 relative z-10">
-        <p className="text-[10px] uppercase tracking-widest text-white/40 font-medium">
-          © {new Date().getFullYear()} {language === 'ar' ? 'سوبريور تريندز' : 'Superior Trends'}
-        </p>
-        <div className="flex items-center gap-4">
-          {[
-            { label: language === 'ar' ? 'الخصوصية' : 'Privacy', key: 'Privacy' },
-            { label: language === 'ar' ? 'الشروط' : 'Terms', key: 'Terms' },
-            { label: language === 'ar' ? 'المساعدة' : 'Help', key: 'Help' },
-          ].map((l) => (
-            <a key={l.key} href="#" className="text-[10px] uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors font-medium">
-              {l.label}
-            </a>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

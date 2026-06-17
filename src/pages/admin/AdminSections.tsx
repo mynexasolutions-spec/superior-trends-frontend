@@ -217,7 +217,7 @@ export const AdminSections: React.FC = () => {
           </div>
           <button
             onClick={() => { resetForm(); setIsFormOpen(true); }}
-            className="inline-flex items-center gap-2 bg-[#8b1a2a] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#7a1725] active:scale-95 transition-all shadow-sm shadow-[#8b1a2a]/30 whitespace-nowrap"
+            className="flex items-center justify-center gap-2 bg-[#8b1a2a] text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#6b1420] transition-colors w-full sm:w-auto shrink-0"
           >
             <Plus size={16} />
             Add Section

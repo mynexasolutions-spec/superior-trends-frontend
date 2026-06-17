@@ -15,35 +15,38 @@ import {
   Settings,
   Ticket,
   Star,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useAdminAuth } from '../../hooks/useAdminAuth';
 import { AdminSidebarSales } from './AdminSidebarSales';
- 
+import logo from '../../assets/logo.png';
+
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuthStore();
   const { isAdmin, authReady } = useAdminAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
- 
+
   useEffect(() => {
     if (authReady && !isAdmin) {
       const redirect = encodeURIComponent(location.pathname);
       navigate(`/auth?mode=login&redirect=${redirect}`, { replace: true });
     }
   }, [authReady, isAdmin, location.pathname, navigate]);
- 
+
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
- 
+
   const navItems = [
     { path: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
     { path: '/admin/products', label: 'Products', icon: <ShoppingBag size={18} /> },
     { path: '/admin/categories', label: 'Categories', icon: <FolderTree size={18} /> },
     { path: '/admin/sections', label: 'Homepage Sections', icon: <LayoutDashboard size={18} /> },
+    { path: '/admin/banners', label: 'Banners', icon: <ImageIcon size={18} /> },
     { path: '/admin/orders', label: 'Orders', icon: <Package size={18} /> },
     { path: '/admin/reviews', label: 'Reviews', icon: <Star size={18} /> },
     { path: '/admin/blogs', label: 'Blog', icon: <FileText size={18} /> },
@@ -57,9 +60,9 @@ export const AdminLayout: React.FC = () => {
 
   const SidebarContent = () => (
     <>
-      <div className="h-14 sm:h-16 flex items-center px-4 sm:px-6 border-b border-neutral-800 gap-2 shrink-0">
-        <div className="size-8 rounded bg-[#8b1a2a] flex items-center justify-center text-white font-serif font-black text-lg">
-          S
+      <div className="h-14 sm:h-16 flex items-center px-4 sm:px-6 border-b border-neutral-800 gap-3 shrink-0">
+        <div className="bg-white rounded-lg p-1 shrink-0">
+          <img src={logo} alt="Logo" className="h-8 w-8 object-contain block" />
         </div>
         <div className="min-w-0">
           <h1 className="font-serif font-bold text-sm tracking-widest text-white uppercase truncate">
@@ -85,11 +88,10 @@ export const AdminLayout: React.FC = () => {
               key={item.path}
               to={item.path}
               onClick={closeSidebar}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                isActive
-                  ? 'bg-[#8b1a2a] text-white'
-                  : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${isActive
+                ? 'bg-[#8b1a2a] text-white'
+                : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
+                }`}
             >
               {item.icon}
               {item.label}
@@ -157,9 +159,8 @@ export const AdminLayout: React.FC = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-[min(100%,16rem)] sm:w-64 bg-neutral-900 text-neutral-200 flex flex-col min-h-0 border-r border-neutral-800 shrink-0 transform transition-transform duration-300 ease-out ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-[min(100%,16rem)] sm:w-64 bg-neutral-900 text-neutral-200 flex flex-col min-h-0 border-r border-neutral-800 shrink-0 transform transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}
       >
         <SidebarContent />
       </aside>
