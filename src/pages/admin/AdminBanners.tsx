@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Edit2, Loader2, Image as ImageIcon, X, AlertCircle, CheckCircle2, ChevronRight, Eye, EyeOff, Link as LinkIcon } from 'lucide-react';
+
+import { Plus, Trash2, Edit2, Loader2, Image as ImageIcon, X, AlertCircle, CheckCircle2, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { useBannersAdmin, useCreateBannerMutation, useUpdateBannerMutation, useDeleteBannerMutation } from '../../hooks/useBanners';
 import { uploadImage } from '../../lib/api';
 
@@ -10,7 +10,7 @@ function lockScroll() { document.body.style.overflow = 'hidden'; }
 function unlockScroll() { document.body.style.overflow = ''; }
 
 export const AdminBanners: React.FC = () => {
-  const queryClient = useQueryClient();
+ 
   const { data: banners, isLoading, isError } = useBannersAdmin();
 
   const createMutation = useCreateBannerMutation();

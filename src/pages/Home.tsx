@@ -866,7 +866,6 @@ export const Home: React.FC = () => {
     offset: ["start start", "end start"],
   });
 
-  const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const yText = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacityText = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
