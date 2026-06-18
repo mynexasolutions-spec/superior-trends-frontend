@@ -518,8 +518,8 @@ export const Checkout: React.FC = () => {
                     const meetsMin = cartTotal >= c.minimumOrder;
                     const text =
                       c.type === 'PERCENTAGE'
-                        ? `${c.code} · ${c.value}% OFF${Number(c.minimumOrder) > 0 ? ` (Min ₹${c.minimumOrder})` : ''}`
-                        : `${c.code} · ₹${c.value} OFF${Number(c.minimumOrder) > 0 ? ` (Min ₹${c.minimumOrder})` : ''}`;
+                        ? `${c.code} · ${c.value}% OFF${Number(c.minimumOrder) > 0 ? ` (Min OMR ${c.minimumOrder})` : ''}`
+                        : `${c.code} · OMR ${c.value} OFF${Number(c.minimumOrder) > 0 ? ` (Min OMR ${c.minimumOrder})` : ''}`;
                     return (
                       <option key={c.id} value={c.code} className={meetsMin ? '' : 'text-neutral-300'}>
                         {text} {!meetsMin ? '🔒' : '✅'}

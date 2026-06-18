@@ -144,7 +144,7 @@ export const CartDrawer: React.FC = () => {
                                 {item.product.name}
                               </h4>
                               <span className="text-sm text-[#8b1a2a] font-black shrink-0 tracking-tight">
-                                ﷼{Number(item.product.price).toLocaleString('en-OM')}
+                                OMR {Number(item.product.price).toLocaleString('en-OM')}
                               </span>
                             </div>
                             
@@ -264,13 +264,13 @@ export const CartDrawer: React.FC = () => {
                     <div className="flex justify-between text-brand-text-muted">
                       <span className="font-light">{language === 'ar' ? 'المجموع الفرعي' : 'Subtotal'}</span>
                       <span className="font-medium text-brand-charcoal">
-                        ﷼{Number(cartTotal).toLocaleString('en-OM')}
+                        OMR {Number(cartTotal).toLocaleString('en-OM')}
                       </span>
                     </div>
                     {discount > 0 && (
                       <div className="flex justify-between text-emerald-600">
                         <span className="font-light">{language === 'ar' ? 'الخصم' : 'Discount'} ({discount * 100}%)</span>
-                        <span className="font-medium">-﷼{Number(finalDiscount).toLocaleString('en-OM')}</span>
+                        <span className="font-medium">-OMR {Number(finalDiscount).toLocaleString('en-OM')}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-brand-text-muted pb-3 border-b border-brand-border/15">
@@ -280,7 +280,7 @@ export const CartDrawer: React.FC = () => {
                     <div className="flex justify-between items-center pt-1">
                       <span className="font-display text-lg font-bold text-brand-charcoal uppercase">{language === 'ar' ? 'المجموع الكلي' : 'Total'}</span>
                       <span className="font-display text-2xl font-black text-[#8b1a2a] tracking-tight">
-                        ﷼{Number(grandTotal).toLocaleString('en-OM')}
+                        OMR {Number(grandTotal).toLocaleString('en-OM')}
                       </span>
                     </div>
                   </div>

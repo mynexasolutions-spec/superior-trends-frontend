@@ -3,7 +3,7 @@ export type Language = 'en' | 'ar';
 export const translations = {
   en: {
     common: {
-      freeShipping: "Free shipping over ﷼",
+      freeShipping: "Free shipping over OMR ",
       shopNow: "Shop Now",
       viewAll: "View All",
       addToCart: "Add to Cart",
@@ -52,7 +52,7 @@ export const translations = {
       },
       trust: {
         freeShipping: "Worldwide Shipping",
-        freeShippingDesc: "Complimentary shipping on orders over ﷼50",
+        freeShippingDesc: "Complimentary shipping on orders over OMR 50",
         securePayment: "Secure Checkout",
         securePaymentDesc: "Fully encrypted secure payment gateways",
         premiumQuality: "Premium Quality",
@@ -135,7 +135,7 @@ export const translations = {
   },
   ar: {
     common: {
-      freeShipping: "شحن مجاني للطلبات أكثر من ﷼",
+      freeShipping: "شحن مجاني للطلبات أكثر من OMR ",
       shopNow: "تسوقي الآن",
       viewAll: "عرض الكل",
       addToCart: "أضف إلى السلة",
@@ -184,7 +184,7 @@ export const translations = {
       },
       trust: {
         freeShipping: "شحن عالمي",
-        freeShippingDesc: "شحن مجاني للطلبات التي تزيد عن ﷼٥٠",
+        freeShippingDesc: "شحن مجاني للطلبات التي تزيد عن OMR 50",
         securePayment: "دفع آمن",
         securePaymentDesc: "بوابات دفع آمنة ومشفرة بالكامل",
         premiumQuality: "جودة ممتازة",

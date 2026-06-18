@@ -476,7 +476,7 @@ export const ProductDetail: React.FC = () => {
             {/* Trust strip — desktop */}
             <div className="hidden lg:grid grid-cols-3 gap-3 mt-1">
               {[
-                { icon: Truck, label: language === 'ar' ? 'شحن مجاني' : 'Free Shipping', sub: language === 'ar' ? 'للطلبات فوق ﷼٥٠' : 'Orders above ₹999' },
+                { icon: Truck, label: language === 'ar' ? 'شحن مجاني' : 'Free Shipping', sub: language === 'ar' ? 'للطلبات فوق OMR 50' : 'Orders above OMR 50' },
                 { icon: RefreshCw, label: language === 'ar' ? 'إرجاع خلال ٧ أيام' : '7-Day Returns', sub: language === 'ar' ? 'سياسة إرجاع سهلة' : 'Hassle-free policy' },
                 { icon: ShieldCheck, label: language === 'ar' ? 'دفع آمن ١٠٠٪' : 'Secure Payment', sub: language === 'ar' ? 'مشفر بالكامل' : '100% encrypted' },
               ].map(({ icon: Icon, label, sub }) => (
@@ -724,7 +724,7 @@ export const ProductDetail: React.FC = () => {
             {/* Trust strip — mobile */}
             <div className="grid grid-cols-3 gap-2 lg:hidden mt-1">
               {[
-                { icon: Truck, label: language === 'ar' ? 'شحن مجاني' : 'Free Shipping', sub: language === 'ar' ? '﷼٥٠+' : '₹999+' },
+                { icon: Truck, label: language === 'ar' ? 'شحن مجاني' : 'Free Shipping', sub: language === 'ar' ? 'OMR 50+' : 'OMR 50+' },
                 { icon: RefreshCw, label: language === 'ar' ? 'إرجاع ٧ أيام' : '7-Day Returns', sub: language === 'ar' ? 'سهل ومرن' : 'Easy policy' },
                 { icon: ShieldCheck, label: language === 'ar' ? 'دفع آمن' : 'Secure Pay', sub: language === 'ar' ? 'مشفر' : 'Encrypted' },
               ].map(({ icon: Icon, label, sub }) => (
@@ -837,8 +837,8 @@ export const ProductDetail: React.FC = () => {
                   key: 'shipping' as const, 
                   label: language === 'ar' ? 'الشحن والمرتجعات' : 'Shipping & Returns', 
                   content: language === 'ar' 
-                    ? 'شحن مجاني للطلبات التي تزيد عن ﷼٥٠. التوصيل القياسي في غضون ٣-٥ أيام عمل. التوصيل السريع متاح عند الدفع. إرجاع سهل خلال ٧ أيام للملابس غير الملبوسة مع إبقاء البطاقات الأصلية.' 
-                    : 'Free shipping on orders above ₹999. Standard delivery in 3–5 business days. Express delivery available at checkout. Easy 7-day returns for unworn items with tags.' 
+                    ? 'شحن مجاني للطلبات التي تزيد عن OMR 50. التوصيل القياسي في غضون ٣-٥ أيام عمل. التوصيل السريع متاح عند الدفع. إرجاع سهل خلال ٧ أيام للملابس غير الملبوسة مع إبقاء البطاقات الأصلية.' 
+                    : 'Free shipping on orders above OMR 50. Standard delivery in 3–5 business days. Express delivery available at checkout. Easy 7-day returns for unworn items with tags.' 
                 },
               ] as const
             ).map(({ key, label, content }) => (

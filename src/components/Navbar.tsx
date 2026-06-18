@@ -9,8 +9,8 @@ import { useShop } from '../context/ShopContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCategories } from '../hooks/useProducts';
-import { FREE_SHIPPING_MIN_INR } from '../lib/formatCurrency';
 import { useLanguage } from '../context/LanguageContext';
+import { useSettings } from '../hooks/useSettings';
 import logo from '../assets/logo.png';
 
 // ─── tiny helpers ────────────────────────────────────────────────────────────
@@ -40,6 +40,9 @@ export const Navbar: React.FC = () => {
   const { user, logout } = useAuthStore();
   const { data: categories } = useCategories();
   const { language, setLanguage, t } = useLanguage();
+  const { data: settings } = useSettings();
+
+  const freeShippingThreshold = Number(settings?.free_shipping_threshold ?? '50');
 
   const rootCategories = React.useMemo(() => {
     if (!categories) return [];
@@ -131,7 +134,7 @@ export const Navbar: React.FC = () => {
         {/* Announcement bar */}
         <div className={`bg-gradient-to-r from-[#8b1a2a] via-[#a22033] to-[#8b1a2a] text-white py-1.5 px-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 font-extrabold uppercase select-none border-b border-[#d4af37]/20 shadow-sm text-center ${language === 'ar' ? 'text-[11px] sm:text-[13px] tracking-normal' : 'text-[9px] sm:text-[11px] tracking-widest'}`}>
           <Truck size={11} className="shrink-0 opacity-85 text-[#d4af37]" />
-          <span>{t('common.freeShipping')}{FREE_SHIPPING_MIN_INR.toLocaleString('en-OM')}</span>
+          <span>{t('common.freeShipping')}{freeShippingThreshold.toLocaleString('en-OM')}</span>
           <span className="opacity-40">·</span>
           <Link
             to="/shop"

@@ -370,7 +370,7 @@ export const AdminSections: React.FC = () => {
                         required
                         value={title}
                         onChange={e => setTitle(e.target.value)}
-                        placeholder={type === 'SPLIT' ? 'Bridal Lehenga & Designer Sarees' : 'e.g. Accessories'}
+                        placeholder={type === 'SPLIT' ? 'Bridal Lehenga & Designer Kurta Pajamas' : 'e.g. Accessories'}
                       />
                     </div>
                     <div>

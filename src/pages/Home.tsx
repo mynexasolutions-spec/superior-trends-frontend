@@ -210,10 +210,10 @@ function CarouselProductCard({
         </h4>
         <div className="flex items-center gap-2">
           <span className="text-[14.5px] sm:text-base font-black text-[#8b1a2a]">
-            ﷼{priceOMR}
+            OMR {priceOMR}
           </span>
           <span className="text-[11px] sm:text-xs text-brand-text-muted line-through">
-            ﷼{mrpOMR}
+            OMR {mrpOMR}
           </span>
         </div>
         <button
@@ -872,7 +872,7 @@ export const Home: React.FC = () => {
   const { data: dbBanners } = useBanners();
 
   const defaultBanners = [
-    { imageUrl: "/images/50e18412-058c-4638-a475-0e417b0b54fe.png" },
+
     { imageUrl: "/images/bae39700-ac7c-49cc-b745-9050993c6514.png" },
     { imageUrl: "/images/9a9cedce-13c6-437e-918d-a30172c25429.png" },
      { imageUrl: "/images/f6578e7b-716c-4045-a016-458a3a5d9078.png" },
@@ -909,7 +909,7 @@ export const Home: React.FC = () => {
     {
       icon: <Truck className="w-6 h-6" strokeWidth={1.5} />,
       title: language === 'ar' ? "شحن مجاني" : "Free Shipping",
-      desc: language === 'ar' ? "على جميع الطلبات التي تزيد عن ﷼٥٠. توصيل سريع." : "On all orders above ﷼50. Worldwide delivery.",
+      desc: language === 'ar' ? "على جميع الطلبات التي تزيد عن OMR 50. توصيل سريع." : "On all orders above OMR 50. Worldwide delivery.",
     },
     {
       icon: <RefreshCcw className="w-6 h-6" strokeWidth={1.5} />,
@@ -968,7 +968,7 @@ export const Home: React.FC = () => {
     },
     {
       stars: 5,
-      text: language === 'ar' ? "سوبريور تريندز هو متجري المفضل دائماً. ملابسه تملك تصاميم ونقوش مذهلة وأصلية." : "Superior Trends is my go-to boutique. The sarees have stunning handloom work. Truly authentic.",
+      text: language === 'ar' ? "سوبريور تريندز هو متجري المفضل دائماً. ملابسه تملك تصاميم ونقوش مذهلة وأصلية." : "Superior Trends is my go-to boutique. The kurta pajamas have stunning handloom work. Truly authentic.",
       name: language === 'ar' ? "ميرا ر." : "Meera R.",
       verified: true,
     },
@@ -998,7 +998,7 @@ export const Home: React.FC = () => {
     },
     {
       stars: 5,
-      text: language === 'ar' ? "اشتريت الساري الحرير وأُذهلت بالجودة. المواد الخام فاخرة وتستحق كل ريال." : "Bought the silk saree and was blown away by the quality. Premium materials — worth every penny.",
+      text: language === 'ar' ? "اشتريت الكورتا الحرير وأُذهلت بالجودة. المواد الخام فاخرة وتستحق كل ريال." : "Bought the silk kurta pajama and was blown away by the quality. Premium materials — worth every penny.",
       name: language === 'ar' ? "شيريا ن." : "Shreya N.",
       verified: true,
     },
@@ -1451,12 +1451,12 @@ export const Home: React.FC = () => {
                     language === 'ar' ? (
                       <>
                         إرث النول اليدوي. <br />
-                        ساري مصنوع يدوياً.
+                        كورتا بيجاما مصنوعة يدوياً.
                       </>
                     ) : (
                       <>
                         Handloom Heritage. <br />
-                        Artisan Made Sarees.
+                        Artisan Kurta Pajamas.
                       </>
                     )
                   ) : (

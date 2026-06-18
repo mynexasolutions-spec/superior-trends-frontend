@@ -4,9 +4,13 @@ import { Sparkles, Heart, Leaf, Award, Globe, ShieldCheck, TrendingUp, ChevronRi
 import { PageHeader } from '../components/PageHeader';
 import { PageShell } from '../components/PageShell';
 import { useLanguage } from '../context/LanguageContext';
+import { useSettings } from '../hooks/useSettings';
 
 export const About: React.FC = () => {
   const { language, isRtl } = useLanguage();
+  const { data: settings } = useSettings();
+  
+  const freeShippingThreshold = Number(settings?.free_shipping_threshold ?? '50');
 
   const values = [
     {
@@ -35,7 +39,7 @@ export const About: React.FC = () => {
     language === 'ar' ? 'ملابس النساء والرجال والإكسسوارات في وجهة واحدة فاخرة' : 'Women, Men & Accessories under one premium destination',
     language === 'ar' ? 'دفع آمن، تتبع الطلبات ودعم مخصص' : 'Secure checkout, order tracking & dedicated support',
     language === 'ar' ? 'وصل حديثاً ومجموعات حصرية لكل موسم' : 'New arrivals and festive edits every season',
-    language === 'ar' ? 'شحن مجاني للطلبات التي تزيد عن ﷼٥٠ في جميع أنحاء سلطنة عمان' : 'Free shipping on orders over ﷼50 across Oman',
+    language === 'ar' ? `شحن مجاني للطلبات التي تزيد عن OMR ${freeShippingThreshold} في جميع أنحاء سلطنة عمان` : `Free shipping on orders over OMR ${freeShippingThreshold} across Oman`,
   ];
 
   return (
@@ -101,7 +105,7 @@ export const About: React.FC = () => {
 
             <div className="space-y-5 text-sm sm:text-[15px] text-brand-text-muted leading-relaxed font-medium">
               <p>
-                {language === 'ar' ? 'تأسست سوبريور تريندز برؤية تهدف إلى جعل الأزياء الراقية والنوعية في متناول الجميع، حيث نقدم تشكيلة مختارة بعناية — من الملابس التقليدية إلى العصرية والإكسسوارات التي تكمل مظهرك بالكامل.' : 'Founded with a vision to make quality fashion accessible, Superior Trends offers a carefully edited catalog — from kurtas and sarees to denim, dresses, and jewellery. Each season we refresh our collections while keeping the craftsmanship our customers trust.'}
+                {language === 'ar' ? 'تأسست سوبريور تريندز برؤية تهدف إلى جعل الأزياء الراقية والنوعية في متناول الجميع، حيث نقدم تشكيلة مختارة بعناية — من الملابس التقليدية إلى العصرية والإكسسوارات التي تكمل مظهرك بالكامل.' : 'Founded with a vision to make quality fashion accessible, Superior Trends offers a carefully edited catalog — from kurtas and kurta pajamas to denim, dresses, and jewellery. Each season we refresh our collections while keeping the craftsmanship our customers trust.'}
               </p>
               <p>
                 {language === 'ar' ? 'سواء كنت تتسوق للراحة اليومية أو للمناسبات الخاصة والاحتفالات، فإننا نركز على الأقمشة المريحة، والقصات المناسبة، والأسعار بالريال العماني التي تناسب ميزانيتك تماماً.' : 'Whether you shop for daily comfort or celebration wear, we focus on fabrics that feel good, fits that flatter, and prices in OMR that respect your budget.'}

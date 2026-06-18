@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCouponsAdmin, useCouponMutations } from '../../hooks/useCoupons';
-import { Plus, Trash2, Edit2, Loader2, Ticket, Calendar, X, Percent, IndianRupee } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Ticket, Calendar, X, Percent, Banknote } from 'lucide-react';
 import type { Coupon } from '../../lib/api';
 
 /* ─── Scroll-lock helpers ─────────────────────────────────────────────────── */
@@ -231,18 +231,18 @@ export const AdminCoupons: React.FC = () => {
                         {/* Discount */}
                         <td className="px-5 py-4">
                           <span className="text-sm font-bold text-[#8b1a2a]">
-                            {coupon.type === 'PERCENTAGE' ? `${coupon.value}%` : `₹${coupon.value}`}
+                            {coupon.type === 'PERCENTAGE' ? `${coupon.value}%` : `OMR ${coupon.value}`}
                           </span>
                           <span className="text-[10px] text-neutral-400 block mt-0.5">
                             {coupon.type === 'PERCENTAGE' ? 'off' : 'flat off'}
-                            {coupon.maximumDiscount ? ` · cap ₹${coupon.maximumDiscount}` : ''}
+                            {coupon.maximumDiscount ? ` · cap OMR ${coupon.maximumDiscount}` : ''}
                           </span>
                         </td>
 
                         {/* Min spend */}
                         <td className="px-5 py-4">
                           <span className="text-xs font-semibold text-neutral-700">
-                            ₹{Number(coupon.minimumOrder).toLocaleString('en-IN')}
+                            OMR {Number(coupon.minimumOrder).toLocaleString('en-OM')}
                           </span>
                         </td>
 
@@ -342,7 +342,7 @@ export const AdminCoupons: React.FC = () => {
                   <div className="w-12 h-12 rounded-xl bg-[#8b1a2a]/8 border border-[#8b1a2a]/15 flex items-center justify-center shrink-0">
                     {form.type === 'PERCENTAGE'
                       ? <Percent size={20} className="text-[#8b1a2a]" />
-                      : <IndianRupee size={20} className="text-[#8b1a2a]" />
+                      : <Banknote size={20} className="text-[#8b1a2a]" />
                     }
                   </div>
                   <div className="min-w-0">
@@ -352,9 +352,9 @@ export const AdminCoupons: React.FC = () => {
                     <div className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">
                       {form.type === 'PERCENTAGE'
                         ? `${form.value || '0'}% off`
-                        : `₹${form.value || '0'} flat off`}
-                      {Number(form.minimumOrder) > 0 && ` · min order ₹${form.minimumOrder}`}
-                      {form.type === 'PERCENTAGE' && form.maximumDiscount && ` · max cap ₹${form.maximumDiscount}`}
+                        : `OMR ${form.value || '0'} flat off`}
+                      {Number(form.minimumOrder) > 0 && ` · min order OMR ${form.minimumOrder}`}
+                      {form.type === 'PERCENTAGE' && form.maximumDiscount && ` · max cap OMR ${form.maximumDiscount}`}
                       {form.usageLimit && ` · limit ${form.usageLimit} uses`}
                     </div>
                   </div>
@@ -382,7 +382,7 @@ export const AdminCoupons: React.FC = () => {
                 <div>
                   <Label>Discount type *</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    {([['PERCENTAGE', 'Percentage (%)', Percent], ['FIXED', 'Fixed amount (₹)', IndianRupee]] as const).map(([val, label, Icon]) => (
+                    {([['PERCENTAGE', 'Percentage (%)', Percent], ['FIXED', 'Fixed amount (OMR)', Banknote]] as const).map(([val, label, Icon]) => (
                       <button
                         key={val}
                         type="button"
@@ -415,7 +415,7 @@ export const AdminCoupons: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <Label>Min order (₹)</Label>
+                    <Label>Min order (OMR)</Label>
                     <input
                       type="number"
                       min={0}
@@ -429,7 +429,7 @@ export const AdminCoupons: React.FC = () => {
                 {/* Max discount cap + Usage limit */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label dim={form.type === 'FIXED'}>Max discount cap (₹)</Label>
+                    <Label dim={form.type === 'FIXED'}>Max discount cap (OMR)</Label>
                     <input
                       type="number"
                       min={0}

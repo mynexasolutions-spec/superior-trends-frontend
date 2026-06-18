@@ -177,7 +177,7 @@ export const AdminSettings: React.FC = () => {
                 </label>
                 <div className="relative group/input">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-neutral-400 pointer-events-none select-none">
-                    ₹
+                    OMR
                   </span>
                   <input
                     type="number"
@@ -186,7 +186,7 @@ export const AdminSettings: React.FC = () => {
                     placeholder="1500"
                     value={threshold}
                     onChange={(e) => setThreshold(e.target.value)}
-                    className="w-full pl-8 pr-4 py-2.5 text-sm font-medium rounded-xl border border-neutral-200 bg-white
+                    className="w-full pl-12 pr-4 py-2.5 text-sm font-medium rounded-xl border border-neutral-200 bg-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400
                       hover:border-neutral-300 transition-all placeholder:text-neutral-300"
                   />
@@ -203,7 +203,7 @@ export const AdminSettings: React.FC = () => {
                 </label>
                 <div className="relative group/input">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-neutral-400 pointer-events-none select-none">
-                    ₹
+                    OMR
                   </span>
                   <input
                     type="number"
@@ -212,7 +212,7 @@ export const AdminSettings: React.FC = () => {
                     placeholder="100"
                     value={shippingCost}
                     onChange={(e) => setShippingCost(e.target.value)}
-                    className="w-full pl-8 pr-4 py-2.5 text-sm font-medium rounded-xl border border-neutral-200 bg-white
+                    className="w-full pl-12 pr-4 py-2.5 text-sm font-medium rounded-xl border border-neutral-200 bg-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400
                       hover:border-neutral-300 transition-all placeholder:text-neutral-300"
                   />
@@ -228,7 +228,7 @@ export const AdminSettings: React.FC = () => {
               <Truck size={11} className="text-blue-400 shrink-0" />
               <p className="text-[10px] text-blue-700 leading-relaxed">
                 <span className="font-semibold">Preview:</span>{' '}
-                Free shipping on orders ≥ ₹{threshold || '–'}. Orders below that pay ₹{shippingCost || '–'} flat.
+                Free shipping on orders ≥ OMR {threshold || '–'}. Orders below that pay OMR {shippingCost || '–'} flat.
               </p>
             </div>
           </div>

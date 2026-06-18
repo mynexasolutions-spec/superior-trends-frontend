@@ -310,7 +310,7 @@ export const AdminProducts: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">MRP (﷼)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">MRP (OMR)</label>
                   <input
                     type="number"
                     required
@@ -321,7 +321,7 @@ export const AdminProducts: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Sale Price (﷼)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Sale Price (OMR)</label>
                   <input
                     type="number"
                     required
