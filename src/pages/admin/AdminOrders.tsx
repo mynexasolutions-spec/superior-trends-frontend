@@ -174,7 +174,7 @@ export const AdminOrders: React.FC = () => {
                         </td>
                         <td className="px-5 py-4">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${payMethod === 'COD' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-[#8b1a2a]/8 text-[#8b1a2a] border-[#8b1a2a]/20'}`}>
-                            {payMethod === 'COD' ? 'COD' : 'Razorpay'}
+                            {payMethod === 'COD' ? 'COD' : 'Thawani Pay'}
                           </span>
                         </td>
                         <td className="px-5 py-4">
@@ -364,13 +364,13 @@ export const AdminOrders: React.FC = () => {
                           </Row>
                           {selectedOrder.payments?.[0]?.razorpayOrderId && (
                             <div className="pt-2 border-t border-neutral-100">
-                              <div className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mb-0.5">Razorpay Order ID</div>
+                              <div className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mb-0.5">Thawani Session ID</div>
                               <div className="text-[10px] font-mono text-neutral-600 break-all">{selectedOrder.payments[0].razorpayOrderId}</div>
                             </div>
                           )}
                           {selectedOrder.payments?.[0]?.razorpayPaymentId && (
                             <div>
-                              <div className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mb-0.5">Razorpay Payment ID</div>
+                              <div className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mb-0.5">Thawani Payment ID</div>
                               <div className="text-[10px] font-mono text-neutral-600 break-all">{selectedOrder.payments[0].razorpayPaymentId}</div>
                             </div>
                           )}
