@@ -11,12 +11,12 @@ const ALL_STATUSES: OrderStatus[] = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVE
 function getPaymentMethod(order: OrderRow): string {
   const method = order.payments?.[0]?.paymentMethod?.toUpperCase();
   if (method === 'COD') return 'COD';
-  if (method === 'RAZORPAY') return 'Razorpay';
+  if (method === 'THAWANI') return 'Thawani Pay';
   return method || '—';
 }
 function paymentMethodLabel(method: string) {
   if (method === 'COD') return 'Cash on Delivery';
-  if (method === 'RAZORPAY') return 'Razorpay';
+  if (method === 'THAWANI') return 'Thawani Pay';
   return method;
 }
 function paymentStatusClass(status: string, method: string) {
@@ -96,10 +96,10 @@ export const AdminOrders: React.FC = () => {
               <ShoppingBag size={20} className="text-[#8b1a2a]" />
               <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">Orders</h1>
             </div>
-            <p className="text-sm text-neutral-500">Manage fulfillment for Razorpay and COD orders.</p>
+            <p className="text-sm text-neutral-500">Manage fulfillment for Thawani Pay and COD orders.</p>
           </div>
           <div className="flex gap-2">
-            <span className="px-3 py-1.5 rounded-lg bg-[#8b1a2a]/8 text-[#8b1a2a] border border-[#8b1a2a]/20 text-[10px] font-bold uppercase tracking-wider">Razorpay</span>
+            <span className="px-3 py-1.5 rounded-lg bg-[#8b1a2a]/8 text-[#8b1a2a] border border-[#8b1a2a]/20 text-[10px] font-bold uppercase tracking-wider">Thawani Pay</span>
             <span className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold uppercase tracking-wider">COD</span>
           </div>
         </div>

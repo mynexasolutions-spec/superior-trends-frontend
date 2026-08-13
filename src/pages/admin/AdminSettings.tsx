@@ -123,7 +123,7 @@ export const AdminSettings: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-[10px] text-neutral-400 leading-relaxed">
-                  Allow customers to pay at delivery. When off, only Razorpay online checkout is available.
+                  Allow customers to pay at delivery. When off, only Thawani Pay online checkout is available.
                 </p>
               </div>
 

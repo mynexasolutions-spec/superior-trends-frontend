@@ -21,8 +21,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getProductImageUrl } from '../lib/optimizeImage';
 import { formatINR } from '../lib/formatCurrency';
-import { createCheckoutOrder, createRazorpayOrder, verifyRazorpayPayment } from '../lib/api';
-import { loadRazorpayScript, openRazorpayCheckout } from '../lib/razorpay';
+import { createCheckoutOrder, createThawaniSession } from '../lib/api';
 import { useToast } from '../hooks/useToast';
 import { useSettings } from '../hooks/useSettings';
 import { useApplyCouponMutation, useActiveCoupons } from '../hooks/useCoupons';
@@ -30,7 +29,7 @@ import type { OrderRow } from '../lib/orderTypes';
 import { useLanguage } from '../context/LanguageContext';
 
 type CheckoutStep = 'shipping' | 'payment' | 'confirmation';
-type PaymentMethod = 'RAZORPAY' | 'COD';
+type PaymentMethod = 'COD' | 'THAWANI';
 
 /* ── Tiny field wrapper ─────────────────────────────────────────── */
 function Field({
@@ -230,7 +229,7 @@ export const Checkout: React.FC = () => {
   const applyCouponMutation = useApplyCouponMutation();
 
   const [step, setStep] = useState<CheckoutStep>('shipping');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('RAZORPAY');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('THAWANI');
   const [payLoading, setPayLoading] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<OrderRow | null>(null);
 
@@ -341,40 +340,20 @@ export const Checkout: React.FC = () => {
     } finally { setPayLoading(false); }
   };
 
-  const handlePayWithRazorpay = async () => {
+
+
+  const handlePayWithThawani = async () => {
     if (!validateShipping()) { setStep('shipping'); showToast(language === 'ar' ? 'يرجى إكمال تفاصيل الشحن' : 'Please complete shipping details', 'error'); return; }
     setPayLoading(true);
     try {
-      const scriptOk = await loadRazorpayScript();
-      if (!scriptOk) { showToast(language === 'ar' ? 'تعذر تحميل بوابة الدفع. تحقق من اتصالك.' : 'Could not load payment gateway. Check your connection.', 'error'); return; }
-      const order = await createCheckoutOrder({ ...buildOrderPayload(), paymentMethod: 'RAZORPAY' });
-      const { razorpayOrder, keyId } = await createRazorpayOrder(order.id);
-      openRazorpayCheckout({
-        key: keyId,
-        amount: razorpayOrder.amount,
-        currency: razorpayOrder.currency || 'OMR',
-        name: language === 'ar' ? 'سوبريور تريندز' : 'Superior Trends',
-        description: `${language === 'ar' ? 'الطلب رقم' : 'Order'} ${order.orderNumber}`,
-        order_id: razorpayOrder.id,
-        prefill: { name: `${formData.firstName} ${formData.lastName}`.trim(), email: formData.email, contact: formData.phone },
-        theme: { color: '#8b1a2a' },
-        handler: async (response) => {
-          try {
-            const { order: verified } = await verifyRazorpayPayment({
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpayOrderId: response.razorpay_order_id,
-              razorpaySignature: response.razorpay_signature,
-            });
-            await clearCart();
-            setConfirmedOrder(verified || order);
-            setStep('confirmation');
-            showToast(language === 'ar' ? 'تم الدفع بنجاح! شكراً لك ✦' : 'Payment successful! Thank you ✦', 'success');
-          } catch {
-            showToast(language === 'ar' ? 'تم استلام الدفعة ولكن فشل التحقق. اتصل بالدعم الفني.' : 'Payment received but verification failed. Contact support with your payment ID.', 'error');
-          } finally { setPayLoading(false); }
-        },
-        modal: { ondismiss: () => { setPayLoading(false); showToast(language === 'ar' ? 'تم إلغاء عملية الدفع' : 'Payment cancelled', 'info'); } },
-      });
+      const order = await createCheckoutOrder({ ...buildOrderPayload(), paymentMethod: 'THAWANI' });
+      const { redirectUrl } = await createThawaniSession(order.id);
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        showToast(language === 'ar' ? 'فشل إنشاء جلسة الدفع.' : 'Failed to create payment session.', 'error');
+        setPayLoading(false);
+      }
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Could not start payment. Please try again.';
       showToast(language === 'ar' ? 'تعذر بدء عملية الدفع. يرجى المحاولة مرة أخرى.' : msg, 'error');
@@ -717,7 +696,7 @@ export const Checkout: React.FC = () => {
                       <>
                         <CreditCard size={18} className="text-[#d4af37] mt-0.5 shrink-0" />
                         <p className="text-sm text-brand-text-muted">
-                          <strong className="text-brand-charcoal">{language === 'ar' ? 'تم الدفع بنجاح' : 'Payment Successful'}</strong> — {language === 'ar' ? 'اكتمل الدفع بأمان عبر البوابة الإلكترونية.' : 'Completed securely via Razorpay.'}
+                          <strong className="text-brand-charcoal">{language === 'ar' ? 'تم الدفع بنجاح' : 'Payment Successful'}</strong> — {language === 'ar' ? 'اكتمل الدفع بأمان عبر البوابة الإلكترونية.' : 'Completed securely via Thawani Pay.'}
                         </p>
                       </>
                     )}
@@ -931,49 +910,29 @@ export const Checkout: React.FC = () => {
 
                           {/* Payment method cards */}
                           <div className={`grid gap-3 ${codAllowed ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
-                            {/* Razorpay */}
+
+                            {/* Thawani Pay */}
                             <motion.button
                               type="button"
-                              onClick={() => setPaymentMethod('RAZORPAY')}
+                              onClick={() => setPaymentMethod('THAWANI')}
                               whileHover={{ y: -2 }}
                               whileTap={{ scale: 0.98 }}
                               className={`text-left rtl:text-right p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
-                                paymentMethod === 'RAZORPAY'
+                                paymentMethod === 'THAWANI'
                                   ? 'border-[#8b1a2a] bg-[#8b1a2a]/4 shadow-lg shadow-[#8b1a2a]/10'
                                   : 'border-brand-border/40 hover:border-[#8b1a2a]/40 bg-white'
                               }`}
                             >
-                              {paymentMethod === 'RAZORPAY' && (
+                              {paymentMethod === 'THAWANI' && (
                                 <div className="absolute top-2.5 right-2.5 rtl:right-auto rtl:left-2.5 w-4 h-4 rounded-full bg-[#8b1a2a] flex items-center justify-center">
                                   <div className="w-1.5 h-1.5 rounded-full bg-white" />
                                 </div>
                               )}
                               <div className="w-10 h-10 rounded-xl bg-[#8b1a2a]/10 flex items-center justify-center mb-3">
-                                <CreditCard size={20} className={paymentMethod === 'RAZORPAY' ? 'text-[#8b1a2a]' : 'text-neutral-400'} />
+                                <CreditCard size={20} className={paymentMethod === 'THAWANI' ? 'text-[#8b1a2a]' : 'text-neutral-400'} />
                               </div>
-                              <p className="font-extrabold text-sm uppercase text-brand-charcoal tracking-wide">Razorpay</p>
-                              <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                                <span className="inline-flex items-center gap-1 bg-neutral-100 text-brand-charcoal border border-neutral-200/60 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wide">
-                                  UPI
-                                </span>
-                                <span className="inline-flex items-center gap-1 bg-neutral-100 text-brand-charcoal border border-neutral-200/60 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wide">
-                                  <CreditCard size={10} className="text-neutral-500" />
-                                  Cards
-                                </span>
-                                <span className="inline-flex items-center gap-1 bg-neutral-100 text-brand-charcoal border border-neutral-200/60 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wide">
-                                  <svg className="w-2.5 h-2.5 text-neutral-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M3 21h18" />
-                                    <path d="M3 10h18" />
-                                    <path d="M5 6h14" />
-                                    <path d="M4 10v11" />
-                                    <path d="M20 10v11" />
-                                    <path d="M8 14v3" />
-                                    <path d="M12 14v3" />
-                                    <path d="M16 14v3" />
-                                  </svg>
-                                  Net Banking
-                                </span>
-                              </div>
+                              <p className="font-extrabold text-sm uppercase text-brand-charcoal tracking-wide">Thawani Pay</p>
+                              <p className="text-[11px] text-brand-text-muted mt-1">{language === 'ar' ? 'بطاقة الخصم / الائتمان (عمان)' : 'Debit / Credit Card (Oman)'}</p>
                             </motion.button>
 
                             {/* COD */}
@@ -1004,11 +963,11 @@ export const Checkout: React.FC = () => {
                           </div>
 
                           {/* Info callout */}
-                          {paymentMethod === 'RAZORPAY' ? (
+                          {paymentMethod === 'THAWANI' ? (
                             <div className="flex gap-3 bg-[#faf8f5] border border-brand-border/30 rounded-xl p-4 text-left rtl:text-right">
                               <Smartphone size={18} className="text-[#8b1a2a] shrink-0 mt-0.5" />
                               <p className="text-xs text-brand-text-muted leading-relaxed">
-                                {language === 'ar' ? `سيتم توجيهك بأمان لإتمام عملية دفع بقيمة ` : `You'll be securely redirected to Razorpay to complete payment of `}
+                                {language === 'ar' ? `سيتم توجيهك بأمان إلى بوابة ثواني لإتمام عملية دفع بقيمة ` : `You'll be securely redirected to Thawani Pay to complete payment of `}
                                 <strong className="text-brand-charcoal">{formatINR(grandTotal)}</strong>.
                               </p>
                             </div>
@@ -1035,7 +994,7 @@ export const Checkout: React.FC = () => {
                           </button>
                           <motion.button
                             type="button"
-                            onClick={paymentMethod === 'COD' ? handlePayWithCod : handlePayWithRazorpay}
+                            onClick={paymentMethod === 'COD' ? handlePayWithCod : handlePayWithThawani}
                             disabled={payLoading}
                             whileHover={payLoading ? {} : { scale: 1.02, y: -1 }}
                             whileTap={payLoading ? {} : { scale: 0.97 }}

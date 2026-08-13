@@ -35,6 +35,8 @@ const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons').then((m) =>
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings').then((m) => ({ default: m.AdminSettings })));
 const AdminContact = lazy(() => import('./pages/admin/AdminContact').then((m) => ({ default: m.AdminContact })));
 const MyOrders = lazy(() => import('./pages/MyOrders').then((m) => ({ default: m.MyOrders })));
+const PaymentCallback = lazy(() => import('./pages/PaymentCallback').then((m) => ({ default: m.PaymentCallback })));
+const RefundPolicy = lazy(() => import('./pages/RefundPolicy').then((m) => ({ default: m.RefundPolicy })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -82,7 +84,9 @@ function App() {
                           <Route path="/blogs" element={<Blogs />} />
                           <Route path="/blogs/:slug" element={<BlogDetail />} />
                           <Route path="/contact" element={<Contact />} />
+                          <Route path="/refund-policy" element={<RefundPolicy />} />
                           <Route path="/auth" element={<Auth />} />
+                          <Route path="/payment/thawani-callback" element={<PaymentCallback />} />
 
                           <Route path="/admin" element={<AdminLayout />}>
                             <Route index element={<AdminDashboard />} />

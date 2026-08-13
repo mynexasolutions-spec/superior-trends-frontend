@@ -269,12 +269,19 @@ export const cancelOrderCustomer = async (id: string) => {
 };
 
 
-export const createRazorpayOrder = async (orderId: string) => {
-  const { data } = await api.post('/payment/create-order', { orderId });
+
+
+export const createThawaniSession = async (orderId: string) => {
+  const { data } = await api.post('/payment/thawani/create-session', { orderId });
   return data.data as {
-    razorpayOrder: { id: string; amount: number; currency: string };
-    keyId: string;
+    thawaniSessionId: string;
+    redirectUrl: string;
   };
+};
+
+export const verifyThawaniPayment = async (orderId: string) => {
+  const { data } = await api.post('/payment/thawani/verify', { orderId });
+  return data.data as { order: OrderRow | null };
 };
 
 // ── CONTACT API ───────────────────────────────────────────────────────────────
@@ -334,14 +341,6 @@ export const deleteBlogPost = async (id: string) => {
   return data;
 };
 
-export const verifyRazorpayPayment = async (body: {
-  razorpayPaymentId: string;
-  razorpayOrderId: string;
-  razorpaySignature: string;
-}) => {
-  const { data } = await api.post('/payment/verify', body);
-  return data.data as { order: OrderRow | null };
-};
 
 // ── BLOG CATEGORIES API ──────────────────────────────────────────────────────
 export interface BlogCategory {
