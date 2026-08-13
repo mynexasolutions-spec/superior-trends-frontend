@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { Loader2, Package, X, Mail, Phone, MapPin, CreditCard, Calendar, Truck, User, ShoppingBag } from 'lucide-react';
-import { useAdminOrders, useUpdateOrderStatus } from '../../hooks/useOrders';
+import { Loader2, Package, X, Mail, Phone, MapPin, CreditCard, Calendar, Truck, User, ShoppingBag, Undo2 } from 'lucide-react';
+import { useAdminOrders, useUpdateOrderStatus, useRefundOrder } from '../../hooks/useOrders';
 import { ORDER_STATUS_LABELS, type OrderRow, type OrderStatus } from '../../lib/orderTypes';
 import { useToast } from '../../hooks/useToast';
 import { formatINR } from '../../lib/formatCurrency';
@@ -20,13 +20,15 @@ function paymentMethodLabel(method: string) {
   return method;
 }
 function paymentStatusClass(status: string, method: string) {
-  if (status === 'SUCCESS') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-  if (method === 'COD')     return 'bg-blue-50   text-blue-700   border-blue-200';
+  if (status === 'SUCCESS')  return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+  if (status === 'REFUNDED') return 'bg-neutral-100 text-neutral-600 border-neutral-200';
+  if (method === 'COD')      return 'bg-blue-50   text-blue-700   border-blue-200';
   return 'bg-amber-50 text-amber-700 border-amber-200';
 }
 function paymentStatusLabel(status: string, method: string) {
-  if (status === 'SUCCESS') return 'Paid';
-  if (method === 'COD')     return 'Pay on delivery';
+  if (status === 'SUCCESS')  return 'Paid';
+  if (status === 'REFUNDED') return 'Refunded';
+  if (method === 'COD')      return 'Pay on delivery';
   return status;
 }
 function orderStatusConfig(status: string): { cls: string; dot: string; label: string } {
@@ -44,6 +46,7 @@ function orderStatusConfig(status: string): { cls: string; dot: string; label: s
 export const AdminOrders: React.FC = () => {
   const { data: orders, isLoading, isError } = useAdminOrders();
   const updateStatus = useUpdateOrderStatus();
+  const refundOrder = useRefundOrder();
   const { showToast } = useToast();
   const [selectedOrder, setSelectedOrder] = React.useState<OrderRow | null>(null);
 
@@ -370,6 +373,23 @@ export const AdminOrders: React.FC = () => {
                               <div className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mb-0.5">Razorpay Payment ID</div>
                               <div className="text-[10px] font-mono text-neutral-600 break-all">{selectedOrder.payments[0].razorpayPaymentId}</div>
                             </div>
+                          )}
+                          {payMethod === 'THAWANI' && selectedOrder.paymentStatus === 'SUCCESS' && (
+                            <button
+                              type="button"
+                              disabled={refundOrder.isPending}
+                              onClick={() => {
+                                if (!confirm(`Refund ${formatINR(Number(selectedOrder.total))} for order #${selectedOrder.orderNumber}? This cannot be undone.`)) return;
+                                refundOrder.mutate(selectedOrder.id, {
+                                  onSuccess: () => showToast('Payment refunded successfully', 'success'),
+                                  onError: (err: any) => showToast(err?.response?.data?.message || 'Refund failed', 'error'),
+                                });
+                              }}
+                              className="w-full flex items-center justify-center gap-1.5 pt-2 mt-1 border-t border-neutral-100 text-[10px] font-bold uppercase tracking-wider text-red-600 hover:text-red-700 disabled:opacity-50 transition-colors"
+                            >
+                              {refundOrder.isPending ? <Loader2 size={12} className="animate-spin" /> : <Undo2 size={12} />}
+                              Refund Payment
+                            </button>
                           )}
                         </div>
                       </div>

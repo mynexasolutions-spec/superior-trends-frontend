@@ -271,8 +271,8 @@ export const cancelOrderCustomer = async (id: string) => {
 
 
 
-export const createThawaniSession = async (orderId: string) => {
-  const { data } = await api.post('/payment/thawani/create-session', { orderId });
+export const createThawaniSession = async (orderId: string, saveCard?: boolean) => {
+  const { data } = await api.post('/payment/thawani/create-session', { orderId, saveCard });
   return data.data as {
     thawaniSessionId: string;
     redirectUrl: string;
@@ -282,6 +282,38 @@ export const createThawaniSession = async (orderId: string) => {
 export const verifyThawaniPayment = async (orderId: string) => {
   const { data } = await api.post('/payment/thawani/verify', { orderId });
   return data.data as { order: OrderRow | null };
+};
+
+export interface ThawaniSavedCard {
+  id: string;
+  masked_card?: string;
+  card_type?: string;
+  [key: string]: unknown;
+}
+
+export const getSavedCards = async () => {
+  const { data } = await api.get('/payment/thawani/saved-cards');
+  return data.data.cards as ThawaniSavedCard[];
+};
+
+export const deleteSavedCard = async (cardId: string) => {
+  const { data } = await api.delete(`/payment/thawani/saved-cards/${cardId}`);
+  return data;
+};
+
+export const payWithSavedCard = async (orderId: string, cardId: string) => {
+  const { data } = await api.post('/payment/thawani/pay-with-card', { orderId, cardId });
+  return data.data as { paymentIntentId: string; succeeded: boolean; otpUrl: string | null };
+};
+
+export const verifyThawaniPaymentIntent = async (orderId: string) => {
+  const { data } = await api.post('/payment/thawani/verify-card-payment', { orderId });
+  return data.data as { order: OrderRow | null };
+};
+
+export const refundOrderAdmin = async (orderId: string) => {
+  const { data } = await api.post(`/payment/thawani/refund/${orderId}`);
+  return data.data as { payment: unknown; refund: { refund_id: string; status: string; amount: number } };
 };
 
 // ── CONTACT API ───────────────────────────────────────────────────────────────

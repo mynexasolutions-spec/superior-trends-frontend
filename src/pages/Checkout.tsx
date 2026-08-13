@@ -21,7 +21,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getProductImageUrl } from '../lib/optimizeImage';
 import { formatINR } from '../lib/formatCurrency';
-import { createCheckoutOrder, createThawaniSession } from '../lib/api';
+import { createCheckoutOrder, createThawaniSession, getSavedCards, payWithSavedCard, type ThawaniSavedCard } from '../lib/api';
 import { useToast } from '../hooks/useToast';
 import { useSettings } from '../hooks/useSettings';
 import { useApplyCouponMutation, useActiveCoupons } from '../hooks/useCoupons';
@@ -233,6 +233,17 @@ export const Checkout: React.FC = () => {
   const [payLoading, setPayLoading] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<OrderRow | null>(null);
 
+  const [savedCards, setSavedCards] = useState<ThawaniSavedCard[]>([]);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [saveCardForNextTime, setSaveCardForNextTime] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    getSavedCards()
+      .then((cards) => setSavedCards(cards))
+      .catch(() => setSavedCards([]));
+  }, [isAuthenticated]);
+
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -347,7 +358,22 @@ export const Checkout: React.FC = () => {
     setPayLoading(true);
     try {
       const order = await createCheckoutOrder({ ...buildOrderPayload(), paymentMethod: 'THAWANI' });
-      const { redirectUrl } = await createThawaniSession(order.id);
+
+      if (selectedCardId) {
+        const { succeeded, otpUrl } = await payWithSavedCard(order.id, selectedCardId);
+        if (otpUrl) {
+          window.location.href = otpUrl;
+        } else if (succeeded) {
+          clearCart();
+          navigate(`/payment/thawani-callback?status=success&order_id=${order.id}`);
+        } else {
+          showToast(language === 'ar' ? 'فشلت عملية الدفع بالبطاقة المحفوظة.' : 'Payment with saved card failed.', 'error');
+          setPayLoading(false);
+        }
+        return;
+      }
+
+      const { redirectUrl } = await createThawaniSession(order.id, saveCardForNextTime);
       if (redirectUrl) {
         window.location.href = redirectUrl;
       } else {
@@ -964,12 +990,63 @@ export const Checkout: React.FC = () => {
 
                           {/* Info callout */}
                           {paymentMethod === 'THAWANI' ? (
-                            <div className="flex gap-3 bg-[#faf8f5] border border-brand-border/30 rounded-xl p-4 text-left rtl:text-right">
-                              <Smartphone size={18} className="text-[#8b1a2a] shrink-0 mt-0.5" />
-                              <p className="text-xs text-brand-text-muted leading-relaxed">
-                                {language === 'ar' ? `سيتم توجيهك بأمان إلى بوابة ثواني لإتمام عملية دفع بقيمة ` : `You'll be securely redirected to Thawani Pay to complete payment of `}
-                                <strong className="text-brand-charcoal">{formatINR(grandTotal)}</strong>.
-                              </p>
+                            <div className="space-y-3">
+                              {savedCards.length > 0 && (
+                                <div className="space-y-2">
+                                  <p className="text-[10px] uppercase tracking-widest font-extrabold text-brand-text-muted">
+                                    {language === 'ar' ? 'البطاقات المحفوظة' : 'Saved Cards'}
+                                  </p>
+                                  {savedCards.map((card) => (
+                                    <button
+                                      key={card.id}
+                                      type="button"
+                                      onClick={() => setSelectedCardId(selectedCardId === card.id ? null : card.id)}
+                                      className={`w-full flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left rtl:text-right transition-all ${
+                                        selectedCardId === card.id
+                                          ? 'border-[#8b1a2a] bg-[#8b1a2a]/4'
+                                          : 'border-brand-border/40 bg-white hover:border-[#8b1a2a]/40'
+                                      }`}
+                                    >
+                                      <CreditCard size={16} className={selectedCardId === card.id ? 'text-[#8b1a2a]' : 'text-neutral-400'} />
+                                      <span className="text-sm font-semibold text-brand-charcoal">
+                                        {card.masked_card || card.id} {card.card_type ? `· ${card.card_type}` : ''}
+                                      </span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="flex gap-3 bg-[#faf8f5] border border-brand-border/30 rounded-xl p-4 text-left rtl:text-right">
+                                <Smartphone size={18} className="text-[#8b1a2a] shrink-0 mt-0.5" />
+                                <p className="text-xs text-brand-text-muted leading-relaxed">
+                                  {selectedCardId ? (
+                                    <>
+                                      {language === 'ar' ? `سيتم خصم ` : `You'll be charged `}
+                                      <strong className="text-brand-charcoal">{formatINR(grandTotal)}</strong>
+                                      {language === 'ar' ? ' من البطاقة المحفوظة المختارة.' : ' from the selected saved card.'}
+                                    </>
+                                  ) : (
+                                    <>
+                                      {language === 'ar' ? `سيتم توجيهك بأمان إلى بوابة ثواني لإتمام عملية دفع بقيمة ` : `You'll be securely redirected to Thawani Pay to complete payment of `}
+                                      <strong className="text-brand-charcoal">{formatINR(grandTotal)}</strong>.
+                                    </>
+                                  )}
+                                </p>
+                              </div>
+
+                              {!selectedCardId && (
+                                <label className="flex items-center gap-2.5 px-1 cursor-pointer select-none">
+                                  <input
+                                    type="checkbox"
+                                    checked={saveCardForNextTime}
+                                    onChange={(e) => setSaveCardForNextTime(e.target.checked)}
+                                    className="w-4 h-4 rounded border-brand-border/50 accent-[#8b1a2a]"
+                                  />
+                                  <span className="text-xs text-brand-text-muted font-medium">
+                                    {language === 'ar' ? 'حفظ هذه البطاقة للمدفوعات القادمة' : 'Save this card for future payments'}
+                                  </span>
+                                </label>
+                              )}
                             </div>
                           ) : (
                             <div className="flex gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4 text-left rtl:text-right">

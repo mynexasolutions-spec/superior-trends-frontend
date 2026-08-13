@@ -5,6 +5,7 @@ import {
   getAllOrdersAdmin,
   updateOrderStatusAdmin,
   cancelOrderCustomer,
+  refundOrderAdmin,
 } from '../lib/api';
 import { useAdminAuth } from './useAdminAuth';
 
@@ -60,6 +61,17 @@ export function useCancelOrder() {
       qc.invalidateQueries({ queryKey: MY_ORDERS_KEY });
       qc.invalidateQueries({ queryKey: ['orders', updatedOrder.id] });
       qc.invalidateQueries({ queryKey: ADMIN_ORDERS_KEY });
+    },
+  });
+}
+
+export function useRefundOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: string) => refundOrderAdmin(orderId),
+    onSuccess: (_data, orderId) => {
+      qc.invalidateQueries({ queryKey: ADMIN_ORDERS_KEY });
+      qc.invalidateQueries({ queryKey: ['orders', orderId] });
     },
   });
 }

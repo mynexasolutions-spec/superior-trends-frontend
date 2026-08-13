@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle2, XCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
-import { verifyThawaniPayment } from '../lib/api';
+import { verifyThawaniPayment, verifyThawaniPaymentIntent } from '../lib/api';
 import { useToast } from '../hooks/useToast';
 import { useLanguage } from '../context/LanguageContext';
 import { motion } from 'framer-motion';
@@ -39,7 +39,13 @@ export const PaymentCallback: React.FC = () => {
       }
 
       try {
-        const result = await verifyThawaniPayment(orderId);
+        let result;
+        try {
+          result = await verifyThawaniPayment(orderId);
+        } catch {
+          // Not a checkout-session payment (e.g. saved-card payment intent flow) — try that verification instead.
+          result = await verifyThawaniPaymentIntent(orderId);
+        }
         if (result && result.order) {
           await clearCart();
           setVerifiedOrder(result.order);
