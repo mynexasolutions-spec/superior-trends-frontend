@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { CheckCircle2, XCircle, Loader2, ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { CheckCircle2, XCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { verifyThawaniPayment } from '../lib/api';
 import { useToast } from '../hooks/useToast';
@@ -10,7 +10,6 @@ import { formatINR } from '../lib/formatCurrency';
 
 export const PaymentCallback: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { language } = useLanguage();
   const { clearCart } = useShop();
   const { showToast } = useToast();
